@@ -2,28 +2,27 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>绿美怀集 - 优化版</title>
+    <title>绿美怀集</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <style>
         body, html, #app { margin: 0; padding: 0; height: 100%; width: 100%; font-family: sans-serif; overflow: hidden; }
         .main-system { display: flex; width: 100%; height: 100%; }
         
-        /* 侧边栏样式 */
-        #sidebar { width: 350px; background: #f7fafc; transition: width 0.3s; overflow: hidden; display: flex; flex-direction: column; }
+        /* 侧边栏布局 */
+        #sidebar { width: 350px; background: #f7fafc; transition: width 0.3s; overflow: hidden; display: flex; flex-direction: column; border-right: 1px solid #ddd; }
         #sidebar.collapsed { width: 50px; }
-        .header { background: #1a202c; color: white; padding: 20px; white-space: nowrap; }
+        .header { background: #1a202c; color: white; padding: 15px; }
+        .list-container { flex: 1; overflow-y: auto; padding: 15px; }
         
-        /* 地图容器 */
+        /* 地图与图层按钮 */
         #map-container { flex: 1; position: relative; }
         #map { width: 100%; height: 100%; }
-        
-        /* 图层控制器样式 */
         .layer-trigger-btn { position: absolute; bottom: 30px; right: 30px; z-index: 1000; width: 50px; height: 50px; background: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .layer-switcher-panel { position: absolute; bottom: 90px; right: 30px; z-index: 1000; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .layer-card { padding: 8px 15px; cursor: pointer; border-bottom: 1px solid #eee; white-space: nowrap; }
-        .layer-card:hover { background: #f0fff4; }
+        .layer-card { padding: 8px 15px; cursor: pointer; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -35,10 +34,15 @@
                 <button @click="isSidebarCollapsed = !isSidebarCollapsed">
                     {{ isSidebarCollapsed ? '▶' : '◀ 收起' }}
                 </button>
-                <h3 v-if="!isSidebarCollapsed" style="margin-top:10px;">主要功能</h3>
+                <h3 v-if="!isSidebarCollapsed">主要功能</h3>
             </div>
             <div class="list-container" v-if="!isSidebarCollapsed">
+                <button @click="currentFilter = '全部'">全部</button>
+                <button @click="currentFilter = '景区'">景区</button>
+                <div v-for="spot in filteredSpots" :key="spot.name" @click="locateToSpot(spot)">
+                    {{ spot.name }}
                 </div>
+            </div>
         </div>
 
         <div id="map-container">
@@ -61,15 +65,23 @@
                 isSidebarCollapsed: false,
                 showLayerPanel: false,
                 map: null,
-                transitLayer: null // 占位符
+                currentFilter: '全部',
+                spots: [
+                    { name: '燕岩核心保护区', type: '景区', lat: 23.896, lng: 112.031, desc: '典型中生代喀斯特溶洞...' },
+                    { name: '省级现代蔬菜产业园', type: '农业园', lat: 23.935, lng: 112.185, desc: '现代大宗产品...' }
+                ],
+                transitLayer: null
+            }
+        },
+        computed: {
+            filteredSpots() {
+                return this.currentFilter === '全部' ? this.spots : this.spots.filter(s => s.type === this.currentFilter);
             }
         },
         methods: {
             initMap() {
                 this.map = L.map('map').setView([23.934, 112.185], 11);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-                
-                // 正确初始化图层
                 this.transitLayer = L.tileLayer('http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}');
             },
             addTransitLayer() {
@@ -79,8 +91,8 @@
                     this.transitLayer.addTo(this.map);
                 }
             },
-            changeBaseLayer(type) {
-                // 原有的切换逻辑...
+            locateToSpot(spot) {
+                this.map.flyTo([spot.lat, spot.lng], 14);
             }
         },
         mounted() { this.initMap(); }
