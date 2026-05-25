@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>空间地理信息服务平台</title>
+    <title>绿美怀集</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     
     <style>
         body, html, #app {
@@ -28,7 +29,12 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
-        .cover-title { font-size: 46px; margin: 0 0 15px 0; letter-spacing: 5px; font-weight: 700; }
+        .cover-title { font-size: 46px; 
+            margin: 0 0 15px 0; 
+            letter-spacing: 5px; 
+            font-weight: bold;
+            /* 在这里加上下面这一行 */
+            font-family: 'Ma Shan Zheng', cursive; }
         .cover-subtitle { font-size: 18px; margin: 0 0 45px 0; color: #cbd5e0; letter-spacing: 2px; }
         .enter-btn {
             background: #2f855a; color: white; border: none; padding: 16px 45px;
@@ -107,17 +113,17 @@
 <div id="app">
     <div class="cover-page" v-if="showCover">
         <div class="cover-content">
-            <h1 class="cover-title">空间地理信息服务平台</h1>
-            <div class="cover-subtitle">现代农业资源与区域生态旅游空间整合</div>
-            <button class="enter-btn" @click="enterSystem">进入地图分析系统</button>
+            <h1 class="cover-title">绿美怀集</h1>
+            <div class="cover-subtitle">珠三角的后花园</div>
+            <button class="enter-btn" @click="enterSystem">进入网页</button>
         </div>
     </div>
 
     <div class="main-system" v-else>
         <div id="sidebar">
             <div class="header">
-                <h3 style="margin: 0 0 6px 0; font-size: 18px; font-weight: 600; letter-spacing: 1px;">区域空间大数据平台</h3>
-                <p style="font-size: 12px; margin: 0; color: #a0aec0;">多源空间数据聚合与交互可视化</p>
+                <h3 style="margin: 0 0 6px 0; font-size: 18px; font-weight: 600; letter-spacing: 1px;">主要功能</h3>
+                <p style="font-size: 12px; margin: 0; color: #a0aec0;">景区显示</p>
             </div>
             
             <div class="filter-bar">
