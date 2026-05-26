@@ -3,108 +3,1468 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>绿美怀集</title>
+    <title>绿美怀集 - 广东省肇庆市怀集县旅游导览</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
     <style>
-        body, html, #app { margin: 0; padding: 0; height: 100%; width: 100%; font-family: -apple-system, sans-serif; overflow: hidden; }
-        
-        /* 欢迎页保留不变 */
-        .cover-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a365d 0%, #1c5235 100%); z-index: 9999; display: flex; justify-content: center; align-items: center; color: white; }
-        .cover-content { background: rgba(255,255,255,0.1); padding: 50px; border-radius: 20px; backdrop-filter: blur(10px); text-align: center; }
-        .enter-btn { background: #2f855a; color: white; border: none; padding: 15px 40px; border-radius: 30px; cursor: pointer; font-size: 18px; }
-
-        /* 主系统样式 */
-        .main-system { display: flex; width: 100%; height: 100%; }
-        #map-container { flex: 1; position: relative; }
-        #map { width: 100%; height: 100%; }
-
-        /* 图层按钮：带“图层”字样 */
-        .layer-btn { 
-            position: absolute; top: 15px; right: 20px; z-index: 1000; 
-            background: white; padding: 8px 15px; border-radius: 6px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; display: flex; align-items: center; gap: 5px;
+        /* ============================================================
+           CSS 变量 & 全局重置
+           ============================================================ */
+        :root {
+            --green-dark: #1a4d2e;
+            --green-mid: #2f855a;
+            --green-light: #48bb78;
+            --green-pale: #c6f6d5;
+            --green-bg: #f0fff4;
+            --shadow-lg: 0 20px 60px rgba(0,0,0,0.25);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+            --radius-lg: 20px;
+            --radius-md: 10px;
+            --transition-smooth: 0.7s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* 浮动面板：仿照图二风格 */
-        .layer-switcher-panel {
-            position: absolute; top: 60px; right: 20px; z-index: 1000;
-            background: white; padding: 15px; border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 220px;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            width: 100%; height: 100%;
+            font-family: 'Noto Sans SC', -apple-system, sans-serif;
+            overflow: hidden;
+            background: #000;
         }
-        .layer-option { display: flex; align-items: center; gap: 10px; padding: 10px; cursor: pointer; border-radius: 5px; }
-        .layer-option:hover { background: #f7fafc; }
-        .layer-thumb { width: 50px; height: 50px; border-radius: 4px; border: 1px solid #ddd; }
-        .active-text { color: #2f855a; font-weight: bold; }
+
+        /* ============================================================
+           应用外壳 - 固定视口，JS 控制翻页
+           ============================================================ */
+        #app {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .page-wrapper {
+            width: 100%; height: 100%;
+            transition: transform var(--transition-smooth);
+            will-change: transform;
+        }
+
+        .page-wrapper.resisting {
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        /* ============================================================
+           封面区域 (Cover Section) — 100vh
+           ============================================================ */
+        .cover-section {
+            position: relative;
+            width: 100%; height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(160deg, #1a4d2e 0%, #2f855a 40%, #48bb78 100%);
+            transition: opacity 0.5s ease;
+        }
+
+        /* ---- 模糊背景层 ---- */
+        .cover-bg-blur {
+            position: absolute;
+            inset: -30px;
+            /*
+             * ========================================
+             * ★ 在此处设置您的封面图片 ★
+             * 将下方 gradient 替换为: url('您的图片路径.jpg')
+             * 例如: background-image: url('images/huaiji-cover.jpg');
+             * ========================================
+             */
+            background-image: linear-gradient(160deg, #2f855a 0%, #1c5235 40%, #48bb78 100%);
+            background-size: cover;
+            background-position: center;
+            filter: blur(15px);
+            transform: scale(1.12);
+            z-index: 0;
+        }
+
+        /* ---- 绿色氛围叠加 ---- */
+        .cover-tint {
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg,
+                rgba(26,77,46,0.15) 0%,
+                rgba(47,133,90,0.08) 40%,
+                rgba(26,77,46,0.35) 85%,
+                rgba(26,77,46,0.55) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ---- 清晰图片区域（上半部分 2/3） ---- */
+        .cover-image-frame {
+            position: absolute;
+            top: 7%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(88%, 900px);
+            height: 54vh;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            z-index: 2;
+            border: 3px solid rgba(255,255,255,0.3);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .cover-image-clear {
+            width: 100%; height: 100%;
+            /*
+             * ========================================
+             * ★ 在此处设置您的封面图片（与上方同一张） ★
+             * ========================================
+             */
+            background-image: linear-gradient(160deg, #38a169 0%, #2f855a 30%, #48bb78 70%, #68d391 100%);
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* ---- 标题 ---- */
+        .cover-title-group {
+            position: absolute;
+            top: 4%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            text-align: center;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        .cover-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            color: #fff;
+            text-shadow: 0 3px 15px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.2);
+            letter-spacing: 0.15em;
+            line-height: 1.2;
+        }
+
+        .cover-subtitle {
+            font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+            color: rgba(255,255,255,0.9);
+            margin-top: 6px;
+            letter-spacing: 0.2em;
+            font-weight: 300;
+        }
+
+        /* ---- 滚动提示箭头 ---- */
+        .scroll-hint {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            animation: bounce-down 2s ease-in-out infinite;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        .scroll-hint span {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+        }
+        .scroll-hint .arrow {
+            width: 28px; height: 28px;
+            border-right: 2px solid rgba(255,255,255,0.85);
+            border-bottom: 2px solid rgba(255,255,255,0.85);
+            transform: rotate(45deg);
+        }
+        @keyframes bounce-down {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(12px); }
+        }
+
+        /* ---- 底部玻璃面板 ---- */
+        .cover-bottom-panel {
+            position: absolute;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: var(--radius-lg);
+            padding: clamp(20px, 4vh, 35px) clamp(30px, 8vw, 60px);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .cover-location {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+            letter-spacing: 0.12em;
+            font-weight: 300;
+        }
+
+        .enter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--green-mid);
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 14px 44px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            font-family: inherit;
+        }
+        .enter-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+        }
+        .enter-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* ============================================================
+           主浏览区域 (Main Section) — 100vh
+           ============================================================ */
+        .main-section {
+            position: relative;
+            width: 100%; height: 100vh;
+            overflow: hidden;
+            background: #e8e8e8;
+        }
+
+        #map-container {
+            width: 100%; height: 100%;
+            position: relative;
+        }
+
+        #map {
+            width: 100%; height: 100%;
+            cursor: grab;
+        }
+        #map.measuring {
+            cursor: crosshair;
+        }
+
+        /* ============================================================
+           顶部工具栏
+           ============================================================ */
+        .map-toolbar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        /* ---- 搜索框 ---- */
+        .search-wrapper {
+            position: relative;
+        }
+        .search-input {
+            width: 260px;
+            padding: 10px 16px 10px 38px;
+            border: none;
+            border-radius: 25px;
+            background: #fff;
+            box-shadow: var(--shadow-md);
+            font-size: 0.9rem;
+            outline: none;
+            transition: box-shadow 0.2s;
+            font-family: inherit;
+        }
+        .search-input:focus {
+            box-shadow: 0 4px 20px rgba(47,133,90,0.3);
+        }
+        .search-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+        .search-results {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0; right: 0;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 1001;
+        }
+        .search-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover { background: var(--green-bg); }
+        .search-item .cat-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--green-pale);
+            color: var(--green-dark);
+            white-space: nowrap;
+        }
+
+        /* ---- 工具栏按钮 ---- */
+        .tool-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 25px;
+            background: #fff;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tool-btn:hover { background: #f7fafc; }
+        .tool-btn.active {
+            background: var(--green-mid);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(47,133,90,0.35);
+        }
+        .tool-btn .btn-icon { font-size: 1.1rem; }
+
+        /* ============================================================
+           图层按钮 & 面板 (右上角)
+           ============================================================ */
+        .layer-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            background: #fff;
+            border: none;
+            border-radius: 25px;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .layer-btn:hover { background: #f7fafc; }
+        .layer-btn .layer-icon-svg {
+            width: 20px; height: 20px;
+        }
+
+        .layer-panel {
+            position: absolute;
+            top: 58px; right: 20px;
+            z-index: 1000;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 6px 0;
+            width: 230px;
+            overflow: hidden;
+        }
+        .layer-panel-header {
+            padding: 12px 18px 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+        .layer-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 0.88rem;
+        }
+        .layer-option:hover { background: var(--green-bg); }
+        .layer-option .radio-outer {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: border-color 0.2s;
+        }
+        .layer-option.active .radio-outer {
+            border-color: var(--green-mid);
+        }
+        .layer-option .radio-inner {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--green-mid);
+            transform: scale(0);
+            transition: transform 0.2s;
+        }
+        .layer-option.active .radio-inner {
+            transform: scale(1);
+        }
+        .layer-option .layer-thumb {
+            width: 48px; height: 48px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #eee;
+        }
+
+        /* ============================================================
+           测量信息面板
+           ============================================================ */
+        .measure-info {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0,0,0,0.78);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+            letter-spacing: 0.04em;
+        }
+
+        /* ============================================================
+           右键菜单
+           ============================================================ */
+        .context-menu {
+            position: fixed;
+            z-index: 9999;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 6px 0;
+            min-width: 180px;
+            overflow: hidden;
+        }
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: background 0.12s;
+            font-family: inherit;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .context-menu-item:hover {
+            background: var(--green-bg);
+        }
+        .context-menu-item .menu-icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+        .context-divider {
+            height: 1px;
+            background: #eee;
+            margin: 4px 0;
+        }
+
+        /* ============================================================
+           图例
+           ============================================================ */
+        .legend {
+            position: absolute;
+            bottom: 25px;
+            right: 20px;
+            z-index: 1000;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            padding: 12px 16px;
+            font-size: 0.78rem;
+        }
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.82rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        .legend-item:last-child { margin-bottom: 0; }
+        .legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+            Leaflet 弹出窗口美化
+           ============================================================ */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+        }
+        .leaflet-popup-content {
+            margin: 12px 16px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+        .poi-popup h4 {
+            margin: 0 0 6px;
+            color: var(--green-dark);
+            font-size: 0.95rem;
+        }
+        .poi-popup .poi-cat {
+            font-size: 0.72rem;
+            color: #666;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .poi-popup .poi-desc {
+            color: #555;
+            font-size: 0.82rem;
+        }
+
+        /* ============================================================
+           返回封面按钮
+           ============================================================ */
+        .back-home-btn {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            box-shadow: var(--shadow-md);
+            font-family: inherit;
+            transition: all 0.2s;
+            backdrop-filter: blur(6px);
+            color: var(--green-dark);
+        }
+        .back-home-btn:hover {
+            background: #fff;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+        }
+
+        /* ============================================================
+           过渡动画辅助类
+           ============================================================ */
+        .fade-out {
+            opacity: 0 !important;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           响应式调整
+           ============================================================ */
+        @media (max-width: 768px) {
+            .cover-image-frame {
+                width: 92%;
+                height: 48vh;
+                top: 10%;
+            }
+            .search-input { width: 180px; }
+            .tool-btn { padding: 8px 12px; font-size: 0.78rem; }
+            .layer-panel { width: 200px; right: 8px; }
+            .layer-btn { right: 8px; padding: 8px 14px; }
+            .map-toolbar { top: 8px; left: 8px; gap: 4px; }
+            .legend { bottom: 10px; right: 8px; font-size: 0.7rem; padding: 8px 12px; }
+            .cover-bottom-panel { padding: 18px 30px; bottom: 12%; }
+        }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div class="cover-page" v-if="showCover">
-        <div class="cover-content">
-            <h1>绿美怀集</h1>
-            <button class="enter-btn" @click="showCover = false; $nextTick(initMap)">进入网页</button>
-        </div>
-    </div>
+    <!-- ============================================================
+         翻页容器 — 两页全屏切换
+         ============================================================ -->
+    <div class="page-wrapper"
+         :style="{ transform: 'translateY(' + pageOffset + 'px)' }"
+         :class="{ resisting: isResisting }"
+         @wheel.passive="handleWheel"
+         @touchstart.passive="handleTouchStart"
+         @touchend.passive="handleTouchEnd">
 
-    <div class="main-system" v-else>
-        <div id="map-container">
-            <div id="map"></div>
-            
-            <div class="layer-btn" @click="showLayerPanel = !showLayerPanel">
-                <span>📋</span> 图层
+        <!-- ============================================================
+             第 1 页：封面 (Cover)
+             ============================================================ -->
+        <section class="cover-section" :class="{ 'fade-out': pageOffset < 0 }">
+            <!-- 模糊背景 -->
+            <div class="cover-bg-blur"></div>
+            <!-- 绿色氛围叠加 -->
+            <div class="cover-tint"></div>
+            <!-- 清晰图片区域 -->
+            <div class="cover-image-frame" :class="{ 'fade-out': pageOffset < 0 }">
+                <div class="cover-image-clear"></div>
+            </div>
+            <!-- 标题组 -->
+            <div class="cover-title-group" :class="{ 'fade-out': pageOffset < 0 }">
+                <h1 class="cover-title">绿美怀集</h1>
+                <p class="cover-subtitle">广东省 · 肇庆市 · 怀集县</p>
+            </div>
+            <!-- 滚动提示 -->
+            <div class="scroll-hint" :class="{ 'fade-out': pageOffset < 0 }">
+                <span>向下滚动探索</span>
+                <div class="arrow"></div>
+            </div>
+            <!-- 底部面板 + 按钮 -->
+            <div class="cover-bottom-panel" :class="{ 'fade-out': pageOffset < 0 }">
+                <p class="cover-location">📍 珠三角菜篮子 · 农业大县 · 生态旅游目的地</p>
+                <button class="enter-btn" @click="goToMain">
+                    <span>进 入 网 页</span>
+                    <span style="font-size:0.85rem;">↓</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             第 2 页：主浏览区 (Map)
+             ============================================================ -->
+        <section class="main-section">
+            <div id="map-container">
+                <div id="map"></div>
+
+                <!-- 返回封面 -->
+                <button class="back-home-btn" @click="goToCover" title="返回首页">
+                    ↑ 返回封面
+                </button>
+
+                <!-- 顶部工具栏 -->
+                <div class="map-toolbar">
+                    <!-- 搜索 -->
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input
+                            class="search-input"
+                            type="text"
+                            v-model="searchQuery"
+                            placeholder="搜索景区、农家乐、餐厅…"
+                            @focus="searchFocused = true"
+                            @blur="onSearchBlur"
+                            @keydown.enter="onSearchEnter"
+                        />
+                        <div class="search-results" v-if="searchFocused && filteredPOIs.length > 0">
+                            <div class="search-item"
+                                 v-for="poi in filteredPOIs"
+                                 :key="poi.id"
+                                 @mousedown.prevent="flyToPOI(poi)">
+                                <span>{{ poi.icon }}</span>
+                                <span style="flex:1;">{{ poi.name }}</span>
+                                <span class="cat-badge">{{ poi.category }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 距离测量 -->
+                    <button class="tool-btn" :class="{ active: measureMode === 'distance' }"
+                            @click="toggleMeasure('distance')" title="距离测量">
+                        <span class="btn-icon">📏</span> 测距
+                    </button>
+
+                    <!-- 面积测量 -->
+                    <button class="tool-btn" :class="{ active: measureMode === 'area' }"
+                            @click="toggleMeasure('area')" title="面积测量">
+                        <span class="btn-icon">📐</span> 测面积
+                    </button>
+
+                    <!-- 清除测量 -->
+                    <button class="tool-btn" v-if="measureMode || measurePoints.length > 0"
+                            @click="clearMeasurement" title="清除测量">
+                        <span class="btn-icon">✕</span> 清除
+                    </button>
+                </div>
+
+                <!-- 图层按钮 (右上角) -->
+                <button class="layer-btn" @click="showLayerPanel = !showLayerPanel">
+                    <svg class="layer-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="14" rx="2"/>
+                        <rect x="6" y="7" width="12" height="4" rx="1"/>
+                        <rect x="8" y="11" width="8" height="4" rx="1"/>
+                        <line x1="12" y1="15" x2="12" y2="21"/>
+                        <line x1="8" y1="19" x2="16" y2="19"/>
+                    </svg>
+                    图层
+                </button>
+
+                <!-- 图层选择面板 -->
+                <div class="layer-panel" v-if="showLayerPanel" @click.stop>
+                    <div class="layer-panel-header">图层选择</div>
+                    <div class="layer-option"
+                         :class="{ active: activeBaseLayer === 'vector' }"
+                         @click="changeBaseLayer('vector')">
+                        <div class="radio-outer"><div class="radio-inner"></div></div>
+                        <img class="layer-thumb"
+                             src="https://webst01.is.autonavi.com/appmaptile?style=8&x=3347&y=1794&z=12"
+                             alt="电子地图" />
+                        <span>电子地图</span>
+                    </div>
+                    <div class="layer-option"
+                         :class="{ active: activeBaseLayer === 'satellite' }"
+                         @click="changeBaseLayer('satellite')">
+                        <div class="radio-outer"><div class="radio-inner"></div></div>
+                        <img class="layer-thumb"
+                             src="https://webst01.is.autonavi.com/appmaptile?style=6&x=3347&y=1794&z=12"
+                             alt="卫星影像" />
+                        <span>卫星影像</span>
+                    </div>
+                </div>
+
+                <!-- 测量信息提示 -->
+                <div class="measure-info" v-if="measureMode">
+                    <template v-if="measureMode === 'distance'">
+                        📏 点击地图添加测量点 · 双击完成 · 总长: {{ measureTotal }}
+                    </template>
+                    <template v-if="measureMode === 'area'">
+                        📐 点击地图绘制多边形 · 双击闭合 · 面积: {{ measureTotal }}
+                    </template>
+                </div>
+
+                <!-- 图例 -->
+                <div class="legend">
+                    <div class="legend-title">📍 地点图例</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#e53e3e;"></span> 景区景点</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#38a169;"></span> 农家乐</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#dd6b20;"></span> 农庄</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#3182ce;"></span> 餐饮美食</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#805ad5;"></span> 住宿酒店</div>
+                </div>
             </div>
 
-            <div class="layer-switcher-panel" v-if="showLayerPanel">
-                <div class="layer-option" @click="changeBaseLayer('vector')">
-                    <img class="layer-thumb" src="https://webst01.is.autonavi.com/appmaptile?style=8&x=3347&y=1794&z=12" alt="矢量">
-                    <span :class="{'active-text': activeBaseLayer === 'vector'}">电子地图</span>
-                </div>
-                <div class="layer-option" @click="changeBaseLayer('satellite')">
-                    <img class="layer-thumb" src="https://webst01.is.autonavi.com/appmaptile?style=6&x=3347&y=1794&z=12" alt="卫星">
-                    <span :class="{'active-text': activeBaseLayer === 'satellite'}">卫星影像</span>
-                </div>
+            <!-- 右键菜单 (使用 Teleport 到 body 会更好，但这里简单处理) -->
+            <div class="context-menu"
+                 v-if="contextMenu.visible"
+                 :style="{ left: contextMenu.x + 'px', top: contextMenu.y + 'px' }">
+                <button class="context-menu-item" @click="ctxZoomIn">
+                    <span class="menu-icon">🔍</span> 放大
+                </button>
+                <button class="context-menu-item" @click="ctxZoomOut">
+                    <span class="menu-icon">🔎</span> 缩小
+                </button>
+                <button class="context-menu-item" @click="ctxCenterHere">
+                    <span class="menu-icon">🎯</span> 以此为中心
+                </button>
+                <div class="context-divider"></div>
+                <button class="context-menu-item" @click="ctxMeasureFromHere">
+                    <span class="menu-icon">📏</span> 从此处开始测距
+                </button>
+                <button class="context-menu-item" @click="ctxAddMarker">
+                    <span class="menu-icon">📍</span> 在此添加标记
+                </button>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 
 <script>
-    const { createApp } = Vue;
-    createApp({
-        data() {
-            return {
-                showCover: true,
-                showLayerPanel: false,
-                activeBaseLayer: 'vector',
-                map: null,
-                vectorLayer: null,
-                satelliteLayer: null
+const { createApp } = Vue;
+
+// ============================================================
+// 怀集县 POI 数据
+// ============================================================
+const POI_DATA = [
+    // ---- 景区景点 ----
+    { id: 1,  name: '燕岩风景区',        lat: 23.908, lng: 112.228, category: '景区景点', icon: '🏔️', desc: '中国最佳溶洞奇观，万燕归巢壮景，被誉为"岭南第一洞"', rating: '4A' },
+    { id: 2,  name: '世外桃源景区',       lat: 23.916, lng: 112.213, category: '景区景点', icon: '🌸', desc: '陶渊明笔下桃花源原型地，溪流潺潺，桃林环绕', rating: '4A' },
+    { id: 3,  name: '燕峰峡漂流',         lat: 23.952, lng: 112.160, category: '景区景点', icon: '🌊', desc: '广东最长漂流河道，全长5.8公里，刺激与美景并存' },
+    { id: 4,  name: '塔山公园',           lat: 23.922, lng: 112.182, category: '景区景点', icon: '🏯', desc: '城区中心公园，登塔可览怀集全城风光' },
+    { id: 5,  name: '文昌书院',           lat: 23.928, lng: 112.190, category: '景区景点', icon: '📚', desc: '始建于明代的古书院，怀集历史文脉所在' },
+    { id: 6,  name: '六祖岩',            lat: 23.900, lng: 112.240, category: '景区景点', icon: '🪨', desc: '禅宗六祖慧能曾隐居之地，佛教文化圣地' },
+    { id: 7,  name: '怀集温泉度假村',      lat: 23.945, lng: 112.205, category: '景区景点', icon: '♨️', desc: '天然硫磺温泉，养生休闲好去处' },
+    { id: 8,  name: '凤岗河湿地公园',      lat: 23.960, lng: 112.195, category: '景区景点', icon: '🌿', desc: '生态湿地公园，鸟类栖息天堂，徒步骑行佳地' },
+    { id: 9,  name: '下帅壮族瑶族乡',      lat: 23.885, lng: 112.155, category: '景区景点', icon: '🎭', desc: '广东唯一的壮族瑶族乡，浓郁民族风情体验' },
+
+    // ---- 农家乐 ----
+    { id: 10, name: '燕岩农家乐',         lat: 23.910, lng: 112.224, category: '农家乐', icon: '🏡', desc: '燕岩景区旁，地道怀集农家菜，招牌黄焖鸡' },
+    { id: 11, name: '桃花源农家院',       lat: 23.918, lng: 112.210, category: '农家乐', icon: '🏡', desc: '世外桃源入口处，柴火灶烧菜，新鲜食材自家种养' },
+    { id: 12, name: '绿水青山农家乐',      lat: 23.936, lng: 112.172, category: '农家乐', icon: '🏡', desc: '依山傍水，可垂钓采摘，适合家庭聚会' },
+    { id: 13, name: '田园小筑',           lat: 23.942, lng: 112.200, category: '农家乐', icon: '🏡', desc: '近县城，环境清幽，特色竹筒饭、窑鸡' },
+    { id: 14, name: '山泉人家',           lat: 23.955, lng: 112.188, category: '农家乐', icon: '🏡', desc: '山泉水养殖鱼类，现捞现做，鲜美无比' },
+
+    // ---- 农庄 ----
+    { id: 15, name: '怀集生态农庄',       lat: 23.940, lng: 112.220, category: '农庄', icon: '🌾', desc: '大型生态种植基地，草莓/葡萄采摘，亲子体验' },
+    { id: 16, name: '岭南佳果园',         lat: 23.915, lng: 112.195, category: '农庄', icon: '🍇', desc: '四季水果采摘园，砂糖橘、百香果、火龙果' },
+    { id: 17, name: '绿丰源农业庄园',      lat: 23.930, lng: 112.235, category: '农庄', icon: '🌾', desc: '珠三角蔬菜供应基地，可体验农耕文化' },
+    { id: 18, name: '山水田园农庄',        lat: 23.948, lng: 112.165, category: '农庄', icon: '🌾', desc: '集餐饮住宿采摘一体，怀集特色全牛宴' },
+
+    // ---- 餐饮美食 ----
+    { id: 19, name: '怀集味道（总店）',    lat: 23.926, lng: 112.188, category: '餐饮美食', icon: '🍽️', desc: '怀集本地菜标杆，招牌菜：怀集切粉、酿豆腐、白切怀集鸡' },
+    { id: 20, name: '桥头酒楼',           lat: 23.924, lng: 112.185, category: '餐饮美食', icon: '🍽️', desc: '三十年老店，怀集地道早茶、粤菜经典' },
+    { id: 21, name: '燕城美食坊',         lat: 23.929, lng: 112.183, category: '餐饮美食', icon: '🍽️', desc: '汇聚怀集各乡镇特色小吃，价格亲民' },
+    { id: 22, name: '江畔渔港',           lat: 23.932, lng: 112.180, category: '餐饮美食', icon: '🍽️', desc: '绥江边上，河鲜现点现做，环境雅致' },
+    { id: 23, name: '竹乡人家',           lat: 23.920, lng: 112.192, category: '餐饮美食', icon: '🍽️', desc: '怀集特产竹笋宴，全竹宴闻名远近' },
+
+    // ---- 住宿酒店 ----
+    { id: 24, name: '怀集华苑大酒店',      lat: 23.925, lng: 112.187, category: '住宿酒店', icon: '🏨', desc: '县城中心四星级酒店，交通便利，设施齐全' },
+    { id: 25, name: '燕峰峡温泉酒店',      lat: 23.950, lng: 112.162, category: '住宿酒店', icon: '🏨', desc: '温泉入户，依山而建，度假首选' },
+    { id: 26, name: '桃花源民宿',         lat: 23.917, lng: 112.212, category: '住宿酒店', icon: '🏨', desc: '景区特色民宿，推窗见景，远离喧嚣' },
+];
+
+// ============================================================
+// 分类颜色映射
+// ============================================================
+const CAT_COLORS = {
+    '景区景点': '#e53e3e',
+    '农家乐':   '#38a169',
+    '农庄':     '#dd6b20',
+    '餐饮美食': '#3182ce',
+    '住宿酒店': '#805ad5',
+};
+
+// ============================================================
+// 自定义 Marker 图标工厂
+// ============================================================
+function createPoiIcon(color) {
+    return L.divIcon({
+        className: 'poi-custom-icon',
+        html: `<div style="
+            width:14px;height:14px;
+            background:${color};
+            border:3px solid #fff;
+            border-radius:50%;
+            box-shadow:0 2px 8px rgba(0,0,0,0.3);
+        "></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+        popupAnchor: [0, -8],
+    });
+}
+
+// ============================================================
+// Vue 应用
+// ============================================================
+createApp({
+    data() {
+        return {
+            // ---- 页面状态 ----
+            pageOffset: 0,           // 0=封面, -vh=主页面
+            pageHeight: window.innerHeight,
+            isTransitioning: false,
+            isResisting: false,
+            scrollAccumulator: 0,
+            scrollThreshold: 140,    // 累积滚动阈值，超过才翻页
+            lastScrollTime: 0,
+            touchStartY: 0,
+
+            // ---- 地图 ----
+            map: null,
+            vectorLayer: null,
+            satelliteLayer: null,
+            activeBaseLayer: 'vector',
+            showLayerPanel: false,
+            poiMarkers: [],
+
+            // ---- 搜索 ----
+            searchQuery: '',
+            searchFocused: false,
+
+            // ---- 测量 ----
+            measureMode: null,        // null | 'distance' | 'area'
+            measurePoints: [],        // [{lat, lng}, ...]
+            measureTempLayer: null,   // L.layerGroup
+            measureMarkers: [],       // 可拖拽标记
+            measureLines: [],         // 线段
+
+            // ---- 右键菜单 ----
+            contextMenu: {
+                visible: false,
+                x: 0, y: 0,
+                latlng: null,
+            },
+        };
+    },
+
+    computed: {
+        // 当前页索引
+        currentPage() {
+            return this.pageOffset === 0 ? 0 : 1;
+        },
+
+        // 过滤后的 POI
+        filteredPOIs() {
+            if (!this.searchQuery.trim()) return [];
+            const q = this.searchQuery.trim().toLowerCase();
+            return POI_DATA.filter(p =>
+                p.name.toLowerCase().includes(q) ||
+                p.category.toLowerCase().includes(q) ||
+                (p.desc && p.desc.toLowerCase().includes(q))
+            ).slice(0, 8);
+        },
+
+        // 测量总结果
+        measureTotal() {
+            if (this.measurePoints.length < 2) return '—';
+            if (this.measureMode === 'distance') {
+                let total = 0;
+                for (let i = 1; i < this.measurePoints.length; i++) {
+                    const a = L.latLng(this.measurePoints[i-1].lat, this.measurePoints[i-1].lng);
+                    const b = L.latLng(this.measurePoints[i].lat, this.measurePoints[i].lng);
+                    total += a.distanceTo(b);
+                }
+                return this.formatDistance(total);
+            }
+            if (this.measureMode === 'area' && this.measurePoints.length >= 3) {
+                // Shoelace 公式 (使用投影坐标提高精度)
+                const pts = this.measurePoints.map(p => {
+                    const proj = this.map.latLngToContainerPoint(L.latLng(p.lat, p.lng));
+                    return [proj.x, proj.y];
+                });
+                // 像素 -> 米 换算
+                const ref1 = L.latLng(this.measurePoints[0].lat, this.measurePoints[0].lng);
+                const ref2 = L.latLng(this.measurePoints[0].lat + 0.01, this.measurePoints[0].lng);
+                const pxDist = Math.abs(
+                    this.map.latLngToContainerPoint(ref1).y -
+                    this.map.latLngToContainerPoint(ref2).y
+                );
+                const meterPerPx = 111320 * 0.01 / pxDist;
+
+                let areaPx = 0;
+                const n = pts.length;
+                for (let i = 0; i < n; i++) {
+                    const j = (i + 1) % n;
+                    areaPx += pts[i][0] * pts[j][1] - pts[j][0] * pts[i][1];
+                }
+                areaPx = Math.abs(areaPx) / 2;
+                const areaM2 = areaPx * meterPerPx * meterPerPx;
+                return this.formatArea(areaM2);
+            }
+            return '—';
+        },
+    },
+
+    watch: {
+        measureMode(mode) {
+            const mapEl = document.getElementById('map');
+            if (mode) {
+                mapEl.classList.add('measuring');
+            } else {
+                mapEl.classList.remove('measuring');
             }
         },
-        methods: {
-            initMap() {
-                this.map = L.map('map').setView([23.934, 112.185], 11);
-                this.vectorLayer = L.tileLayer('https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}').addTo(this.map);
-                this.satelliteLayer = L.tileLayer('https://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}');
-            },
-            changeBaseLayer(type) {
-                if (type === 'vector') {
-                    this.map.removeLayer(this.satelliteLayer);
-                    this.vectorLayer.addTo(this.map);
-                } else {
-                    this.map.removeLayer(this.vectorLayer);
-                    this.satelliteLayer.addTo(this.map);
-                }
-                this.activeBaseLayer = type;
-                this.showLayerPanel = false; // 点击后自动收起面板
+    },
+
+    methods: {
+        // ============================================================
+        // 页面切换 (阻力翻页)
+        // ============================================================
+        handleWheel(e) {
+            // 如果滚轮事件来自地图，交给 Leaflet 处理缩放
+            if (e.target.closest('#map')) return;
+            if (this.isTransitioning) return;
+
+            const now = Date.now();
+            // 时间间隔过短的重置累积（用户停顿后重新滚动）
+            if (now - this.lastScrollTime > 400) {
+                this.scrollAccumulator = 0;
             }
-        }
-    }).mount('#app');
+            this.lastScrollTime = now;
+
+            this.scrollAccumulator += e.deltaY;
+
+            // 方向反转时重置
+            if (Math.sign(this.scrollAccumulator) !== Math.sign(e.deltaY) && Math.abs(this.scrollAccumulator) > 5) {
+                this.scrollAccumulator = e.deltaY;
+            }
+
+            // 限制累积范围，防止过度累积
+            this.scrollAccumulator = Math.max(-350, Math.min(350, this.scrollAccumulator));
+
+            // 超过阈值 → 翻页
+            if (this.scrollAccumulator > this.scrollThreshold && this.currentPage === 0) {
+                this.goToMain();
+            } else if (this.scrollAccumulator < -this.scrollThreshold && this.currentPage === 1) {
+                this.goToCover();
+            }
+        },
+
+        handleTouchStart(e) {
+            if (e.target.closest('#map')) return;
+            this.touchStartY = e.touches[0].clientY;
+        },
+
+        handleTouchEnd(e) {
+            if (e.target.closest('#map')) return;
+            if (this.isTransitioning) return;
+            const delta = this.touchStartY - e.changedTouches[0].clientY;
+            // 触摸需要更大的滑动距离
+            if (Math.abs(delta) > 80) {
+                if (delta > 0 && this.currentPage === 0) this.goToMain();
+                else if (delta < 0 && this.currentPage === 1) this.goToCover();
+            }
+        },
+
+        goToMain() {
+            if (this.isTransitioning || this.currentPage === 1) return;
+            this.isTransitioning = true;
+            this.pageOffset = -this.pageHeight;
+            this.scrollAccumulator = 0;
+            if (!this.map) this.$nextTick(() => this.initMap());
+            setTimeout(() => { this.isTransitioning = false; }, 750);
+        },
+
+        goToCover() {
+            if (this.isTransitioning || this.currentPage === 0) return;
+            this.isTransitioning = true;
+            this.pageOffset = 0;
+            this.scrollAccumulator = 0;
+            this.clearMeasurement();
+            this.showLayerPanel = false;
+            this.contextMenu.visible = false;
+            setTimeout(() => { this.isTransitioning = false; }, 750);
+        },
+
+        // ============================================================
+        // 地图初始化
+        // ============================================================
+        initMap() {
+            if (this.map) return;
+
+            this.pageHeight = window.innerHeight;
+
+            this.map = L.map('map', {
+                center: [23.934, 112.185],
+                zoom: 12,
+                zoomControl: true,
+                attributionControl: true,
+            });
+
+            // 高德电子地图
+            this.vectorLayer = L.tileLayer(
+                'https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+                    maxZoom: 18,
+                    attribution: '&copy; <a href="https://www.amap.com/">高德地图</a>'
+                }
+            ).addTo(this.map);
+
+            // 高德卫星图
+            this.satelliteLayer = L.tileLayer(
+                'https://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
+                    maxZoom: 18,
+                    attribution: '&copy; <a href="https://www.amap.com/">高德地图</a>'
+                }
+            );
+
+            // 添加 POI 标记
+            this.addPOIMarkers();
+
+            // 初始化测量图层
+            this.measureTempLayer = L.layerGroup().addTo(this.map);
+
+            // 地图点击事件 (测量)
+            this.map.on('click', this.onMapClick);
+            this.map.on('dblclick', this.onMapDblClick);
+
+            // 右键菜单
+            this.map.on('contextmenu', this.onMapContextMenu);
+
+            // 点击地图其他地方关闭右键菜单
+            this.map.on('click', () => {
+                if (this.contextMenu.visible) this.contextMenu.visible = false;
+            });
+
+            // 监听窗口大小变化
+            window.addEventListener('resize', this.onResize);
+
+            // 使地图失效重绘（解决初始化时可能的大小问题）
+            setTimeout(() => { this.map.invalidateSize(); }, 100);
+        },
+
+        onResize() {
+            this.pageHeight = window.innerHeight;
+            if (this.currentPage === 1) {
+                this.pageOffset = -this.pageHeight;
+            }
+            if (this.map) {
+                this.map.invalidateSize();
+            }
+        },
+
+        // ============================================================
+        // 图层切换
+        // ============================================================
+        changeBaseLayer(type) {
+            if (!this.map) return;
+            if (type === 'vector') {
+                this.map.removeLayer(this.satelliteLayer);
+                this.vectorLayer.addTo(this.map);
+            } else {
+                this.map.removeLayer(this.vectorLayer);
+                this.satelliteLayer.addTo(this.map);
+            }
+            this.activeBaseLayer = type;
+            this.showLayerPanel = false;
+        },
+
+        // ============================================================
+        // POI 标记
+        // ============================================================
+        addPOIMarkers() {
+            if (!this.map) return;
+            POI_DATA.forEach(poi => {
+                const color = CAT_COLORS[poi.category] || '#999';
+                const marker = L.marker([poi.lat, poi.lng], {
+                    icon: createPoiIcon(color),
+                }).addTo(this.map);
+
+                marker.bindPopup(`
+                    <div class="poi-popup">
+                        <span class="poi-cat">${poi.icon} ${poi.category}</span>
+                        <h4>${poi.name}</h4>
+                        <p class="poi-desc">${poi.desc || ''}</p>
+                        ${poi.rating ? '<p style="font-size:0.78rem;color:#e53e3e;margin-top:2px;">⭐ ' + poi.rating + ' 级景区</p>' : ''}
+                    </div>
+                `);
+
+                marker.on('mouseover', function() { this.openPopup(); });
+                marker.on('mouseout', function() { this.closePopup(); });
+
+                this.poiMarkers.push(marker);
+            });
+        },
+
+        // ============================================================
+        // 搜索
+        // ============================================================
+        onSearchBlur() {
+            // 延迟关闭，让 mousedown 能触发
+            setTimeout(() => { this.searchFocused = false; }, 200);
+        },
+
+        onSearchEnter() {
+            if (this.filteredPOIs.length > 0) {
+                this.flyToPOI(this.filteredPOIs[0]);
+                this.searchFocused = false;
+            }
+        },
+
+        flyToPOI(poi) {
+            if (!this.map) return;
+            this.map.flyTo([poi.lat, poi.lng], 16, { duration: 1.2 });
+            // 打开对应 marker 的 popup
+            const marker = this.poiMarkers.find((m, i) => POI_DATA[i].id === poi.id);
+            if (marker) {
+                setTimeout(() => marker.openPopup(), 1300);
+            }
+            this.searchQuery = '';
+            this.searchFocused = false;
+        },
+
+        // ============================================================
+        // 测量工具
+        // ============================================================
+        toggleMeasure(mode) {
+            if (this.measureMode === mode) {
+                // 再次点击取消
+                this.clearMeasurement();
+                return;
+            }
+            this.clearMeasurement();
+            this.measureMode = mode;
+            this.measurePoints = [];
+            this.showLayerPanel = false;
+        },
+
+        onMapClick(e) {
+            // 右键菜单关闭
+            if (this.contextMenu.visible) {
+                this.contextMenu.visible = false;
+                return;
+            }
+            if (!this.measureMode) return;
+
+            this.measurePoints.push({ lat: e.latlng.lat, lng: e.latlng.lng });
+            this.redrawMeasureDisplay();
+        },
+
+        onMapDblClick(e) {
+            if (!this.measureMode) return;
+            L.DomEvent.preventDefault(e.originalEvent);
+            L.DomEvent.stopPropagation(e.originalEvent);
+            // 完成当前测量但不退出模式，允许继续测量
+            // 这里我们保持模式但不再添加点（用户需按清除或切换模式）
+            this.finishMeasurement();
+        },
+
+        finishMeasurement() {
+            if (this.measurePoints.length < 2) {
+                this.clearMeasurement();
+                return;
+            }
+            // 保留图形在图上，仅退出编辑模式
+            this.measureMode = null;
+        },
+
+        redrawMeasureDisplay() {
+            if (!this.measureTempLayer) return;
+            this.measureTempLayer.clearLayers();
+
+            const pts = this.measurePoints;
+            if (pts.length < 1) return;
+
+            const latlngs = pts.map(p => [p.lat, p.lng]);
+
+            // 画顶点标记
+            latlngs.forEach((ll, i) => {
+                L.circleMarker(ll, {
+                    radius: 5,
+                    color: '#2f855a',
+                    fillColor: '#fff',
+                    fillOpacity: 1,
+                    weight: 2.5,
+                }).addTo(this.measureTempLayer);
+            });
+
+            // 画线段 & 距离标签
+            for (let i = 1; i < latlngs.length; i++) {
+                const a = L.latLng(latlngs[i-1]);
+                const b = L.latLng(latlngs[i]);
+                const dist = a.distanceTo(b);
+
+                // 线段
+                L.polyline([latlngs[i-1], latlngs[i]], {
+                    color: '#2f855a',
+                    weight: 3,
+                    dashArray: this.measureMode === 'area' ? '6 4' : null,
+                }).addTo(this.measureTempLayer);
+
+                // 距离标签
+                const mid = L.latLng(
+                    (latlngs[i-1][0] + latlngs[i][0]) / 2,
+                    (latlngs[i-1][1] + latlngs[i][1]) / 2
+                );
+                L.marker(mid, {
+                    icon: L.divIcon({
+                        className: 'measure-label',
+                        html: `<div style="
+                            background:rgba(47,133,90,0.9);
+                            color:#fff;
+                            padding:2px 8px;
+                            border-radius:10px;
+                            font-size:0.75rem;
+                            white-space:nowrap;
+                            font-family:'Noto Sans SC',sans-serif;
+                        ">${this.formatDistance(dist)}</div>`,
+                        iconSize: [0, 0],
+                        iconAnchor: [0, 0],
+                    }),
+                    interactive: false,
+                }).addTo(this.measureTempLayer);
+            }
+
+            // 面积模式：闭合多边形
+            if (this.measureMode === 'area' && latlngs.length >= 3) {
+                // 闭合线
+                L.polyline([latlngs[latlngs.length-1], latlngs[0]], {
+                    color: '#e53e3e',
+                    weight: 2,
+                    dashArray: '4 6',
+                }).addTo(this.measureTempLayer);
+                // 填充多边形
+                L.polygon(latlngs, {
+                    color: '#2f855a',
+                    fillColor: '#48bb78',
+                    fillOpacity: 0.2,
+                    weight: 2,
+                }).addTo(this.measureTempLayer);
+
+                // 面积标签（在多边形中心）
+                const center = L.latLng(
+                    latlngs.reduce((s, ll) => s + ll[0], 0) / latlngs.length,
+                    latlngs.reduce((s, ll) => s + ll[1], 0) / latlngs.length
+                );
+                const areaStr = this.measureTotal;
+                L.marker(center, {
+                    icon: L.divIcon({
+                        className: 'area-label',
+                        html: `<div style="
+                            background:rgba(229,62,62,0.9);
+                            color:#fff;
+                            padding:4px 12px;
+                            border-radius:12px;
+                            font-size:0.85rem;
+                            font-weight:600;
+                            white-space:nowrap;
+                            font-family:'Noto Sans SC',sans-serif;
+                        ">${areaStr}</div>`,
+                        iconSize: [0, 0],
+                        iconAnchor: [0, 0],
+                    }),
+                    interactive: false,
+                }).addTo(this.measureTempLayer);
+            }
+        },
+
+        clearMeasurement() {
+            this.measureMode = null;
+            this.measurePoints = [];
+            if (this.measureTempLayer) {
+                this.measureTempLayer.clearLayers();
+            }
+        },
+
+        // ============================================================
+        // 距离 & 面积格式化
+        // ============================================================
+        formatDistance(meters) {
+            if (meters < 1) return '< 1 米';
+            if (meters < 1000) return meters.toFixed(1) + ' 米';
+            return (meters / 1000).toFixed(2) + ' 公里';
+        },
+
+        formatArea(m2) {
+            if (m2 < 1) return '< 1 ㎡';
+            if (m2 < 1000000) return m2.toFixed(0) + ' ㎡';
+            if (m2 < 10000000) return (m2 / 1000000).toFixed(2) + ' 平方公里';
+            return (m2 / 666.667).toFixed(1) + ' 亩';
+        },
+
+        // ============================================================
+        // 右键菜单
+        // ============================================================
+        onMapContextMenu(e) {
+            e.originalEvent.preventDefault();
+            const mx = e.originalEvent.clientX;
+            const my = e.originalEvent.clientY;
+            // 防止菜单超出屏幕
+            const menuW = 190, menuH = 220;
+            let x = mx, y = my;
+            if (x + menuW > window.innerWidth) x = mx - menuW;
+            if (y + menuH > window.innerHeight) y = my - menuH;
+
+            this.contextMenu = {
+                visible: true,
+                x: x,
+                y: y,
+                latlng: e.latlng,
+            };
+        },
+
+        ctxZoomIn() {
+            if (this.map) this.map.zoomIn();
+            this.contextMenu.visible = false;
+        },
+
+        ctxZoomOut() {
+            if (this.map) this.map.zoomOut();
+            this.contextMenu.visible = false;
+        },
+
+        ctxCenterHere() {
+            if (this.map && this.contextMenu.latlng) {
+                this.map.setView(this.contextMenu.latlng, this.map.getZoom());
+            }
+            this.contextMenu.visible = false;
+        },
+
+        ctxMeasureFromHere() {
+            if (this.map && this.contextMenu.latlng) {
+                this.clearMeasurement();
+                this.measureMode = 'distance';
+                this.measurePoints = [{
+                    lat: this.contextMenu.latlng.lat,
+                    lng: this.contextMenu.latlng.lng
+                }];
+                this.redrawMeasureDisplay();
+            }
+            this.contextMenu.visible = false;
+        },
+
+        ctxAddMarker() {
+            if (this.map && this.contextMenu.latlng) {
+                const ll = this.contextMenu.latlng;
+                const marker = L.marker([ll.lat, ll.lng], {
+                    icon: L.divIcon({
+                        className: '',
+                        html: `<div style="
+                            width:18px;height:18px;
+                            background:#e53e3e;
+                            border:3px solid #fff;
+                            border-radius:50%;
+                            box-shadow:0 2px 10px rgba(0,0,0,0.4);
+                        "></div>`,
+                        iconSize: [18, 18],
+                        iconAnchor: [9, 9],
+                    }),
+                }).addTo(this.map);
+                marker.bindPopup(`
+                    <div class="poi-popup">
+                        <h4>自定义标记</h4>
+                        <p class="poi-desc">坐标: ${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</p>
+                    </div>
+                `);
+                marker.openPopup();
+            }
+            this.contextMenu.visible = false;
+        },
+    },
+
+    mounted() {
+        // 全局点击关闭弹出层（右键菜单、图层面板）
+        document.addEventListener('click', (e) => {
+            if (this.contextMenu.visible && !e.target.closest('.context-menu')) {
+                this.contextMenu.visible = false;
+            }
+            if (this.showLayerPanel && !e.target.closest('.layer-panel') && !e.target.closest('.layer-btn')) {
+                this.showLayerPanel = false;
+            }
+        });
+        // 监听 ESC 键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (this.measureMode) {
+                    this.clearMeasurement();
+                } else if (this.contextMenu.visible) {
+                    this.contextMenu.visible = false;
+                } else if (this.showLayerPanel) {
+                    this.showLayerPanel = false;
+                }
+            }
+        });
+    },
+}).mount('#app');
 </script>
 </body>
 </html>
