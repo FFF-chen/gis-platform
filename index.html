@@ -258,6 +258,9 @@
         #map.measuring {
             cursor: crosshair;
         }
+        #map.routing {
+            cursor: crosshair;
+        }
 
         /* ============================================================
            顶部工具栏
@@ -440,6 +443,118 @@
         }
 
         /* ============================================================
+           路线查询面板
+           ============================================================ */
+        .route-panel {
+            position: absolute;
+            top: 70px;
+            left: 15px;
+            z-index: 1000;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 14px 18px;
+            width: 280px;
+            font-size: 0.85rem;
+        }
+        .route-panel .route-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .route-panel .route-title .route-close {
+            width: 26px; height: 26px;
+            border: none; background: #eee;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 26px;
+            text-align: center;
+            color: #666;
+            transition: all 0.2s;
+        }
+        .route-panel .route-title .route-close:hover {
+            background: #e53e3e;
+            color: #fff;
+        }
+        .route-panel .route-point {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .route-panel .route-point:hover { background: #eef; }
+        .route-panel .route-point.set { background: var(--green-pale); }
+        .route-panel .point-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .route-panel .point-dot.start { background: #38a169; }
+        .route-panel .point-dot.end { background: #e53e3e; }
+        .route-btn {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: var(--green-mid);
+            color: #fff;
+            font-size: 0.88rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .route-btn:hover { background: #38a169; }
+        .route-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .route-btn.loading {
+            background: #999;
+            pointer-events: none;
+        }
+        .route-spinner {
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .route-result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0fff4;
+            border-radius: 10px;
+            display: flex;
+            gap: 16px;
+            font-size: 0.82rem;
+        }
+        .route-result .route-stat {
+            text-align: center;
+        }
+        .route-result .route-stat .val {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+        .route-result .route-stat .lbl {
+            color: #888;
+            font-size: 0.72rem;
+        }
+
+        /* ============================================================
            测量信息面板
            ============================================================ */
         .measure-info {
@@ -598,6 +713,42 @@
         }
 
         /* ============================================================
+           Toast 通知
+           ============================================================ */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.88rem;
+            font-family: 'Noto Sans SC', sans-serif;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+            animation: toast-in 0.35s ease, toast-out 0.35s ease 2.5s forwards;
+            max-width: 360px;
+            pointer-events: auto;
+        }
+        .toast.success { background: #38a169; }
+        .toast.error { background: #e53e3e; }
+        .toast.info { background: #3182ce; }
+        .toast.warn { background: #dd6b20; }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateX(40px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toast-out {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(40px); }
+        }
+
+        /* ============================================================
            响应式调整
            ============================================================ */
         @media (max-width: 768px) {
@@ -711,6 +862,18 @@
                         <span class="btn-icon">📐</span> 测面积
                     </button>
 
+                    <!-- 路线查询 -->
+                    <button class="tool-btn" :class="{ active: routeMode }"
+                            @click="toggleRouteMode" title="路线查询">
+                        <span class="btn-icon">🚗</span> 路线
+                    </button>
+
+                    <!-- 定位 -->
+                    <button class="tool-btn"
+                            @click="locateMe" title="定位到当前位置">
+                        <span class="btn-icon">📍</span> 定位
+                    </button>
+
                     <!-- 清除测量 -->
                     <button class="tool-btn" v-if="measureMode || measurePoints.length > 0"
                             @click="clearMeasurement" title="清除测量">
@@ -753,6 +916,40 @@
                     </div>
                 </div>
 
+                <!-- 路线查询面板 -->
+                <div class="route-panel" v-if="routeMode">
+                    <div class="route-title">
+                        <span>🚗 路线查询</span>
+                        <button class="route-close" @click="clearRoute" title="关闭">✕</button>
+                    </div>
+                    <div class="route-point" :class="{ set: routeStart }"
+                         @click="pickRoutePoint('start')">
+                        <span class="point-dot start"></span>
+                        <span style="flex:1;">{{ routeStart ? '起点: ' + routeStart.lat.toFixed(4) + ', ' + routeStart.lng.toFixed(4) : '点击地图设置起点' }}</span>
+                    </div>
+                    <div class="route-point" :class="{ set: routeEnd }"
+                         @click="pickRoutePoint('end')">
+                        <span class="point-dot end"></span>
+                        <span style="flex:1;">{{ routeEnd ? '终点: ' + routeEnd.lat.toFixed(4) + ', ' + routeEnd.lng.toFixed(4) : '点击地图设置终点' }}</span>
+                    </div>
+                    <button class="route-btn" :class="{ loading: routeLoading }"
+                            :disabled="!routeStart || !routeEnd || routeLoading"
+                            @click="calculateRoute">
+                        <span v-if="routeLoading" class="route-spinner"></span>
+                        {{ routeLoading ? '正在计算路线…' : routeStart && routeEnd ? '🚗 开始计算路线' : '请先设置起终点' }}
+                    </button>
+                    <div class="route-result" v-if="routeInfo">
+                        <div class="route-stat">
+                            <div class="val">{{ routeInfo.distance }}</div>
+                            <div class="lbl">距离</div>
+                        </div>
+                        <div class="route-stat">
+                            <div class="val">{{ routeInfo.duration }}</div>
+                            <div class="lbl">预计时间</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 测量信息提示 -->
                 <div class="measure-info" v-if="measureMode">
                     <template v-if="measureMode === 'distance'">
@@ -788,6 +985,13 @@
                     <span class="menu-icon">🎯</span> 以此为中心
                 </button>
                 <div class="context-divider"></div>
+                <button class="context-menu-item" @click="ctxSetRouteStart">
+                    <span class="menu-icon">🟢</span> 设为路线起点
+                </button>
+                <button class="context-menu-item" @click="ctxSetRouteEnd">
+                    <span class="menu-icon">🔴</span> 设为路线终点
+                </button>
+                <div class="context-divider"></div>
                 <button class="context-menu-item" @click="ctxMeasureFromHere">
                     <span class="menu-icon">📏</span> 从此处开始测距
                 </button>
@@ -796,6 +1000,13 @@
                 </button>
             </div>
         </section>
+    </div>
+
+    <!-- Toast 通知容器 -->
+    <div class="toast-container">
+        <div class="toast" v-for="t in toasts" :key="t.id" :class="t.type">
+            {{ t.msg }}
+        </div>
     </div>
 </div>
 
@@ -914,6 +1125,18 @@ createApp({
                 x: 0, y: 0,
                 latlng: null,
             },
+
+            // ---- 路线查询 ----
+            routeMode: false,
+            routeStart: null,
+            routeEnd: null,
+            routePicking: 'start',   // 'start' | 'end'
+            routeInfo: null,
+            routeLoading: false,
+            routeLayer: null,        // L.layerGroup
+
+            // ---- Toast ----
+            toasts: [],
         };
     },
 
@@ -984,6 +1207,14 @@ createApp({
                 mapEl.classList.remove('measuring');
             }
         },
+        routeMode(mode) {
+            const mapEl = document.getElementById('map');
+            if (mode) {
+                mapEl.classList.add('routing');
+            } else {
+                mapEl.classList.remove('routing');
+            }
+        },
     },
 
     methods: {
@@ -1051,6 +1282,7 @@ createApp({
             this.pageOffset = 0;
             this.scrollAccumulator = 0;
             this.clearMeasurement();
+            this.clearRoute();
             this.showLayerPanel = false;
             this.contextMenu.visible = false;
             setTimeout(() => { this.isTransitioning = false; }, 750);
@@ -1092,6 +1324,9 @@ createApp({
 
             // 初始化测量图层
             this.measureTempLayer = L.layerGroup().addTo(this.map);
+
+            // 初始化路线图层
+            this.routeLayer = L.layerGroup().addTo(this.map);
 
             // 地图点击事件 (测量)
             this.map.on('click', this.onMapClick);
@@ -1202,6 +1437,7 @@ createApp({
                 return;
             }
             this.clearMeasurement();
+            this.clearRoute();  // 关闭路线模式
             this.measureMode = mode;
             this.measurePoints = [];
             this.showLayerPanel = false;
@@ -1213,6 +1449,21 @@ createApp({
                 this.contextMenu.visible = false;
                 return;
             }
+
+            // 路线选点模式
+            if (this.routeMode) {
+                const pt = { lat: e.latlng.lat, lng: e.latlng.lng };
+                if (this.routePicking === 'start') {
+                    this.routeStart = pt;
+                    this.routePicking = 'end';
+                } else {
+                    this.routeEnd = pt;
+                    this.routePicking = 'start';
+                }
+                this.drawRouteEndpoints();
+                return;
+            }
+
             if (!this.measureMode) return;
 
             this.measurePoints.push({ lat: e.latlng.lat, lng: e.latlng.lng });
@@ -1399,9 +1650,41 @@ createApp({
             this.contextMenu.visible = false;
         },
 
+        ctxSetRouteStart() {
+            if (this.map && this.contextMenu.latlng) {
+                this.clearMeasurement();
+                this.routeMode = true;
+                this.routePicking = 'end';
+                this.routeStart = { lat: this.contextMenu.latlng.lat, lng: this.contextMenu.latlng.lng };
+                this.routeEnd = null;
+                this.routeInfo = null;
+                if (!this.routeLayer) this.routeLayer = L.layerGroup().addTo(this.map);
+                else this.routeLayer.clearLayers();
+                this.drawRouteEndpoints();
+                this.showToast('起点已设置，请在地图上点击或右键选择终点', 'info');
+                this.showLayerPanel = false;
+            }
+            this.contextMenu.visible = false;
+        },
+
+        ctxSetRouteEnd() {
+            if (this.map && this.contextMenu.latlng) {
+                if (!this.routeStart) {
+                    this.showToast('请先设置路线起点', 'warn');
+                } else {
+                    this.routeEnd = { lat: this.contextMenu.latlng.lat, lng: this.contextMenu.latlng.lng };
+                    this.routePicking = 'start';
+                    this.drawRouteEndpoints();
+                    this.showToast('终点已设置，点击"开始计算路线"查看路线', 'info');
+                }
+            }
+            this.contextMenu.visible = false;
+        },
+
         ctxMeasureFromHere() {
             if (this.map && this.contextMenu.latlng) {
                 this.clearMeasurement();
+                this.clearRoute();
                 this.measureMode = 'distance';
                 this.measurePoints = [{
                     lat: this.contextMenu.latlng.lat,
@@ -1439,6 +1722,178 @@ createApp({
             }
             this.contextMenu.visible = false;
         },
+
+        // ============================================================
+        // 路线查询
+        // ============================================================
+        toggleRouteMode() {
+            if (this.routeMode) {
+                this.clearRoute();
+                return;
+            }
+            this.clearMeasurement();
+            this.routeMode = true;
+            this.routeStart = null;
+            this.routeEnd = null;
+            this.routePicking = 'start';
+            this.routeInfo = null;
+            this.showLayerPanel = false;
+            if (!this.routeLayer && this.map) {
+                this.routeLayer = L.layerGroup().addTo(this.map);
+            }
+        },
+
+        pickRoutePoint(which) {
+            this.routePicking = which;
+        },
+
+        drawRouteEndpoints() {
+            if (!this.routeLayer) return;
+
+            const iconStart = L.divIcon({
+                className: '',
+                html: `<div style="
+                    width:20px;height:20px;
+                    background:#38a169;
+                    border:3px solid #fff;
+                    border-radius:50%;
+                    box-shadow:0 2px 10px rgba(0,0,0,0.4);
+                    display:flex;align-items:center;justify-content:center;
+                    color:#fff;font-size:10px;font-weight:700;
+                ">起</div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10],
+            });
+
+            const iconEnd = L.divIcon({
+                className: '',
+                html: `<div style="
+                    width:20px;height:20px;
+                    background:#e53e3e;
+                    border:3px solid #fff;
+                    border-radius:50%;
+                    box-shadow:0 2px 10px rgba(0,0,0,0.4);
+                    display:flex;align-items:center;justify-content:center;
+                    color:#fff;font-size:10px;font-weight:700;
+                ">终</div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10],
+            });
+
+            if (this.routeStart) {
+                L.marker([this.routeStart.lat, this.routeStart.lng], { icon: iconStart }).addTo(this.routeLayer);
+            }
+            if (this.routeEnd) {
+                L.marker([this.routeEnd.lat, this.routeEnd.lng], { icon: iconEnd }).addTo(this.routeLayer);
+            }
+        },
+
+        async calculateRoute() {
+            if (!this.routeStart || !this.routeEnd || !this.map) return;
+
+            this.routeLoading = true;
+            const [lng1, lat1] = [this.routeStart.lng, this.routeStart.lat];
+            const [lng2, lat2] = [this.routeEnd.lng, this.routeEnd.lat];
+
+            try {
+                const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?geometries=geojson&overview=full&steps=true`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+                    this.showToast('未找到可行路线，请更换起终点尝试', 'error');
+                    this.routeLoading = false;
+                    return;
+                }
+
+                const route = data.routes[0];
+                const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+
+                if (this.routeLayer) this.routeLayer.clearLayers();
+
+                L.polyline(coords, {
+                    color: '#3182ce',
+                    weight: 6,
+                    opacity: 0.8,
+                }).addTo(this.routeLayer);
+
+                this.drawRouteEndpoints();
+
+                const distKm = (route.distance / 1000).toFixed(1);
+                const durMin = Math.round(route.duration / 60);
+                this.routeInfo = {
+                    distance: distKm + ' km',
+                    duration: durMin >= 60
+                        ? Math.floor(durMin / 60) + 'h' + (durMin % 60) + 'min'
+                        : durMin + ' 分钟',
+                };
+
+                this.map.fitBounds(L.latLngBounds([
+                    [this.routeStart.lat, this.routeStart.lng],
+                    [this.routeEnd.lat, this.routeEnd.lng],
+                ]).pad(0.2));
+
+                this.showToast(`路线计算完成，全程约 ${distKm} km`, 'success');
+
+            } catch (err) {
+                console.error('路线计算失败:', err);
+                this.showToast('路线计算失败，请检查网络连接后重试', 'error');
+            } finally {
+                this.routeLoading = false;
+            }
+        },
+
+        clearRoute() {
+            this.routeMode = false;
+            this.routeStart = null;
+            this.routeEnd = null;
+            this.routePicking = 'start';
+            this.routeInfo = null;
+            this.routeLoading = false;
+            if (this.routeLayer) {
+                this.routeLayer.clearLayers();
+            }
+        },
+
+        // ============================================================
+        // 定位功能
+        // ============================================================
+        locateMe() {
+            if (!this.map) return;
+            if (!navigator.geolocation) {
+                this.showToast('您的浏览器不支持地理定位功能', 'error');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    this.map.flyTo([latitude, longitude], 15, { duration: 1 });
+                    L.circleMarker([latitude, longitude], {
+                        radius: 10,
+                        color: '#3182ce',
+                        fillColor: '#3182ce',
+                        fillOpacity: 0.4,
+                        weight: 3,
+                    }).addTo(this.map).bindPopup('📍 您当前的位置').openPopup();
+                    this.showToast('已定位到您当前的位置', 'success');
+                },
+                (err) => {
+                    this.showToast('定位失败: ' + err.message, 'error');
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        },
+        // ============================================================
+        // Toast 通知
+        // ============================================================
+        showToast(msg, type = 'info') {
+            const id = Date.now() + Math.random();
+            this.toasts.push({ id, msg, type });
+            setTimeout(() => {
+                const idx = this.toasts.findIndex(t => t.id === id);
+                if (idx >= 0) this.toasts.splice(idx, 1);
+            }, 3000);
+        },
     },
 
     mounted() {
@@ -1456,6 +1911,8 @@ createApp({
             if (e.key === 'Escape') {
                 if (this.measureMode) {
                     this.clearMeasurement();
+                } else if (this.routeMode) {
+                    this.clearRoute();
                 } else if (this.contextMenu.visible) {
                     this.contextMenu.visible = false;
                 } else if (this.showLayerPanel) {
