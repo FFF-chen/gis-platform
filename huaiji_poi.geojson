@@ -13,7 +13,7 @@
       "properties": {
         "name": "燕岩风景区",
         "type": "景区",
-        "desc": "中国最佳溶洞奇观，万燕归巢壮景，被誉为'岭南第一洞'",
+        "desc": "中国最佳溶洞奇观，万燕归巢壮景，'岭南第一洞'",
         "rating": "4A"
       }
     },
@@ -45,7 +45,7 @@
       "properties": {
         "name": "燕峰峡漂流",
         "type": "景区",
-        "desc": "广东最长漂流河道，全长5.8公里，刺激与美景并存",
+        "desc": "广东最长漂流河道，全长5.8公里",
         "rating": ""
       }
     },
@@ -125,7 +125,7 @@
       "properties": {
         "name": "凤岗河湿地公园",
         "type": "景区",
-        "desc": "生态湿地公园，鸟类栖息天堂，徒步骑行佳地",
+        "desc": "生态湿地公园，鸟类栖息天堂",
         "rating": ""
       }
     },
@@ -141,7 +141,7 @@
       "properties": {
         "name": "下帅壮族瑶族乡",
         "type": "景区",
-        "desc": "广东唯一的壮族瑶族乡，浓郁民族风情体验",
+        "desc": "广东唯一壮族瑶族乡，浓郁民族风情",
         "rating": ""
       }
     },
@@ -150,14 +150,14 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          112.224,
-          23.91
+          112.268,
+          23.875
         ]
       },
       "properties": {
-        "name": "燕岩农家乐",
-        "type": "农家乐",
-        "desc": "燕岩景区旁，地道怀集农家菜，招牌黄焖鸡",
+        "name": "怀集三岳自然保护区",
+        "type": "景区",
+        "desc": "原始次生林保护区，珍稀动植物基因库",
         "rating": ""
       }
     },
@@ -166,14 +166,14 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          112.21,
-          23.918
+          112.215,
+          23.948
         ]
       },
       "properties": {
-        "name": "桃花源农家院",
-        "type": "农家乐",
-        "desc": "世外桃源入口处，柴火灶烧菜，新鲜食材自家种养",
+        "name": "怀集现代农业产业园",
+        "type": "农业",
+        "desc": "供港蔬菜基地，珠三角绿色菜篮子核心据点",
         "rating": ""
       }
     },
@@ -182,46 +182,14 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          112.172,
-          23.936
-        ]
-      },
-      "properties": {
-        "name": "绿水青山农家乐",
-        "type": "农家乐",
-        "desc": "依山傍水，可垂钓采摘，适合家庭聚会",
-        "rating": ""
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          112.2,
-          23.942
-        ]
-      },
-      "properties": {
-        "name": "田园小筑",
-        "type": "农家乐",
-        "desc": "近县城，环境清幽，特色竹筒饭、窑鸡",
-        "rating": ""
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          112.188,
+          112.225,
           23.955
         ]
       },
       "properties": {
-        "name": "山泉人家",
-        "type": "农家乐",
-        "desc": "山泉水养殖鱼类，现捞现做，鲜美无比",
+        "name": "华光农业生态园",
+        "type": "农业",
+        "desc": "集采摘、科普、生态旅游于一体的现代农业观光园",
         "rating": ""
       }
     },
@@ -236,7 +204,7 @@
       },
       "properties": {
         "name": "怀集生态农庄",
-        "type": "农庄",
+        "type": "农业",
         "desc": "大型生态种植基地，草莓/葡萄采摘，亲子体验",
         "rating": ""
       }
@@ -252,7 +220,7 @@
       },
       "properties": {
         "name": "岭南佳果园",
-        "type": "农庄",
+        "type": "农业",
         "desc": "四季水果采摘园，砂糖橘、百香果、火龙果",
         "rating": ""
       }
@@ -268,8 +236,8 @@
       },
       "properties": {
         "name": "绿丰源农业庄园",
-        "type": "农庄",
-        "desc": "珠三角蔬菜供应基地，可体验农耕文化",
+        "type": "农业",
+        "desc": "珠三角蔬菜供应基地，体验农耕文化",
         "rating": ""
       }
     },
@@ -284,8 +252,88 @@
       },
       "properties": {
         "name": "山水田园农庄",
-        "type": "农庄",
+        "type": "农业",
         "desc": "集餐饮住宿采摘一体，怀集特色全牛宴",
+        "rating": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.224,
+          23.91
+        ]
+      },
+      "properties": {
+        "name": "燕岩农家乐",
+        "type": "餐饮",
+        "desc": "燕岩景区旁，地道怀集农家菜，招牌黄焖鸡",
+        "rating": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.21,
+          23.918
+        ]
+      },
+      "properties": {
+        "name": "桃花源农家院",
+        "type": "餐饮",
+        "desc": "世外桃源入口处，柴火灶烧菜，食材自家种养",
+        "rating": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.172,
+          23.936
+        ]
+      },
+      "properties": {
+        "name": "绿水青山农家乐",
+        "type": "餐饮",
+        "desc": "依山傍水，可垂钓采摘，适合家庭聚会",
+        "rating": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.2,
+          23.942
+        ]
+      },
+      "properties": {
+        "name": "田园小筑",
+        "type": "餐饮",
+        "desc": "近县城，环境清幽，特色竹筒饭、窑鸡",
+        "rating": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.188,
+          23.955
+        ]
+      },
+      "properties": {
+        "name": "山泉人家",
+        "type": "餐饮",
+        "desc": "山泉水养殖鱼类，现捞现做，鲜美无比",
         "rating": ""
       }
     },
@@ -301,7 +349,7 @@
       "properties": {
         "name": "怀集味道（总店）",
         "type": "餐饮",
-        "desc": "怀集本地菜标杆，招牌菜：怀集切粉、酿豆腐、白切怀集鸡",
+        "desc": "怀集本地菜标杆：切粉、酿豆腐、白切鸡",
         "rating": ""
       }
     },
@@ -416,12 +464,28 @@
         "desc": "景区特色民宿，推窗见景，远离喧嚣",
         "rating": ""
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.195,
+          23.93
+        ]
+      },
+      "properties": {
+        "name": "怀集悦湖度假酒店",
+        "type": "住宿",
+        "desc": "湖畔度假酒店，会议接待与休闲度假",
+        "rating": ""
+      }
     }
   ],
   "metadata": {
     "system": "绿美怀集·GIS导览系统",
     "city": "广东省肇庆市怀集县",
-    "total": 26,
+    "total": 30,
     "time": "2026-06"
   }
 }
