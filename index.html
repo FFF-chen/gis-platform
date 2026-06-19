@@ -23,30 +23,38 @@
         #map-container { flex:1; height:100%; position:relative; }
         #map { width:100%; height:100%; }
 
-        /* 工具栏 */
-        .toolbar { position:absolute; top:12px; left:12px; z-index:1000; display:flex; gap:8px; align-items:center; }
-        .search-input { width:240px; padding:9px 14px 9px 32px; border:none; border-radius:20px; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.12); font-size:0.85rem; outline:none; }
-        .search-icon { position:absolute; left:20px; top:50%; transform:translateY(-50%); color:#999; font-size:0.85rem; pointer-events:none; z-index:1; }
+        /* ====== 搜索栏 - 顶部居中 ====== */
+        .search-bar-center { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:1000; display:flex; align-items:center; gap:6px; }
+        .search-box { position:relative; }
+        .search-box input {
+            width:360px; padding:10px 16px 10px 40px; border:none; border-radius:24px;
+            background:rgba(255,255,255,0.95); box-shadow:0 2px 12px rgba(0,0,0,0.15);
+            font-size:0.88rem; outline:none; transition:box-shadow 0.2s;
+        }
+        .search-box input:focus { box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+        .search-svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); pointer-events:none; }
         .search-results { position:absolute; top:44px; left:0; right:0; background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.15); max-height:240px; overflow-y:auto; z-index:1001; }
         .search-item { padding:10px 14px; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:0.85rem; border-bottom:1px solid #f0f0f0; transition:background 0.15s; }
         .search-item:last-child { border-bottom:none; }
         .search-item:hover { background:#f0fff4; }
         .search-item .cat-badge { font-size:0.68rem; padding:2px 8px; border-radius:10px; color:#fff; white-space:nowrap; }
 
-        .tool-btn { display:flex; align-items:center; gap:4px; padding:9px 14px; border:none; border-radius:20px; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.12); cursor:pointer; font-size:0.82rem; transition:all 0.2s; white-space:nowrap; }
-        .tool-btn:hover { background:#f7fafc; }
-        .tool-btn.active { background:#2f855a; color:#fff; }
+        /* ====== 左侧工具栏 ====== */
+        .left-tools { position:absolute; top:14px; left:14px; z-index:1000; display:flex; gap:6px; flex-wrap:wrap; max-width:calc(100% - 420px); }
+        .l-btn { display:flex; align-items:center; gap:4px; padding:8px 12px; border:none; border-radius:18px; background:rgba(255,255,255,0.92); box-shadow:0 2px 8px rgba(0,0,0,0.1); cursor:pointer; font-size:0.78rem; transition:all 0.2s; white-space:nowrap; }
+        .l-btn:hover { background:#f0f8f4; }
+        .l-btn.active { background:#2f855a; color:#fff; }
 
         /* 右侧工具栏 */
-        .right-tools { position:absolute; top:12px; right:12px; z-index:1000; display:flex; flex-direction:column; gap:6px; }
-        .r-btn { width:38px; height:38px; border-radius:50%; border:none; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.12); cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; transition:all 0.2s; position:relative; }
-        .r-btn:hover { background:#f0f8f4; transform:scale(1.05); }
-        .r-btn .tip { position:absolute; right:48px; background:rgba(0,0,0,0.78); color:#fff; padding:4px 10px; border-radius:4px; font-size:0.7rem; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity 0.2s; }
+        .right-tools { position:absolute; top:14px; right:14px; z-index:1000; display:flex; flex-direction:column; gap:6px; }
+        .r-btn { width:36px; height:36px; border-radius:50%; border:none; background:rgba(255,255,255,0.92); box-shadow:0 2px 8px rgba(0,0,0,0.1); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; position:relative; }
+        .r-btn:hover { background:#f0f8f4; transform:scale(1.05); box-shadow:0 3px 12px rgba(0,0,0,0.15); }
+        .r-btn .tip { position:absolute; right:46px; background:rgba(0,0,0,0.78); color:#fff; padding:4px 10px; border-radius:4px; font-size:0.7rem; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity 0.2s; }
         .r-btn:hover .tip { opacity:1; }
         .r-btn.active { background:#2f855a; color:#fff; }
 
         /* 图层面板 */
-        .layer-panel { position:absolute; top:48px; right:0; z-index:1001; background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.18); padding:4px 0; width:170px; overflow:hidden; }
+        .layer-panel { position:absolute; top:46px; right:0; z-index:1001; background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.18); padding:4px 0; width:170px; overflow:hidden; }
         .layer-opt { display:flex; align-items:center; gap:8px; padding:9px 14px; cursor:pointer; font-size:0.82rem; transition:background 0.15s; }
         .layer-opt:hover { background:#f0fff4; }
         .layer-opt .dot { width:16px; height:16px; border-radius:50%; border:2px solid #ccc; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -54,8 +62,14 @@
         .layer-opt .dot-inner { width:8px; height:8px; border-radius:50%; background:#2f855a; transform:scale(0); transition:transform 0.2s; }
         .layer-opt.active .dot-inner { transform:scale(1); }
 
+        /* 底部加载面板 */
+        .load-bar { position:absolute; bottom:20px; left:14px; z-index:1000; display:flex; gap:4px; flex-wrap:wrap; }
+        .cat-chip { padding:5px 10px; border-radius:14px; border:1px solid #ddd; background:rgba(255,255,255,0.92); cursor:pointer; font-size:0.7rem; transition:all 0.15s; white-space:nowrap; }
+        .cat-chip:hover { background:#f0fff4; border-color:#2f855a; }
+        .cat-chip .count { background:#2f855a; color:#fff; border-radius:8px; padding:1px 6px; font-size:0.62rem; margin-left:4px; }
+
         /* 路线面板 */
-        .route-panel { position:absolute; top:50px; left:12px; z-index:1001; background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.18); padding:14px; width:260px; font-size:0.82rem; }
+        .route-panel { position:absolute; top:60px; left:14px; z-index:1001; background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.18); padding:14px; width:260px; font-size:0.82rem; }
         .route-panel .rpt { display:flex; align-items:center; gap:8px; margin-bottom:8px; padding:6px 10px; background:#f8f8f8; border-radius:8px; cursor:pointer; }
         .route-panel .rpt.set { background:#c6f6d5; }
         .r-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
@@ -64,21 +78,21 @@
         .r-btn-submit:disabled { background:#ccc; cursor:not-allowed; }
         .r-result { margin-top:8px; padding:8px; background:#f0fff4; border-radius:8px; display:flex; gap:14px; font-size:0.8rem; }
 
-        /* 测量提示 */
-        .measure-info { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); z-index:1000; background:rgba(0,0,0,0.75); color:#fff; padding:8px 18px; border-radius:18px; font-size:0.82rem; pointer-events:none; }
+        /* 测量 */
+        .measure-info { position:absolute; bottom:60px; left:50%; transform:translateX(-50%); z-index:1000; background:rgba(0,0,0,0.75); color:#fff; padding:8px 18px; border-radius:18px; font-size:0.82rem; pointer-events:none; }
 
         /* 图例 */
-        .legend { position:absolute; bottom:20px; right:18px; z-index:1000; display:flex; gap:10px; }
-        .legend-item { display:flex; align-items:center; gap:4px; font-size:0.7rem; color:#555; background:rgba(255,255,255,0.9); padding:4px 10px; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+        .legend { position:absolute; bottom:20px; right:18px; z-index:1000; display:flex; gap:6px; flex-wrap:wrap; }
+        .legend-item { display:flex; align-items:center; gap:4px; font-size:0.68rem; color:#555; background:rgba(255,255,255,0.9); padding:4px 8px; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
         .legend-dot { width:8px; height:8px; border-radius:50%; }
 
         /* 天气 */
-        .weather-btn { position:absolute; top:12px; right:60px; z-index:1000; display:flex; align-items:center; gap:4px; padding:6px 12px; border:none; border-radius:18px; background:rgba(255,255,255,0.92); box-shadow:0 2px 10px rgba(0,0,0,0.12); cursor:pointer; font-size:0.78rem; }
-        .weather-popup { position:absolute; top:44px; right:60px; z-index:1001; background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.18); padding:14px 16px; width:200px; font-size:0.78rem; }
+        .weather-btn { position:absolute; top:60px; right:14px; z-index:1000; display:flex; align-items:center; gap:4px; padding:6px 12px; border:none; border-radius:16px; background:rgba(255,255,255,0.92); box-shadow:0 2px 8px rgba(0,0,0,0.1); cursor:pointer; font-size:0.76rem; }
+        .weather-popup { position:absolute; top:92px; right:14px; z-index:1001; background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.18); padding:14px 16px; width:200px; font-size:0.78rem; }
 
         /* 右键菜单 */
         .ctx-menu { position:fixed; z-index:9999; background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.18); padding:4px 0; min-width:170px; }
-        .ctx-item { display:flex; align-items:center; gap:8px; padding:8px 14px; cursor:pointer; font-size:0.82rem; transition:background 0.12s; border:none; background:none; width:100%; text-align:left; font-family:inherit; }
+        .ctx-item { display:flex; align-items:center; gap:8px; padding:8px 14px; cursor:pointer; font-size:0.8rem; transition:background 0.12s; border:none; background:none; width:100%; text-align:left; font-family:inherit; }
         .ctx-item:hover { background:#f0fff4; }
         .ctx-div { height:1px; background:#eee; margin:3px 0; }
 
@@ -113,31 +127,53 @@
         <div id="map-container">
             <div id="map"></div>
 
-            <!-- 搜索栏 -->
-            <div class="toolbar" style="position:absolute;top:12px;left:12px;">
-                <div style="position:relative;">
-                    <span class="search-icon">🔍</span>
-                    <input class="search-input" type="text" v-model="searchQuery" placeholder="搜索景点、餐厅、住宿…"
-                           @focus="searchFocused=true" @blur="onSearchBlur" @keydown.enter="onSearchEnter"/>
+            <!-- 搜索栏 - 顶部居中 -->
+            <div class="search-bar-center">
+                <div class="search-box">
+                    <!-- SVG放大镜图标 - 白线透明中 -->
+                    <svg class="search-svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2.2" stroke-linecap="round">
+                        <circle cx="10.5" cy="10.5" r="6.5"/>
+                        <line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/>
+                    </svg>
+                    <input type="text" v-model="searchQuery" placeholder="搜索景点、餐厅、住宿、公共服务…"
+                           @focus="searchFocused=true" @blur="onSearchBlur" @keydown.enter="onSearchEnter"
+                           style="width:380px;"/>
                     <div class="search-results" v-if="searchFocused&&searchResults.length">
                         <div class="search-item" v-for="r in searchResults" :key="r.id" @mousedown.prevent="flyToPOI(r)">
-                            <span>{{ r.icon }}</span>
+                            <span style="font-size:1rem;">{{ r.icon }}</span>
                             <span style="flex:1">{{ r.name }}</span>
                             <span class="cat-badge" :style="{background:CAT_COLORS[r.category]||'#999'}">{{ r.category }}</span>
                         </div>
                     </div>
                 </div>
-                <button class="tool-btn" :class="{active:measureMode==='distance'}" @click="toggleMeasure('distance')">📏 测距</button>
-                <button class="tool-btn" :class="{active:measureMode==='area'}" @click="toggleMeasure('area')">📐 测面积</button>
-                <button class="tool-btn" :class="{active:routeMode}" @click="toggleRouteMode">🚗 路线</button>
-                <button class="tool-btn" @click="locateMe">📍 定位</button>
-                <button class="tool-btn" v-if="measureMode" @click="clearMeasurement">✕ 清除</button>
+            </div>
+
+            <!-- 左侧工具按钮 -->
+            <div class="left-tools">
+                <button class="l-btn" :class="{active:measureMode==='distance'}" @click="toggleMeasure('distance')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22L22 2"/><circle cx="7" cy="17" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="1.5" fill="currentColor" stroke="none"/></svg>
+                    测距
+                </button>
+                <button class="l-btn" :class="{active:measureMode==='area'}" @click="toggleMeasure('area')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                    测面积
+                </button>
+                <button class="l-btn" :class="{active:routeMode}" @click="toggleRouteMode">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14M5 12h14M5 7h14"/><circle cx="5" cy="17" r="2"/><circle cx="19" cy="7" r="2"/></svg>
+                    路线
+                </button>
+                <button class="l-btn" @click="locateMe">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+                    定位
+                </button>
+                <button class="l-btn" v-if="measureMode" @click="clearMeasurement">✕ 清除</button>
             </div>
 
             <!-- 右侧工具按钮 -->
             <div class="right-tools">
-                <button class="r-btn" @click="showLayerPanel=!showLayerPanel" title="图层">
-                    <span class="tip">图层切换</span>🗺️
+                <button class="r-btn" @click="showLayerPanel=!showLayerPanel">
+                    <span class="tip">图层切换</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="14" rx="2"/><rect x="6" y="7" width="12" height="4" rx="1"/><rect x="8" y="11" width="8" height="4" rx="1"/><line x1="12" y1="15" x2="12" y2="21"/></svg>
                 </button>
                 <div class="layer-panel" v-if="showLayerPanel" @click.stop>
                     <div class="layer-opt" :class="{active:activeBaseLayer==='vector'}" @click="changeBaseLayer('vector')">
@@ -147,27 +183,41 @@
                         <span class="dot"><span class="dot-inner"></span></span>卫星影像
                     </div>
                 </div>
-                <button class="r-btn" @click="resetView" title="全图">
-                    <span class="tip">全图视图</span>🏠
+                <button class="r-btn" @click="resetView">
+                    <span class="tip">全图视图</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polygon points="12,2 16,10 8,10"/></svg>
                 </button>
-                <button class="r-btn" @click="showCover=true" title="返回封面">
+                <button class="r-btn" @click="showCover=true">
                     <span class="tip">返回封面</span>↑
                 </button>
             </div>
 
-            <!-- 天气按钮 -->
+            <!-- 天气 -->
             <button class="weather-btn" @click="showWeatherPopup=!showWeatherPopup">
                 <span>{{ weatherData.icon }}</span>
-                <span style="font-weight:600">{{ weatherData.temp }}°</span>
+                <span style="font-weight:600;color:#333;">{{ weatherData.temp }}°</span>
+                <span style="font-size:0.7rem;color:#999;">{{ weatherData.weather }}</span>
             </button>
             <div class="weather-popup" v-if="showWeatherPopup" @click.stop>
-                <div style="font-weight:600;margin-bottom:6px">{{ weatherData.city }} · {{ weatherData.weather }}</div>
+                <div style="font-weight:600;margin-bottom:6px;">{{ weatherData.city }} · {{ weatherData.weather }}</div>
                 <div v-if="weatherData.forecasts.length" style="margin-bottom:4px;">
                     <div v-for="w in weatherData.forecasts" :key="w.date" style="display:flex;justify-content:space-between;padding:2px 0;font-size:0.72rem;border-bottom:1px solid #f5f5f5;">
                         <span>{{ w.date }}</span><span>{{ w.dayweather }} {{ w.nightweather }}</span><span>{{ w.nighttemp }}~{{ w.daytemp }}°C</span>
                     </div>
                 </div>
                 <div style="font-size:0.7rem;color:#999;">湿度: {{ weatherData.humidity }} | 风向: {{ weatherData.wind }}</div>
+            </div>
+
+            <!-- 底部分类加载按钮 -->
+            <div class="load-bar">
+                <button class="cat-chip" @click="loadDynamicPOI('景区')">🏔️ 景区<span class="count" v-if="catCounts['景区']">{{ catCounts['景区'] }}</span></button>
+                <button class="cat-chip" @click="loadDynamicPOI('餐饮')">🍴 餐饮<span class="count" v-if="catCounts['餐饮']">{{ catCounts['餐饮'] }}</span></button>
+                <button class="cat-chip" @click="loadDynamicPOI('住宿')">🏨 住宿<span class="count" v-if="catCounts['住宿']">{{ catCounts['住宿'] }}</span></button>
+                <button class="cat-chip" @click="loadDynamicPOI('购物')">🛒 购物<span class="count" v-if="catCounts['购物']">{{ catCounts['购物'] }}</span></button>
+                <button class="cat-chip" @click="loadDynamicPOI('公共服务')">🏛️ 公共服务<span class="count" v-if="catCounts['公共服务']">{{ catCounts['公共服务'] }}</span></button>
+                <button class="cat-chip" @click="loadDynamicPOI('医疗')">🏥 医疗<span class="count" v-if="catCounts['医疗']">{{ catCounts['医疗'] }}</span></button>
+                <button class="cat-chip" @click="loadDynamicPOI('加油站')">⛽ 加油站<span class="count" v-if="catCounts['加油站']">{{ catCounts['加油站'] }}</span></button>
+                <button class="cat-chip" style="background:#f0fff4;font-weight:600;" @click="clearDynamicPOI">✕ 清除动态</button>
             </div>
 
             <!-- 路线面板 -->
@@ -185,7 +235,6 @@
                     <span style="flex:1;font-size:0.78rem;">{{ routeEnd ? '终点: '+routeEnd.lat.toFixed(4)+','+routeEnd.lng.toFixed(4) : '点击地图设置终点' }}</span>
                 </div>
                 <button class="r-btn-submit" :disabled="!routeStart||!routeEnd||routeLoading" @click="calculateRoute">
-                    <span v-if="routeLoading" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;"></span>
                     {{ routeLoading?'计算中…':routeStart&&routeEnd?'开始计算路线':'请先设置起终点' }}
                 </button>
                 <div class="r-result" v-if="routeInfo">
@@ -196,23 +245,30 @@
 
             <!-- 测量信息 -->
             <div class="measure-info" v-if="measureMode">
-                <template v-if="measureMode==='distance'">📏 点击地图添加测量点 · 双击完成 · 总长: {{ measureTotal }}</template>
-                <template v-if="measureMode==='area'">📐 点击地图绘制多边形 · 双击闭合 · 面积: {{ measureTotal }}</template>
+                <template v-if="measureMode==='distance'">点击地图添加测量点 · 双击完成 · 总长: {{ measureTotal }}</template>
+                <template v-if="measureMode==='area'">点击地图绘制多边形 · 双击闭合 · 面积: {{ measureTotal }}</template>
             </div>
 
             <!-- 图例 -->
             <div class="legend">
                 <span class="legend-item"><span class="legend-dot" style="background:#e53e3e;"></span>景区</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#38a169;"></span>农业园</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#dd6b20;"></span>农庄/农家乐</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#38a169;"></span>农业/农庄</span>
                 <span class="legend-item"><span class="legend-dot" style="background:#3182ce;"></span>餐饮</span>
                 <span class="legend-item"><span class="legend-dot" style="background:#805ad5;"></span>住宿</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>公共服务</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#8b5cf6;"></span>医疗</span>
             </div>
 
             <!-- 右键菜单 -->
             <div class="ctx-menu" v-if="ctxMenu.visible" :style="{left:ctxMenu.x+'px',top:ctxMenu.y+'px'}">
-                <button class="ctx-item" @click="ctxZoomIn">🔍 放大</button>
-                <button class="ctx-item" @click="ctxZoomOut">🔎 缩小</button>
+                <button class="ctx-item" @click="ctxZoomIn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><line x1="10" y1="6" x2="10" y2="14"/><line x1="6" y1="10" x2="14" y2="10"/><line x1="16" y1="16" x2="22" y2="22"/></svg>
+                    放大
+                </button>
+                <button class="ctx-item" @click="ctxZoomOut">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><line x1="6" y1="10" x2="14" y2="10"/><line x1="16" y1="16" x2="22" y2="22"/></svg>
+                    缩小
+                </button>
                 <button class="ctx-item" @click="ctxCenterHere">🎯 以此为中心</button>
                 <div class="ctx-div"></div>
                 <button class="ctx-item" @click="ctxSetRouteStart">🟢 设为路线起点</button>
@@ -262,11 +318,12 @@ var _app = _Vue.createApp({
 
             toasts: [],
             weatherData: { icon: '☁️', temp: '--', weather: '加载中...', city: '怀集县', humidity: '--', wind: '--', forecasts: [] },
+            catCounts: {},
         };
     },
     computed: {
         CAT_COLORS: function() {
-            return { '景区':'#e53e3e', '农业':'#38a169', '农庄':'#dd6b20', '餐饮':'#3182ce', '住宿':'#805ad5' };
+            return { '景区':'#e53e3e','农业':'#38a169','农庄':'#38a169','农家乐':'#38a169','餐饮':'#3182ce','住宿':'#805ad5','公共服务':'#f59e0b','医疗':'#8b5cf6','加油站':'#ef4444','购物':'#06b6d4','交通':'#64748b' };
         },
         searchResults: function() {
             if (this._searchAmapResults) return this._searchAmapResults;
@@ -312,9 +369,7 @@ var _app = _Vue.createApp({
         enterSystem: function() {
             this.showCover = false;
             var self = this;
-            this.$nextTick(function() {
-                self.initMap();
-            });
+            this.$nextTick(function() { self.initMap(); });
         },
         initMap: function() {
             if (this.map) return;
@@ -326,16 +381,14 @@ var _app = _Vue.createApp({
             });
             this.vectorLayer = _L.tileLayer(
                 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-                    subdomains: ['1','2','3','4'],
-                    maxZoom: 18,
+                    subdomains: ['1','2','3','4'], maxZoom: 18,
                     updateWhenZooming: false,
                     attribution: '&copy; 高德地图',
                 }
             ).addTo(this.map);
             this.satelliteLayer = _L.tileLayer(
                 'https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
-                    subdomains: ['1','2','3','4'],
-                    maxZoom: 18,
+                    subdomains: ['1','2','3','4'], maxZoom: 18,
                     updateWhenZooming: false,
                     attribution: '&copy; 高德地图',
                 }
@@ -343,6 +396,7 @@ var _app = _Vue.createApp({
             this.renderMarkers();
             this.measureLayer = _L.layerGroup().addTo(this.map);
             this.routeLayer = _L.layerGroup().addTo(this.map);
+            this._dynamicLayer = _L.layerGroup().addTo(this.map);
             this.loadWeather();
             var self = this;
             this.map.on('click', function(e) { self.onMapClick(e); });
@@ -363,7 +417,7 @@ var _app = _Vue.createApp({
             this.map.closePopup();
         },
 
-        // 标记渲染 - 新的彩色大头针图标
+        // 标记渲染 - 类别特色图标（无文字）
         renderMarkers: function() {
             if (!this.map) return;
             if (this._allMarkers) { this._allMarkers.forEach(function(m) { m.remove(); }); }
@@ -371,8 +425,8 @@ var _app = _Vue.createApp({
             var self = this;
             POI_DATA.forEach(function(spot) {
                 var color = CAT_COLORS[spot.category] || '#999';
-                var label = CAT_LABELS[spot.category] || '●';
-                var icon = makePoiIcon(color, label);
+                var shape = CAT_SHAPES[spot.category] || 'pin';
+                var icon = makePoiIcon(color, shape);
                 var marker = _L.marker([spot.lat, spot.lng], { icon: icon }).addTo(self.map);
                 var popupHtml = '<div class="pp">' +
                     '<span class="pp-cat" style="background:' + color + '">' + (spot.icon||'') + ' ' + spot.category + '</span>' +
@@ -386,10 +440,6 @@ var _app = _Vue.createApp({
                 marker.on('click', function() { self.selectedName = spot.name; });
                 self._allMarkers.push(marker);
             });
-        },
-        locateToSpot: function(spot) {
-            if (!this.map) return;
-            this.map.flyTo([spot.lat, spot.lng], 15, { duration: 1 });
         },
 
         // 搜索
@@ -422,13 +472,9 @@ var _app = _Vue.createApp({
                         var amapResults = data.geocodes.map(function(g) {
                             var parts = g.location.split(',');
                             return {
-                                id: 'geo_' + Math.random(),
-                                name: g.formatted_address || g.name,
-                                lat: parseFloat(parts[1]),
-                                lng: parseFloat(parts[0]),
-                                category: '地址查询',
-                                icon: '📍',
-                                desc: g.formatted_address || '',
+                                id: 'geo_' + Math.random(), name: g.formatted_address || g.name,
+                                lat: parseFloat(parts[1]), lng: parseFloat(parts[0]),
+                                category: '地址查询', icon: '📍', desc: g.formatted_address || '',
                             };
                         });
                         self._searchAmapResults = amapResults;
@@ -438,13 +484,59 @@ var _app = _Vue.createApp({
                 .catch(function() {});
         },
 
+        // 动态POI加载
+        loadDynamicPOI: function(cat) {
+            var self = this;
+            var kwMap = {
+                '景区': '景区|景点|公园|寺庙|温泉|漂流|古镇|溶洞',
+                '餐饮': '餐厅|饭店|酒楼|美食|小吃|农家乐',
+                '住宿': '酒店|宾馆|民宿|旅馆|度假村',
+                '购物': '商场|超市|市场|商圈|购物',
+                '公共服务': '政府|派出所|公安局|法院|邮政|银行|社区|村委会|居委会|办事处',
+                '医疗': '医院|诊所|卫生院|药店|保健',
+                '加油站': '加油站|加气站|充电站',
+                '交通': '汽车站|火车站|停车场',
+            };
+            var url = 'https://restapi.amap.com/v3/place/text?key=6656b79d228d2d201eb95900f3cdd0d1&keywords=' + encodeURIComponent(kwMap[cat]||cat) + '&city=怀集县&citylimit=true&offset=30&extensions=all';
+            fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+                if (data.status === '1' && data.pois && data.pois.length > 0) {
+                    if (self._dynamicLayer) self._dynamicLayer.clearLayers();
+                    self._dynamicMarkers = [];
+                    var color = (CAT_COLORS[cat]||'#999');
+                    data.pois.forEach(function(poi) {
+                        var parts = poi.location.split(',');
+                        var lat = parseFloat(parts[1]), lng = parseFloat(parts[0]);
+                        var m = _L.marker([lat, lng], { icon: makePoiIcon(color, 'circle') }).addTo(self._dynamicLayer);
+                        var t = poi.tel ? '<p style="font-size:0.72rem;color:#666;">📞 ' + poi.tel + '</p>' : '';
+                        var a = poi.address ? '<p style="font-size:0.72rem;color:#888;">📍 ' + poi.address + '</p>' : '';
+                        m.bindPopup('<div class="pp"><span class="pp-cat" style="background:' + color + '">' + cat + '</span><h4>' + poi.name + '</h4>' + a + t + '</div>');
+                        self._dynamicMarkers.push(m);
+                    });
+                    self.catCounts[cat] = data.pois.length;
+                    self.showToast('已加载 ' + data.pois.length + ' 个' + cat, 'success');
+                    if (self._dynamicMarkers.length > 0) {
+                        var bounds = _L.latLngBounds(self._dynamicMarkers.map(function(m) { return m.getLatLng(); }));
+                        if (bounds.isValid()) self.map.fitBounds(bounds.pad(0.15));
+                    }
+                } else {
+                    self.showToast('未找到' + cat, 'info');
+                }
+            }).catch(function(err) {
+                self.showToast('加载失败: ' + err.message, 'error');
+            });
+        },
+        clearDynamicPOI: function() {
+            if (this._dynamicLayer) this._dynamicLayer.clearLayers();
+            this._dynamicMarkers = [];
+            this.catCounts = {};
+            this.showToast('已清除所有动态标记', 'info');
+        },
+
         // 测量
         toggleMeasure: function(mode) {
             if (this.measureMode === mode) { this.clearMeasurement(); return; }
-            this.clearMeasurement();
-            this.clearRoute();
-            this.measureMode = mode;
-            this.measurePoints = [];
+            this.clearMeasurement(); this.clearRoute();
+            this.measureMode = mode; this.measurePoints = [];
         },
         onMapClick: function(e) {
             if (this.ctxMenu.visible) { this.ctxMenu.visible = false; return; }
@@ -452,8 +544,7 @@ var _app = _Vue.createApp({
                 var pt = { lat: e.latlng.lat, lng: e.latlng.lng };
                 if (this.routePicking === 'start') { this.routeStart = pt; this.routePicking = 'end'; }
                 else { this.routeEnd = pt; this.routePicking = 'start'; }
-                this.drawRouteEndpoints();
-                return;
+                this.drawRouteEndpoints(); return;
             }
             if (!this.measureMode) return;
             this.measurePoints.push({ lat: e.latlng.lat, lng: e.latlng.lng });
@@ -499,8 +590,7 @@ var _app = _Vue.createApp({
             }
         },
         clearMeasurement: function() {
-            this.measureMode = null;
-            this.measurePoints = [];
+            this.measureMode = null; this.measurePoints = [];
             if (this.measureLayer) this.measureLayer.clearLayers();
         },
         fmtDist: function(m) {
@@ -519,7 +609,7 @@ var _app = _Vue.createApp({
         onMapContextMenu: function(e) {
             e.originalEvent.preventDefault();
             var mx = e.originalEvent.clientX, my = e.originalEvent.clientY;
-            var mW = 190, mH = 320;
+            var mW = 190, mH = 340;
             var x = mx, y = my;
             if (x + mW > window.innerWidth) x = mx - mW;
             if (y + mH > window.innerHeight) y = my - mH;
@@ -528,41 +618,28 @@ var _app = _Vue.createApp({
         },
         ctxZoomIn: function() { if (this.map) this.map.zoomIn(); this.ctxMenu.visible = false; },
         ctxZoomOut: function() { if (this.map) this.map.zoomOut(); this.ctxMenu.visible = false; },
-        ctxCenterHere: function() {
-            if (this.map && this.ctxMenu.latlng) this.map.setView(this.ctxMenu.latlng, this.map.getZoom());
-            this.ctxMenu.visible = false;
-        },
+        ctxCenterHere: function() { if (this.map && this.ctxMenu.latlng) this.map.setView(this.ctxMenu.latlng, this.map.getZoom()); this.ctxMenu.visible = false; },
         ctxSetRouteStart: function() {
             if (this.map && this.ctxMenu.latlng) {
-                this.clearMeasurement();
-                this.routeMode = true;
-                this.routePicking = 'end';
+                this.clearMeasurement(); this.routeMode = true; this.routePicking = 'end';
                 this.routeStart = { lat: this.ctxMenu.latlng.lat, lng: this.ctxMenu.latlng.lng };
-                this.routeEnd = null;
-                this.routeInfo = null;
+                this.routeEnd = null; this.routeInfo = null;
                 if (!this.routeLayer) this.routeLayer = _L.layerGroup().addTo(this.map);
                 else this.routeLayer.clearLayers();
-                this.drawRouteEndpoints();
-                this.showToast('起点已设置', 'info');
+                this.drawRouteEndpoints(); this.showToast('起点已设置', 'info');
             }
             this.ctxMenu.visible = false;
         },
         ctxSetRouteEnd: function() {
             if (this.map && this.ctxMenu.latlng) {
-                if (!this.routeStart) {
-                    this.showToast('请先设置起点', 'warn');
-                } else {
-                    this.routeEnd = { lat: this.ctxMenu.latlng.lat, lng: this.ctxMenu.latlng.lng };
-                    this.drawRouteEndpoints();
-                    this.showToast('终点已设置', 'info');
-                }
+                if (!this.routeStart) { this.showToast('请先设置起点', 'warn'); }
+                else { this.routeEnd = { lat: this.ctxMenu.latlng.lat, lng: this.ctxMenu.latlng.lng }; this.drawRouteEndpoints(); this.showToast('终点已设置', 'info'); }
             }
             this.ctxMenu.visible = false;
         },
         ctxMeasureFromHere: function() {
             if (this.map && this.ctxMenu.latlng) {
-                this.clearMeasurement();
-                this.clearRoute();
+                this.clearMeasurement(); this.clearRoute();
                 this.measureMode = 'distance';
                 this.measurePoints = [{ lat: this.ctxMenu.latlng.lat, lng: this.ctxMenu.latlng.lng }];
                 this.redrawMeasure();
@@ -572,7 +649,7 @@ var _app = _Vue.createApp({
         ctxAddMarker: function() {
             if (this.map && this.ctxMenu.latlng) {
                 var ll = this.ctxMenu.latlng;
-                var m = _L.marker([ll.lat, ll.lng], { icon: makePoiIcon('#e53e3e', '📍') }).addTo(this.map);
+                var m = _L.marker([ll.lat, ll.lng], { icon: makePoiIcon('#e53e3e', 'pin') }).addTo(this.map);
                 m.bindPopup('<div class="pp"><h4>自定义标记</h4><p class="pp-desc">' + ll.lat.toFixed(5) + ', ' + ll.lng.toFixed(5) + '</p></div>').openPopup();
             }
             this.ctxMenu.visible = false;
@@ -583,7 +660,7 @@ var _app = _Vue.createApp({
                 var ll = this.ctxMenu.latlng;
                 this.ctxMenu.visible = false;
                 this.showToast('搜索附近POI...', 'info');
-                var url = 'https://restapi.amap.com/v3/place/around?key=6656b79d228d2d201eb95900f3cdd0d1&location=' + ll.lng + ',' + ll.lat + '&types=050000|060000|070000|080000|090000|110000&radius=2000&offset=20&extensions=all';
+                var url = 'https://restapi.amap.com/v3/place/around?key=6656b79d228d2d201eb95900f3cdd0d1&location=' + ll.lng + ',' + ll.lat + '&types=050000|060000|070000|080000|090000|110000|140000&radius=2000&offset=20&extensions=all';
                 fetch(url).then(function(r) { return r.json(); }).then(function(data) {
                     if (data.status === '1' && data.pois && data.pois.length > 0) {
                         if (self._dynamicLayer) self._dynamicLayer.clearLayers();
@@ -591,39 +668,21 @@ var _app = _Vue.createApp({
                         var markers = [];
                         data.pois.slice(0, 20).forEach(function(poi) {
                             var parts = poi.location.split(',');
-                            var plat = parseFloat(parts[1]), plng = parseFloat(parts[0]);
-                            var m = _L.marker([plat, plng], { icon: makePoiIcon('#ff6b6b', '▪') }).addTo(self._dynamicLayer);
-                            m.bindPopup('<div class="pp"><span class="pp-cat" style="background:#ff6b6b">' + (poi.type||'').split(';')[0] + '</span><h4>' + poi.name + '</h4><p style="font-size:0.75rem;color:#888;">📍 ' + (poi.address||'未知') + '</p></div>');
+                            var m = _L.marker([parseFloat(parts[1]), parseFloat(parts[0])], { icon: makePoiIcon('#ff6b6b', 'circle') }).addTo(self._dynamicLayer);
+                            m.bindPopup('<div class="pp"><span class="pp-cat" style="background:#ff6b6b">周边</span><h4>' + poi.name + '</h4><p style="font-size:0.72rem;color:#888;">📍 ' + (poi.address||'未知') + '</p></div>');
                             markers.push(m);
                         });
                         self.showToast('找到 ' + markers.length + ' 个周边POI', 'success');
-                        if (markers.length > 0) {
-                            var bounds = _L.latLngBounds(markers.map(function(m) { return m.getLatLng(); }));
-                            if (bounds.isValid()) self.map.fitBounds(bounds.pad(0.15));
-                        }
-                    } else {
-                        self.showToast('附近未找到POI', 'info');
-                    }
-                }).catch(function(err) {
-                    self.showToast('搜索附近失败: ' + err.message, 'error');
-                });
+                        if (markers.length > 0) { var bounds = _L.latLngBounds(markers.map(function(m) { return m.getLatLng(); })); if (bounds.isValid()) self.map.fitBounds(bounds.pad(0.15)); }
+                    } else { self.showToast('附近未找到POI', 'info'); }
+                }).catch(function(err) { self.showToast('搜索失败: ' + err.message, 'error'); });
             }
         },
 
         // 路线
-        toggleRouteMode: function() {
-            if (this.routeMode) { this.clearRoute(); return; }
-            this.clearMeasurement();
-            this.routeMode = true;
-            this.routeStart = null;
-            this.routeEnd = null;
-            this.routePicking = 'start';
-            this.routeInfo = null;
-            if (!this.routeLayer && this.map) this.routeLayer = _L.layerGroup().addTo(this.map);
-        },
+        toggleRouteMode: function() { if (this.routeMode) { this.clearRoute(); return; } this.clearMeasurement(); this.routeMode = true; this.routeStart = null; this.routeEnd = null; this.routePicking = 'start'; this.routeInfo = null; if (!this.routeLayer && this.map) this.routeLayer = _L.layerGroup().addTo(this.map); },
         drawRouteEndpoints: function() {
-            if (!this.routeLayer) return;
-            this.routeLayer.clearLayers();
+            if (!this.routeLayer) return; this.routeLayer.clearLayers();
             var iS = _L.divIcon({ className: '', html: '<div style="width:22px;height:22px;background:#38a169;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">起</div>', iconSize: [22,22], iconAnchor: [11,11] });
             var iE = _L.divIcon({ className: '', html: '<div style="width:22px;height:22px;background:#e53e3e;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">终</div>', iconSize: [22,22], iconAnchor: [11,11] });
             if (this.routeStart) _L.marker([this.routeStart.lat, this.routeStart.lng], { icon: iS }).addTo(this.routeLayer);
@@ -632,52 +691,25 @@ var _app = _Vue.createApp({
         calculateRoute: function() {
             var self = this;
             if (!this.routeStart || !this.routeEnd || !this.map) return;
-            this.routeLoading = true;
-            this.routeInfo = null;
-            var origin = this.routeStart.lng + ',' + this.routeStart.lat;
-            var destination = this.routeEnd.lng + ',' + this.routeEnd.lat;
-            var url = 'https://restapi.amap.com/v3/direction/driving?key=6656b79d228d2d201eb95900f3cdd0d1&origin=' + origin + '&destination=' + destination + '&strategy=10&extensions=all';
-            fetch(url).then(function(r) { return r.json(); }).then(function(data) {
-                if (!data.route || !data.route.paths || data.route.paths.length === 0) {
-                    self.showToast('未找到可行路线', 'error');
+            this.routeLoading = true; this.routeInfo = null;
+            fetch('https://restapi.amap.com/v3/direction/driving?key=6656b79d228d2d201eb95900f3cdd0d1&origin=' + this.routeStart.lng + ',' + this.routeStart.lat + '&destination=' + this.routeEnd.lng + ',' + this.routeEnd.lat + '&strategy=10&extensions=all')
+                .then(function(r) { return r.json(); }).then(function(data) {
+                    if (!data.route || !data.route.paths || data.route.paths.length === 0) { self.showToast('未找到可行路线', 'error'); self.routeLoading = false; return; }
+                    var path = data.route.paths[0];
+                    var coords = [];
+                    path.steps.forEach(function(s) { s.polyline.split(';').forEach(function(pt) { var parts = pt.split(','); coords.push([parseFloat(parts[1]), parseFloat(parts[0])]); }); });
+                    if (self.routeLayer) self.routeLayer.clearLayers();
+                    _L.polyline(coords, { color: '#3182ce', weight: 6, opacity: 0.85 }).addTo(self.routeLayer);
+                    self.drawRouteEndpoints();
+                    var distKm = (parseInt(path.distance)/1000).toFixed(1), durMin = Math.round(parseInt(path.duration)/60);
+                    self.routeInfo = { distance: distKm + ' km', duration: durMin >= 60 ? Math.floor(durMin/60) + '小时' + (durMin%60) + '分钟' : durMin + ' 分钟' };
+                    var allC = coords.concat([[self.routeStart.lat, self.routeStart.lng], [self.routeEnd.lat, self.routeEnd.lng]]);
+                    self.map.fitBounds(_L.latLngBounds(allC).pad(0.2));
+                    self.showToast('路线计算完成，约 ' + distKm + ' km', 'success');
                     self.routeLoading = false;
-                    return;
-                }
-                var path = data.route.paths[0];
-                var coords = [];
-                path.steps.forEach(function(s) {
-                    s.polyline.split(';').forEach(function(pt) {
-                        var parts = pt.split(',');
-                        coords.push([parseFloat(parts[1]), parseFloat(parts[0])]);
-                    });
-                });
-                if (self.routeLayer) self.routeLayer.clearLayers();
-                _L.polyline(coords, { color: '#3182ce', weight: 6, opacity: 0.85 }).addTo(self.routeLayer);
-                self.drawRouteEndpoints();
-                var distKm = (parseInt(path.distance)/1000).toFixed(1);
-                var durMin = Math.round(parseInt(path.duration)/60);
-                self.routeInfo = {
-                    distance: distKm + ' km',
-                    duration: durMin >= 60 ? Math.floor(durMin/60) + '小时' + (durMin%60) + '分钟' : durMin + ' 分钟',
-                };
-                var allC = coords.concat([[self.routeStart.lat, self.routeStart.lng], [self.routeEnd.lat, self.routeEnd.lng]]);
-                self.map.fitBounds(_L.latLngBounds(allC).pad(0.2));
-                self.showToast('路线计算完成，约 ' + distKm + ' km', 'success');
-                self.routeLoading = false;
-            }).catch(function(err) {
-                self.showToast('路线计算失败: ' + err.message, 'error');
-                self.routeLoading = false;
-            });
+                }).catch(function(err) { self.showToast('路线计算失败: ' + err.message, 'error'); self.routeLoading = false; });
         },
-        clearRoute: function() {
-            this.routeMode = false;
-            this.routeStart = null;
-            this.routeEnd = null;
-            this.routePicking = 'start';
-            this.routeInfo = null;
-            this.routeLoading = false;
-            if (this.routeLayer) this.routeLayer.clearLayers();
-        },
+        clearRoute: function() { this.routeMode = false; this.routeStart = null; this.routeEnd = null; this.routePicking = 'start'; this.routeInfo = null; this.routeLoading = false; if (this.routeLayer) this.routeLayer.clearLayers(); },
 
         // 天气
         loadWeather: function() {
@@ -694,9 +726,7 @@ var _app = _Vue.createApp({
                         self.weatherData.icon = getWeatherIcon(live.weather);
                         self.weatherData.city = live.city || '怀集县';
                     }
-                    if (data.forecasts && data.forecasts.length > 0) {
-                        self.weatherData.forecasts = data.forecasts[0].casts || [];
-                    }
+                    if (data.forecasts && data.forecasts.length > 0) self.weatherData.forecasts = data.forecasts[0].casts || [];
                 })
                 .catch(function() { self.weatherData.weather = '天气不可用'; });
         },
@@ -711,10 +741,7 @@ var _app = _Vue.createApp({
                 self.map.flyTo([lat, lng], 15, { duration: 1 });
                 _L.circleMarker([lat, lng], { radius: 10, color: '#3182ce', fillColor: '#3182ce', fillOpacity: 0.4, weight: 3 }).addTo(self.map).bindPopup('📍 您当前的位置').openPopup();
                 self.showToast('已定位到您当前的位置', 'success');
-            }, function() {
-                self.showToast('GPS失败，尝试IP定位...', 'warn');
-                self.locateByIP();
-            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+            }, function() { self.showToast('GPS失败，尝试IP定位...', 'warn'); self.locateByIP(); }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
         },
         locateByIP: function() {
             var self = this;
@@ -729,16 +756,13 @@ var _app = _Vue.createApp({
                             self.showToast('已定位到: ' + (data.city||'您的城市'), 'info');
                         }
                     }
-                })
-                .catch(function() { self.showToast('定位失败', 'error'); });
+                }).catch(function() { self.showToast('定位失败', 'error'); });
         },
         reverseGeocodeAtPoint: function(latlng) {
             var self = this;
             fetch('https://restapi.amap.com/v3/geocode/regeo?key=6656b79d228d2d201eb95900f3cdd0d1&location=' + latlng.lng + ',' + latlng.lat + '&extensions=base')
                 .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    if (data.regeocode) self.showToast('📍 ' + data.regeocode.formatted_address, 'info');
-                })
+                .then(function(data) { if (data.regeocode) self.showToast('📍 ' + data.regeocode.formatted_address, 'info'); })
                 .catch(function() {});
         },
 
@@ -748,13 +772,7 @@ var _app = _Vue.createApp({
             var id = Date.now() + Math.random();
             this.toasts.push({ id: id, msg: msg, type: type });
             var self = this;
-            setTimeout(function() {
-                var idx = -1;
-                for (var i = 0; i < self.toasts.length; i++) {
-                    if (self.toasts[i].id === id) { idx = i; break; }
-                }
-                if (idx >= 0) self.toasts.splice(idx, 1);
-            }, 3000);
+            setTimeout(function() { for (var i = 0; i < self.toasts.length; i++) { if (self.toasts[i].id === id) { self.toasts.splice(i, 1); break; } } }, 3000);
         },
     },
     mounted: function() {
@@ -776,12 +794,14 @@ var _app = _Vue.createApp({
 _app.mount('#app');
 </script>
 
-<!-- ====== POI 数据和工具函数 ====== -->
+<!-- ====== POI数据和图标工厂 ====== -->
 <script>
-var AMAP_KEY = '6656b79d228d2d201eb95900f3cdd0d1';
+var CAT_COLORS = { '景区':'#e53e3e','农业':'#38a169','农庄':'#38a169','农家乐':'#38a169','餐饮':'#3182ce','住宿':'#805ad5','公共服务':'#f59e0b','医疗':'#8b5cf6','加油站':'#ef4444','购物':'#06b6d4','交通':'#64748b' };
+var CAT_SHAPES = { '景区':'mountain','农业':'leaf','农庄':'leaf','农家乐':'leaf','餐饮':'food','住宿':'hotel','公共服务':'shield','医疗':'plus','加油站':'fuel','购物':'cart','交通':'bus' };
 
-// 30个POI
+// 50+ POI 数据
 var POI_DATA = [
+    // === 景区 ===
     { id:1, name:'燕岩风景区', lat:23.908, lng:112.228, category:'景区', icon:'🏔️', desc:'中国最佳溶洞奇观，万燕归巢壮景，"岭南第一洞"', rating:'4A' },
     { id:2, name:'世外桃源景区', lat:23.916, lng:112.213, category:'景区', icon:'🌸', desc:'陶渊明笔下桃花源原型地，溪流潺潺，桃林环绕', rating:'4A' },
     { id:3, name:'燕峰峡漂流', lat:23.952, lng:112.160, category:'景区', icon:'🌊', desc:'广东最长漂流河道，全长5.8公里' },
@@ -792,48 +812,93 @@ var POI_DATA = [
     { id:8, name:'凤岗河湿地公园', lat:23.960, lng:112.195, category:'景区', icon:'🌿', desc:'生态湿地公园，鸟类栖息天堂' },
     { id:9, name:'下帅壮族瑶族乡', lat:23.885, lng:112.155, category:'景区', icon:'🎭', desc:'广东唯一壮族瑶族乡，浓郁民族风情' },
     { id:10, name:'怀集三岳自然保护区', lat:23.875, lng:112.268, category:'景区', icon:'🌲', desc:'原始次生林保护区，珍稀动植物基因库' },
-    { id:11, name:'怀集现代农业产业园', lat:23.948, lng:112.215, category:'农业', icon:'🌾', desc:'供港蔬菜基地，珠三角绿色菜篮子核心据点' },
-    { id:12, name:'华光农业生态园', lat:23.955, lng:112.225, category:'农业', icon:'🌾', desc:'集采摘、科普、生态旅游于一体的现代农业观光园' },
-    { id:13, name:'怀集生态农庄', lat:23.940, lng:112.220, category:'农庄', icon:'🍇', desc:'大型生态种植基地，草莓/葡萄采摘，亲子体验' },
-    { id:14, name:'岭南佳果园', lat:23.915, lng:112.195, category:'农庄', icon:'🍊', desc:'四季水果采摘园，砂糖橘、百香果、火龙果' },
-    { id:15, name:'绿丰源农业庄园', lat:23.930, lng:112.235, category:'农庄', icon:'🥬', desc:'珠三角蔬菜供应基地，体验农耕文化' },
-    { id:16, name:'山水田园农庄', lat:23.948, lng:112.165, category:'农庄', icon:'🏡', desc:'集餐饮住宿采摘一体，怀集特色全牛宴' },
-    { id:17, name:'燕岩农家乐', lat:23.910, lng:112.224, category:'餐饮', icon:'🍽️', desc:'燕岩景区旁，地道怀集农家菜，招牌黄焖鸡' },
-    { id:18, name:'桃花源农家院', lat:23.918, lng:112.210, category:'餐饮', icon:'🍽️', desc:'世外桃源入口处，柴火灶烧菜，食材自家种养' },
-    { id:19, name:'绿水青山农家乐', lat:23.936, lng:112.172, category:'餐饮', icon:'🍽️', desc:'依山傍水，可垂钓采摘，适合家庭聚会' },
-    { id:20, name:'田园小筑', lat:23.942, lng:112.200, category:'餐饮', icon:'🍽️', desc:'近县城，环境清幽，特色竹筒饭、窑鸡' },
-    { id:21, name:'山泉人家', lat:23.955, lng:112.188, category:'餐饮', icon:'🍽️', desc:'山泉水养殖鱼类，现捞现做，鲜美无比' },
-    { id:22, name:'怀集味道（总店）', lat:23.926, lng:112.188, category:'餐饮', icon:'🥢', desc:'怀集本地菜标杆：切粉、酿豆腐、白切鸡' },
-    { id:23, name:'桥头酒楼', lat:23.924, lng:112.185, category:'餐饮', icon:'🥢', desc:'三十年老店，怀集地道早茶、粤菜经典' },
-    { id:24, name:'燕城美食坊', lat:23.929, lng:112.183, category:'餐饮', icon:'🥢', desc:'汇聚怀集各乡镇特色小吃，价格亲民' },
-    { id:25, name:'江畔渔港', lat:23.932, lng:112.180, category:'餐饮', icon:'🐟', desc:'绥江边上，河鲜现点现做，环境雅致' },
-    { id:26, name:'竹乡人家', lat:23.920, lng:112.192, category:'餐饮', icon:'🎋', desc:'怀集特产竹笋宴，全竹宴闻名远近' },
-    { id:27, name:'怀集华苑大酒店', lat:23.925, lng:112.187, category:'住宿', icon:'🏨', desc:'县城中心四星级酒店，交通便利，设施齐全' },
-    { id:28, name:'燕峰峡温泉酒店', lat:23.950, lng:112.162, category:'住宿', icon:'🏨', desc:'温泉入户，依山而建，度假首选' },
-    { id:29, name:'桃花源民宿', lat:23.917, lng:112.212, category:'住宿', icon:'🏡', desc:'景区特色民宿，推窗见景，远离喧嚣' },
-    { id:30, name:'怀集悦湖度假酒店', lat:23.930, lng:112.195, category:'住宿', icon:'🏨', desc:'湖畔度假酒店，会议接待与休闲度假' },
+    { id:11, name:'怀集县博物馆', lat:23.930, lng:112.185, category:'景区', icon:'🏛️', desc:'展示怀集历史文化和民俗风情' },
+    { id:12, name:'怀集体育中心', lat:23.933, lng:112.182, category:'景区', icon:'🏟️', desc:'全民健身中心，体育赛事举办地' },
+
+    // === 农业/农庄 ===
+    { id:20, name:'怀集现代农业产业园', lat:23.948, lng:112.215, category:'农业', icon:'🌾', desc:'供港蔬菜基地，珠三角绿色菜篮子核心据点' },
+    { id:21, name:'华光农业生态园', lat:23.955, lng:112.225, category:'农业', icon:'🌾', desc:'集采摘、科普、生态旅游于一体的现代农业观光园' },
+    { id:22, name:'怀集生态农庄', lat:23.940, lng:112.220, category:'农庄', icon:'🍇', desc:'大型生态种植基地，草莓/葡萄采摘，亲子体验' },
+    { id:23, name:'岭南佳果园', lat:23.915, lng:112.195, category:'农庄', icon:'🍊', desc:'四季水果采摘园，砂糖橘、百香果、火龙果' },
+    { id:24, name:'绿丰源农业庄园', lat:23.930, lng:112.235, category:'农庄', icon:'🥬', desc:'珠三角蔬菜供应基地，体验农耕文化' },
+    { id:25, name:'山水田园农庄', lat:23.948, lng:112.165, category:'农庄', icon:'🏡', desc:'集餐饮住宿采摘一体，怀集特色全牛宴' },
+
+    // === 餐饮 ===
+    { id:30, name:'怀集味道（总店）', lat:23.926, lng:112.188, category:'餐饮', icon:'🥢', desc:'怀集本地菜标杆：切粉、酿豆腐、白切鸡' },
+    { id:31, name:'桥头酒楼', lat:23.924, lng:112.185, category:'餐饮', icon:'🥢', desc:'三十年老店，怀集地道早茶、粤菜经典' },
+    { id:32, name:'燕城美食坊', lat:23.929, lng:112.183, category:'餐饮', icon:'🥢', desc:'汇聚怀集各乡镇特色小吃，价格亲民' },
+    { id:33, name:'江畔渔港', lat:23.932, lng:112.180, category:'餐饮', icon:'🐟', desc:'绥江边上，河鲜现点现做，环境雅致' },
+    { id:34, name:'竹乡人家', lat:23.920, lng:112.192, category:'餐饮', icon:'🎋', desc:'怀集特产竹笋宴，全竹宴闻名远近' },
+    { id:35, name:'燕岩农家乐', lat:23.910, lng:112.224, category:'餐饮', icon:'🍽️', desc:'燕岩景区旁，地道怀集农家菜，招牌黄焖鸡' },
+    { id:36, name:'桃花源农家院', lat:23.918, lng:112.210, category:'餐饮', icon:'🍽️', desc:'世外桃源入口处，柴火灶烧菜，食材自家种养' },
+    { id:37, name:'绿水青山农家乐', lat:23.936, lng:112.172, category:'餐饮', icon:'🍽️', desc:'依山傍水，可垂钓采摘，适合家庭聚会' },
+    { id:38, name:'田园小筑', lat:23.942, lng:112.200, category:'餐饮', icon:'🍽️', desc:'近县城，环境清幽，特色竹筒饭、窑鸡' },
+    { id:39, name:'山泉人家', lat:23.955, lng:112.188, category:'餐饮', icon:'🍽️', desc:'山泉水养殖鱼类，现捞现做，鲜美无比' },
+
+    // === 住宿 ===
+    { id:40, name:'怀集华苑大酒店', lat:23.925, lng:112.187, category:'住宿', icon:'🏨', desc:'县城中心四星级酒店，交通便利，设施齐全' },
+    { id:41, name:'燕峰峡温泉酒店', lat:23.950, lng:112.162, category:'住宿', icon:'🏨', desc:'温泉入户，依山而建，度假首选' },
+    { id:42, name:'桃花源民宿', lat:23.917, lng:112.212, category:'住宿', icon:'🏡', desc:'景区特色民宿，推窗见景，远离喧嚣' },
+    { id:43, name:'怀集悦湖度假酒店', lat:23.930, lng:112.195, category:'住宿', icon:'🏨', desc:'湖畔度假酒店，会议接待与休闲度假' },
+    { id:44, name:'怀集海逸国际酒店', lat:23.927, lng:112.183, category:'住宿', icon:'🏨', desc:'综合性商务酒店，靠近县政府' },
+
+    // === 公共服务 ===
+    { id:50, name:'怀集县人民政府', lat:23.926, lng:112.183, category:'公共服务', icon:'🏛️', desc:'怀集县行政中心' },
+    { id:51, name:'怀集县公安局', lat:23.925, lng:112.184, category:'公共服务', icon:'🛡️', desc:'怀集县公共安全保障' },
+    { id:52, name:'怀集汽车站', lat:23.923, lng:112.180, category:'交通', icon:'🚌', desc:'长途及城乡公交枢纽' },
+    { id:53, name:'怀集高铁站', lat:23.918, lng:112.170, category:'交通', icon:'🚄', desc:'贵广高铁怀集站' },
+
+    // === 医疗 ===
+    { id:60, name:'怀集县人民医院', lat:23.928, lng:112.188, category:'医疗', icon:'🏥', desc:'三级综合医院，怀集最大医疗机构' },
+    { id:61, name:'怀集中医院', lat:23.924, lng:112.190, category:'医疗', icon:'🏥', desc:'中医特色诊疗服务' },
 ];
 
-var CAT_COLORS = { '景区':'#e53e3e', '农业':'#38a169', '农庄':'#dd6b20', '餐饮':'#3182ce', '住宿':'#805ad5' };
-var CAT_LABELS = { '景区':'景', '农业':'农', '农庄':'庄', '餐饮':'食', '住宿':'宿' };
-
-// 新的标记图标工厂 - 彩色带标签的图钉
-function makePoiIcon(color, label) {
+// 图标工厂 - 类别图形化标记（无文字，22px小尺寸）
+function makePoiIcon(color, shape) {
+    var svg = '';
+    if (shape === 'mountain') {
+        // 山形 ▲
+        svg = '<polygon points="12,4 22,20 2,20" fill="' + color + '" stroke="#fff" stroke-width="1.5"/>';
+    } else if (shape === 'leaf') {
+        // 叶子 🍃
+        svg = '<ellipse cx="12" cy="12" rx="8" ry="5" fill="' + color + '" stroke="#fff" stroke-width="1.5" transform="rotate(-15 12 12)"/><line x1="12" y1="7" x2="12" y2="17" stroke="#fff" stroke-width="1.2"/>';
+    } else if (shape === 'food') {
+        // 碗筷 🍜
+        svg = '<path d="M5 10 Q5 4 12 4 Q19 4 19 10 L18 18 Q18 20 12 20 Q6 20 6 18 Z" fill="' + color + '" stroke="#fff" stroke-width="1.5"/>';
+    } else if (shape === 'hotel') {
+        // 建筑 🏨
+        svg = '<rect x="3" y="6" width="18" height="14" rx="2" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><rect x="7" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="13" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="7" y="15" width="10" height="3" fill="#fff" opacity="0.6"/>';
+    } else if (shape === 'shield') {
+        // 盾牌 🛡️
+        svg = '<path d="M12 3 L21 7 L21 13 Q21 17 12 21 Q3 17 3 13 L3 7 Z" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><text x="12" y="14" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">★</text>';
+    } else if (shape === 'plus') {
+        // 十字医疗 ✚
+        svg = '<rect x="3" y="7" width="18" height="10" rx="3" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><line x1="12" y1="10" x2="12" y2="14" stroke="#fff" stroke-width="1.8"/><line x1="10" y1="12" x2="14" y2="12" stroke="#fff" stroke-width="1.8"/>';
+    } else if (shape === 'fuel') {
+        // 加油 ⛽
+        svg = '<rect x="5" y="6" width="12" height="12" rx="2" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><rect x="7" y="8" width="4" height="8" rx="1" fill="#fff" opacity="0.6"/><rect x="17" y="9" width="4" height="6" rx="1" fill="' + color + '" stroke="#fff" stroke-width="1.2"/>';
+    } else if (shape === 'cart') {
+        // 购物车 🛒
+        svg = '<circle cx="7" cy="18" r="1.5" fill="#fff"/><circle cx="16" cy="18" r="1.5" fill="#fff"/><path d="M2 6 L5 6 L9 14 L17 14 L20 9 L22 9" fill="none" stroke="#fff" stroke-width="1.2"/><rect x="3" y="5" width="14" height="12" rx="2" fill="' + color + '" stroke="#fff" stroke-width="1.5"/>';
+    } else if (shape === 'bus') {
+        // 巴士 🚌
+        svg = '<rect x="2" y="5" width="20" height="13" rx="3" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><rect x="5" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><rect x="13" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><circle cx="6" cy="17" r="2" fill="#333"/><circle cx="18" cy="17" r="2" fill="#333"/>';
+    } else {
+        // 默认圆点
+        svg = '<circle cx="12" cy="12" r="10" fill="' + color + '" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
+    }
     return _L.divIcon({
-        className: 'poi-marker',
-        html: '<div style="position:relative;width:32px;height:40px;">' +
-            '<div style="position:absolute;bottom:2px;left:50%;margin-left:-5px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid ' + color + ';"></div>' +
-            '<div style="position:absolute;top:0;left:50%;margin-left:-14px;width:28px;height:28px;background:' + color + ';border-radius:50%;border:3px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;">' + label + '</div>' +
-        '</div>',
-        iconSize: [32, 40],
-        iconAnchor: [16, 40],
-        popupAnchor: [0, -42],
+        className: '',
+        html: '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">' + svg + '</svg>',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -14],
     });
 }
 
-function getWeatherIcon(weather) {
-    var map = { '晴':'☀️','少云':'🌤️','晴间多云':'⛅','多云':'☁️','阴':'☁️','小雨':'🌧️','中雨':'🌧️','大雨':'⛈️','暴雨':'⛈️','阵雨':'🌦️','雷阵雨':'⛈️','小雪':'🌨️','中雪':'🌨️','雾':'🌫️','霾':'🌫️' };
-    return map[weather] || '🌤️';
+function getWeatherIcon(w) {
+    var m = { '晴':'☀️','少云':'🌤️','晴间多云':'⛅','多云':'☁️','阴':'☁️','小雨':'🌧️','中雨':'🌧️','大雨':'⛈️','暴雨':'⛈️','阵雨':'🌦️','雷阵雨':'⛈️','小雪':'🌨️','中雪':'🌨️','雾':'🌫️','霾':'🌫️' };
+    return m[w] || '🌤️';
 }
 </script>
 
