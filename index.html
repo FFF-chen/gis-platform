@@ -297,7 +297,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 
 <script>
 (function(){
-var V=Vue,L=L_,K='6656b79d228d2d201eb95900f3cdd0d1';
+var V=Vue,K='6656b79d228d2d201eb95900f3cdd0d1';
 function mi(c,s){
 var g='<circle cx="12" cy="12" r="10" fill="'+c+'" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
 if(s==='mountain')g='<polygon points="12,4 22,20 2,20" fill="'+c+'" stroke="#fff" stroke-width="1.5"/>';
@@ -344,7 +344,7 @@ try{
 if(this.map)return;
 var el=document.getElementById('map');
 if(!el){console.error('map div not found');return}
-this.map=L.map('map',{center:[23.934,112.185],zoom:12,zoomControl:true,preferCanvas:true});
+this.map=L.map('map',{center:[23.934,112.185],zoom:12,zoomControl:true});
 this.vL=L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,keepBuffer:4}).addTo(this.map);
 this.sL=L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,keepBuffer:4});
 this.mLayer=L.layerGroup().addTo(this.map);this.rLayer=L.layerGroup().addTo(this.map);this._dLayer=L.layerGroup().addTo(this.map);
