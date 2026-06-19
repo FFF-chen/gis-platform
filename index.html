@@ -11,7 +11,6 @@
         *{margin:0;padding:0;box-sizing:border-box;}
         body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC',sans-serif;overflow:hidden;background:#000;}
 
-        /* 封面 */
         .cover{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(160deg,#0f3b2c,#1a5c3a,#25804a);z-index:99999;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;text-align:center;}
         .cover-box{background:rgba(255,255,255,0.07);padding:60px 80px;border-radius:24px;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.12);}
         .cover h1{font-size:52px;letter-spacing:6px;font-weight:700;margin:0 0 16px;text-shadow:0 2px 20px rgba(0,0,0,0.3);}
@@ -19,7 +18,6 @@
         .cover button{background:#34a853;color:#fff;border:none;padding:18px 52px;font-size:20px;font-weight:600;border-radius:32px;cursor:pointer;transition:all 0.35s;box-shadow:0 6px 20px rgba(52,168,83,0.4);letter-spacing:3px;}
         .cover button:hover{background:#3ec760;transform:translateY(-3px);}
 
-        /* 主布局 */
         .main{display:flex;width:100%;height:100%;}
 
         /* 左侧面板 */
@@ -31,11 +29,9 @@
         .left-tab{flex:1;padding:10px 0;text-align:center;cursor:pointer;font-size:0.82rem;font-weight:500;color:#666;border-bottom:2px solid transparent;transition:all 0.2s;}
         .left-tab:hover{color:#34a853;}
         .left-tab.on{color:#34a853;border-bottom-color:#34a853;}
-        .left-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
         .left-search{padding:10px 14px;position:relative;border-bottom:1px solid #f0f0f0;}
         .left-search input{width:100%;padding:8px 14px 8px 34px;border:1px solid #e5e7eb;border-radius:18px;font-size:0.8rem;outline:none;background:#f9fafb;transition:all 0.2s;box-sizing:border-box;}
         .left-search input:focus{border-color:#34a853;box-shadow:0 0 0 3px rgba(52,168,83,0.08);}
-        .left-search svg{position:absolute;left:24px;top:50%;transform:translateY(-50%);}
         .left-filters{display:flex;gap:4px;padding:8px 14px;flex-wrap:wrap;border-bottom:1px solid #f0f0f0;}
         .chip{padding:4px 10px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.68rem;transition:all 0.15s;white-space:nowrap;}
         .chip:hover{border-color:#34a853;color:#34a853;}
@@ -54,20 +50,33 @@
         .map-wrap{flex:1;height:100%;position:relative;}
         #map{width:100%;height:100%;}
 
-        /* 浮动控件 */
-        .ctrl-top{position:absolute;top:12px;z-index:400;display:flex;gap:6px;}
-        .ctrl-top.l{left:12px;}
-        .ctrl-top.r{right:12px;flex-direction:column;}
+        /* 地图顶部搜索栏 */
+        .map-search{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:500;display:flex;align-items:center;background:rgba(255,255,255,0.96);border-radius:28px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:3px;width:420px;max-width:90vw;}
+        .map-search input{flex:1;border:none;padding:10px 16px;font-size:0.85rem;outline:none;background:transparent;border-radius:28px;font-family:inherit;}
+        .map-search button{width:36px;height:36px;border-radius:50%;border:none;background:#34a853;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:3px;transition:all 0.2s;}
+        .map-search button:hover{background:#3ec760;}
+        .map-search-results{position:absolute;top:56px;left:50%;transform:translateX(-50%);width:420px;max-width:90vw;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.2);max-height:420px;overflow-y:auto;z-index:501;}
+        .msr-cats{display:flex;gap:6px;padding:12px;flex-wrap:wrap;border-bottom:1px solid #f0f0f0;}
+        .msr-card{padding:8px 14px;border-radius:20px;background:#f5f5f5;cursor:pointer;font-size:0.76rem;transition:all 0.15s;border:1px solid transparent;white-space:nowrap;}
+        .msr-card:hover{background:#f0fdf4;border-color:#34a853;}
+        .msr-card.sel{background:#34a853;color:#fff;}
+        .msr-items{padding:6px;}
+        .msr-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-radius:8px;transition:all 0.15s;font-size:0.82rem;}
+        .msr-item:hover{background:#f0fdf4;}
+        .msr-item .msn{flex:1;}
+        .msr-item .msc{font-size:0.7rem;color:#999;}
+
+        /* 右侧控件 */
+        .ctrl-r{position:absolute;top:14px;right:14px;z-index:400;display:flex;flex-direction:column;gap:6px;}
         .cbtn{width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,0.94);box-shadow:0 2px 8px rgba(0,0,0,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;position:relative;}
         .cbtn:hover{background:#fff;transform:scale(1.06);box-shadow:0 4px 14px rgba(0,0,0,0.18);}
-        .cbtn.on{background:#34a853;color:#fff;}
+        .cbtn.on{background:#34a853;}
         .cbtn.on svg{stroke:#fff;}
         .cbtn .tt{position:absolute;right:44px;background:rgba(0,0,0,0.8);color:#fff;padding:4px 10px;border-radius:4px;font-size:0.68rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:500;}
         .cbtn:hover .tt{opacity:1;}
 
-        .wthr{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:400;display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:16px;background:rgba(255,255,255,0.94);box-shadow:0 2px 8px rgba(0,0,0,0.12);cursor:pointer;font-size:0.74rem;border:none;transition:all 0.2s;}
-        .wthr:hover{background:#fff;}
-        .wpop{position:absolute;top:48px;left:50%;transform:translateX(-50%);z-index:401;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);padding:14px 16px;width:210px;font-size:0.74rem;}
+        .wthr{position:absolute;top:18px;left:50%;transform:translateX(calc(-50% - 240px));z-index:400;display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:16px;background:rgba(255,255,255,0.94);box-shadow:0 2px 8px rgba(0,0,0,0.12);cursor:pointer;font-size:0.72rem;border:none;}
+        .wpop{position:absolute;top:50px;left:50%;transform:translateX(calc(-50% - 240px));z-index:401;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);padding:14px 16px;width:200px;font-size:0.72rem;}
         .lpop{position:absolute;top:46px;right:0;z-index:401;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);padding:4px 0;width:170px;}
         .lopt{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:0.8rem;transition:background 0.15s;}
         .lopt:hover{background:#f0fdf4;}
@@ -77,47 +86,30 @@
         .lopt.on .di{transform:scale(1);}
 
         .legend{position:absolute;bottom:12px;left:12px;z-index:400;display:flex;gap:4px;flex-wrap:wrap;}
-        .legend span{display:flex;align-items:center;gap:3px;font-size:0.64rem;color:#666;background:rgba(255,255,255,0.9);padding:2px 8px;border-radius:10px;}
+        .legend span{display:flex;align-items:center;gap:3px;font-size:0.62rem;color:#666;background:rgba(255,255,255,0.9);padding:2px 8px;border-radius:10px;}
         .legend span b{width:7px;height:7px;border-radius:50%;}
 
-        /* 右侧详情滑入面板 */
+        /* 详情面板 */
         .detail{position:absolute;right:0;top:0;width:350px;height:100%;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,0.15);z-index:300;transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
         .detail.on{transform:translateX(0);}
         .detail .dclose{position:absolute;top:12px;right:12px;z-index:10;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
 
-        /* 测量/路线面板 */
-        .rpanel{position:absolute;top:60px;left:12px;z-index:200;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);padding:14px 16px;width:270px;font-size:0.8rem;}
-        .rpanel .rst{display:flex;gap:4px;margin-bottom:8px;}
-        .rpanel .rsch{flex:1;padding:5px 0;text-align:center;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.7rem;transition:all 0.15s;}
-        .rpanel .rsch.on{background:#34a853;color:#fff;border-color:#34a853;}
-        .rpanel .rrow{display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#f9fafb;border-radius:8px;cursor:pointer;font-size:0.74rem;}
-        .rpanel .rrow.set{background:#ecfdf5;}
-        .rd{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-        .rd.s{background:#34a853;}.rd.e{background:#e53e3e;}.rd.w{background:#f59e0b;}
-        .rpanel .rbtn{display:block;width:100%;margin-top:6px;padding:9px;border:none;border-radius:8px;background:#34a853;color:#fff;font-size:0.8rem;cursor:pointer;}
-        .rpanel .rbtn:disabled{background:#ccc;cursor:not-allowed;}
-        .rres{margin-top:8px;padding:8px;background:#f0fdf4;border-radius:8px;display:flex;gap:10px;}
-        .rnav{display:block;margin-top:6px;padding:9px;border:none;border-radius:8px;background:#1a73e8;color:#fff;font-size:0.8rem;cursor:pointer;text-align:center;text-decoration:none;}
-
         .meas{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:400;background:rgba(0,0,0,0.8);color:#fff;padding:6px 16px;border-radius:16px;font-size:0.78rem;pointer-events:none;}
 
-        /* 右键 */
         .ctx{position:fixed;z-index:9999;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.2);padding:4px 0;min-width:170px;}
         .ctx button{display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;font-size:0.78rem;transition:background 0.12s;border:none;background:none;width:100%;text-align:left;font-family:inherit;}
         .ctx button:hover{background:#f0fdf4;}
         .ctx hr{margin:3px 0;border:none;border-top:1px solid #eee;}
 
-        /* Toast */
         .toasts{position:fixed;top:16px;right:16px;z-index:99999;}
         .tst{padding:10px 16px;border-radius:8px;color:#fff;font-size:0.78rem;box-shadow:0 4px 16px rgba(0,0,0,0.2);margin-bottom:6px;animation:fIn 0.3s;}
-        .tst.ok{background:#38a169;}.tst.err{background:#e53e3e;}
-        .tst.if{background:#3182ce;}.tst.wn{background:#dd6b20;}
+        .tst.ok{background:#38a169;}.tst.err{background:#e53e3e;}.tst.if{background:#3182ce;}.tst.wn{background:#dd6b20;}
         @keyframes fIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 
         .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
-        .leaflet-popup-content{margin:8px 12px;font-size:0.82rem;line-height:1.5;min-width:160px;}
-        .sp{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spn 0.7s linear infinite;vertical-align:middle;margin-right:4px;}
-        @keyframes spn{to{transform:rotate(360deg)}}
+        .leaflet-popup-content{margin:8px 12px;font-size:0.82rem;line-height:1.5;min-width:150px;}
+        .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
+        @keyframes spin{to{transform:rotate(360deg)}}
     </style>
 </head>
 <body>
@@ -142,86 +134,112 @@
                 <div class="left-tab" :class="{on:tab==='nav'}" @click="tab='nav'">🚗 路线导航</div>
             </div>
 
-            <!-- 导览模式 -->
             <template v-if="tab==='browse'">
                 <div class="left-search">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/></svg>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" style="position:absolute;left:24px;top:50%;transform:translateY(-50%);"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/></svg>
                     <input type="text" v-model="q" placeholder="搜索全部地点…"/>
                 </div>
                 <div class="left-filters">
                     <button class="chip" :class="{on:cat==='全部'}" @click="cat='全部'">全部</button>
                     <button class="chip" :class="{on:cat==='景区'}" @click="cat='景区'">🏔️ 景区</button>
+                    <button class="chip" :class="{on:cat==='酒店'}" @click="cat='酒店'">🏨 酒店</button>
                     <button class="chip" :class="{on:cat==='餐饮'}" @click="cat='餐饮'">🍴 餐饮</button>
-                    <button class="chip" :class="{on:cat==='住宿'}" @click="cat='住宿'">🏨 住宿</button>
                     <button class="chip" :class="{on:cat==='购物'}" @click="cat='购物'">🛒 购物</button>
-                    <button class="chip" :class="{on:cat==='公共服务'}" @click="cat='公共服务'">🏛️ 服务</button>
+                    <button class="chip" :class="{on:cat==='服务'}" @click="cat='服务'">🏛️ 服务</button>
+                    <button class="chip" :class="{on:cat==='交通'}" @click="cat='交通'">🚌 交通</button>
                 </div>
                 <div class="left-list">
-                    <div class="left-empty" v-if="filteredPOIs.length===0&&!loading">
-                        {{ q ? '未找到匹配地点' : '正在加载数据…' }}
-                    </div>
-                    <div class="left-empty" v-if="loading">⏳ 正在从高德地图加载数据…</div>
+                    <div class="left-empty" v-if="loading">⏳ 正在从高德地图加载怀集县全量数据…</div>
+                    <div class="left-empty" v-if="!loading&&filteredPOIs.length===0">{{ q?'未找到匹配':'暂无数据' }}</div>
                     <div class="poi-row" v-for="p in filteredPOIs" :key="p.id"
                          :class="{sel:detail&&detail.id===p.id}"
                          @click="showDetail(p)">
-                        <span class="pdot" :style="{background:cc[p.category]||'#999'}">{{ p.icon }}</span>
+                        <span class="pdot" :style="{background:catColors[p.category]||'#999'}">{{ p.icon }}</span>
                         <div class="pinfo">
                             <div class="pname">{{ p.name }}</div>
-                            <div class="pcat">{{ p.category }}{{ p.rating ? ' · ⭐'+p.rating : '' }}</div>
+                            <div class="pcat">{{ p.category }}{{ p.rating?' · ⭐'+p.rating:'' }}</div>
                         </div>
                         <span style="color:#ccc;">›</span>
                     </div>
                 </div>
             </template>
 
-            <!-- 导航模式 -->
             <template v-if="tab==='nav'">
                 <div style="padding:12px;flex:1;overflow-y:auto;">
                     <div style="font-weight:600;margin-bottom:10px;font-size:0.85rem;">路线规划</div>
-                    <div class="rst" style="display:flex;gap:4px;margin-bottom:10px;">
-                        <button class="rsch" :class="{on:strategy==='fastest'}" @click="strategy='fastest'" style="flex:1;padding:5px 0;text-align:center;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.7rem;">🚀 最快</button>
-                        <button class="rsch" :class="{on:strategy==='shortest'}" @click="strategy='shortest'" style="flex:1;padding:5px 0;text-align:center;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.7rem;">📏 最短</button>
+                    <div style="display:flex;gap:4px;margin-bottom:10px;">
+                        <button class="chip" :class="{on:routeStrategy==='fastest'}" @click="routeStrategy='fastest'">🚀 最快</button>
+                        <button class="chip" :class="{on:routeStrategy==='shortest'}" @click="routeStrategy='shortest'">📏 最短</button>
                     </div>
-                    <div class="rrow" style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#f9fafb;border-radius:8px;cursor:pointer;font-size:0.74rem;" :class="{set:rs}" @click="pickRoute('start')">
-                        <span class="rd s"></span><span style="flex:1;">{{ rs ? rs.name : '选择起点' }}</span>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#f9fafb;border-radius:8px;cursor:pointer;font-size:0.74rem;" :class="{set:rs}" @click="routePicking='start'">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#34a853;flex-shrink:0;"></span>
+                        <span style="flex:1;">{{ rs?rs.name:'选择起点' }}</span>
                     </div>
-                    <div class="rrow" style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#f9fafb;border-radius:8px;cursor:pointer;font-size:0.74rem;" :class="{set:re}" @click="pickRoute('end')">
-                        <span class="rd e"></span><span style="flex:1;">{{ re ? re.name : '选择终点' }}</span>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#f9fafb;border-radius:8px;cursor:pointer;font-size:0.74rem;" :class="{set:re}" @click="routePicking='end'">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#e53e3e;flex-shrink:0;"></span>
+                        <span style="flex:1;">{{ re?re.name:'选择终点' }}</span>
                     </div>
-                    <div v-for="(wp,i) in wpts" :key="i" style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#fef3c7;border-radius:8px;font-size:0.74rem;">
-                        <span class="rd w"></span><span style="flex:1;">途径{{i+1}}: {{ wp.name }}</span>
-                        <button @click="wpts.splice(i,1)" style="border:none;background:none;color:#e53e3e;cursor:pointer;">✕</button>
+                    <div v-for="(wp,i) in waypoints" :key="i" style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#fef3c7;border-radius:8px;font-size:0.74rem;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
+                        <span style="flex:1;">途径{{i+1}}: {{ wp.name }}</span>
+                        <button @click="waypoints.splice(i,1)" style="border:none;background:none;color:#e53e3e;cursor:pointer;">✕</button>
                     </div>
-                    <div v-if="!routeMode" style="padding:6px 10px;text-align:center;color:#34a853;font-size:0.74rem;cursor:pointer;border:1px dashed #34a853;border-radius:8px;" @click="addWaypoint">+ 添加途径点</div>
-                    <button class="rbtn" :disabled="!rs||!re||rl" @click="calcRoute" style="width:100%;margin-top:8px;padding:9px;border:none;border-radius:8px;background:#34a853;color:#fff;font-size:0.8rem;cursor:pointer;">{{ rl?'计算中…':rs&&re?'开始计算路线':'请设置起终点' }}</button>
-                    <div class="rres" v-if="ri">
-                        <div style="flex:1;text-align:center;"><div style="font-weight:700;color:#1a1a1a;">{{ ri.distance }}</div><div style="font-size:0.68rem;color:#888;">距离</div></div>
-                        <div style="flex:1;text-align:center;"><div style="font-weight:700;color:#1a1a1a;">{{ ri.duration }}</div><div style="font-size:0.68rem;color:#888;">时间</div></div>
+                    <div style="padding:6px 10px;text-align:center;color:#34a853;font-size:0.74rem;cursor:pointer;border:1px dashed #34a853;border-radius:8px;" @click="routePicking='waypoint'">+ 添加途径点</div>
+                    <button style="display:block;width:100%;margin-top:8px;padding:9px;border:none;border-radius:8px;background:#34a853;color:#fff;font-size:0.8rem;cursor:pointer;" :disabled="!rs||!re||routeLoading" @click="calcRoute">{{ routeLoading?'计算中…':rs&&re?'开始计算路线':'请设置起终点' }}</button>
+                    <div v-if="routeInfo" style="margin-top:8px;padding:10px;background:#f0fdf4;border-radius:8px;display:flex;gap:12px;">
+                        <div style="flex:1;text-align:center;"><div style="font-weight:700;font-size:1rem;">{{ routeInfo.distance }}</div><div style="font-size:0.68rem;color:#888;">距离</div></div>
+                        <div style="flex:1;text-align:center;"><div style="font-weight:700;font-size:1rem;">{{ routeInfo.duration }}</div><div style="font-size:0.68rem;color:#888;">时间</div></div>
                     </div>
-                    <a class="rnav" v-if="ri" target="_blank" :href="navUrl" style="display:block;margin-top:6px;padding:9px;border:none;border-radius:8px;background:#1a73e8;color:#fff;font-size:0.8rem;cursor:pointer;text-align:center;text-decoration:none;">📱 高德地图实时导航</a>
+                    <a v-if="routeInfo" target="_blank" :href="navUrl" style="display:block;margin-top:8px;padding:9px;border:none;border-radius:8px;background:#1a73e8;color:#fff;font-size:0.8rem;cursor:pointer;text-align:center;text-decoration:none;">📱 高德地图实时导航</a>
                 </div>
             </template>
         </div>
 
-        <!-- 地图 -->
+        <!-- 地图区域 -->
         <div class="map-wrap">
             <div id="map"></div>
 
+            <!-- 地图上方的搜索栏 -->
+            <div class="map-search">
+                <input type="text" v-model="mapSearchQ" placeholder="搜索怀集·景点/酒店/餐厅/超市/医院/加油站…"
+                       @focus="mapSearchFocused=true" @blur="mapSearchBlur" @keydown.enter="mapSearchEnter"/>
+                <button @click="mapSearchEnter">🔍</button>
+            </div>
+            <div class="map-search-results" v-if="mapSearchFocused" @mousedown.prevent>
+                <div class="msr-cats">
+                    <div class="msr-card" :class="{sel:mapSearchCat==='全部'}" @click="mapSearchCat='全部'">全部</div>
+                    <div class="msr-card" :class="{sel:mapSearchCat==='景区'}" @click="mapSearchCat='景区'">🏔️ 景区</div>
+                    <div class="msr-card" :class="{sel:mapSearchCat==='酒店'}" @click="mapSearchCat='酒店'">🏨 酒店</div>
+                    <div class="msr-card" :class="{sel:mapSearchCat==='餐饮'}" @click="mapSearchCat='餐饮'">🍴 餐饮</div>
+                    <div class="msr-card" :class="{sel:mapSearchCat==='购物'}" @click="mapSearchCat='购物'">🛒 购物</div>
+                    <div class="msr-card" :class="{sel:mapSearchCat==='服务'}" @click="mapSearchCat='服务'">🏛️ 服务</div>
+                    <div class="msr-card" :class="{sel:mapSearchCat==='交通'}" @click="mapSearchCat='交通'">🚌 交通</div>
+                    <div class="msr-card" :class="{sel:mapSearchCat==='医疗'}" @click="mapSearchCat='医疗'">🏥 医疗</div>
+                    <div class="msr-card" :class="{sel:mapSearchCat==='加油站'}" @click="mapSearchCat='加油站'">⛽ 加油</div>
+                </div>
+                <div class="msr-items">
+                    <div v-if="mapSearchResults.length===0" style="text-align:center;padding:20px;color:#999;">无结果</div>
+                    <div class="msr-item" v-for="p in mapSearchResults.slice(0,12)" :key="p.id" @click="showDetail(p);mapSearchFocused=false;mapSearchQ=''">
+                        <span>{{ p.icon }}</span>
+                        <span class="msn">{{ p.name }}</span>
+                        <span class="msc">{{ p.category }}{{ p.rating?' ⭐'+p.rating:'' }}</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- 天气 -->
             <button class="wthr" @click="sw=!sw">
-                <span>{{ w.icon }}</span><span style="font-weight:600;color:#333;">{{ w.temp }}°</span><span style="font-size:0.68rem;color:#999;">{{ w.text }}</span>
+                <span>{{ w.icon }}</span><span style="font-weight:600;color:#333;">{{ w.temp }}°</span><span style="font-size:0.66rem;color:#999;">{{ w.text }}</span>
             </button>
             <div class="wpop" v-if="sw" @click.stop>
                 <div style="font-weight:600;margin-bottom:4px;">{{ w.city }} · {{ w.text }}</div>
-                <div v-for="fw in w.fc" :key="fw.date" style="display:flex;justify-content:space-between;padding:2px 0;font-size:0.7rem;border-bottom:1px solid #f5f5f5;">
-                    <span>{{ fw.date }}</span><span>{{ fw.dayweather }} {{ fw.nightweather }}</span><span>{{ fw.nighttemp }}~{{ fw.daytemp }}°</span>
-                </div>
-                <div style="font-size:0.68rem;color:#999;margin-top:4px;">湿度 {{ w.hum }} | 风向 {{ w.wind }}</div>
+                <div v-for="fw in w.fc" :key="fw.date" style="display:flex;justify-content:space-between;padding:2px 0;font-size:0.68rem;border-bottom:1px solid #f5f5f5;"><span>{{ fw.date }}</span><span>{{ fw.dayweather }} {{ fw.nightweather }}</span><span>{{ fw.nighttemp }}~{{ fw.daytemp }}°</span></div>
+                <div style="font-size:0.66rem;color:#999;margin-top:4px;">湿度 {{ w.hum }} | 风向 {{ w.wind }}</div>
             </div>
 
             <!-- 右侧工具 -->
-            <div class="ctrl-top r">
-                <button class="cbtn" @click="sl=!sl" @click.stop>
+            <div class="ctrl-r">
+                <button class="cbtn" @click="sl=!sl">
                     <span class="tt">图层</span>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><rect x="3" y="3" width="18" height="14" rx="2"/><rect x="6" y="7" width="12" height="4" rx="1"/><line x1="12" y1="15" x2="12" y2="21"/></svg>
                 </button>
@@ -241,54 +259,44 @@
                     <span class="tt">全图</span>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><circle cx="12" cy="12" r="9"/><polygon points="12,3 18,14 6,14"/></svg>
                 </button>
-                <button class="cbtn" @click="showCover=true" style="margin-top:6px;">
-                    <span class="tt">返回封面</span>↑
-                </button>
+                <button class="cbtn" @click="showCover=true" style="margin-top:6px;">↑</button>
             </div>
-
-            <!-- 测量信息 -->
-            <div class="meas" v-if="md">总{{ md==='d'?'长':'面积' }}: {{ measVal }}</div>
 
             <!-- 图例 -->
             <div class="legend">
-                <span><b style="background:#e53e3e;"></b>景区</span>
-                <span><b style="background:#38a169;"></b>农业</span>
-                <span><b style="background:#3182ce;"></b>餐饮</span>
-                <span><b style="background:#805ad5;"></b>住宿</span>
-                <span><b style="background:#f59e0b;"></b>服务</span>
+                <span v-for="cl in legendItems" :key="cl.c"><b :style="{background:cl.c}"></b>{{ cl.n }}</span>
             </div>
 
-            <!-- 右侧详情面板 -->
+            <!-- 测量 -->
+            <div class="meas" v-if="md">总{{ md==='d'?'长':'面积' }}: {{ measVal }}</div>
+
+            <!-- 详情面板 -->
             <div class="detail" :class="{on:detail}">
                 <button class="dclose" @click="detail=null">✕</button>
                 <div v-if="detail" style="display:flex;flex-direction:column;height:100%;">
-                    <!-- 图片 -->
                     <div style="height:220px;flex-shrink:0;overflow:hidden;background:#e5e7eb;position:relative;">
                         <img v-if="detail.photos&&detail.photos.length" :src="detail.photos[0]" style="width:100%;height:100%;object-fit:cover;" alt=""/>
                         <div v-else style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;">{{ detail.icon||'📍' }}</div>
-                        <div v-if="detail.photos&&detail.photos.length>1" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.68rem;">{{ detail.photos.length }}张图片</div>
+                        <div v-if="detail.photos&&detail.photos.length>1" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.66rem;">{{ detail.photos.length }}张</div>
                     </div>
-                    <!-- 信息 -->
                     <div style="flex:1;overflow-y:auto;padding:16px;">
                         <span style="display:inline-block;padding:3px 10px;border-radius:10px;color:#fff;font-size:0.7rem;background:#34a853;margin-bottom:8px;">{{ detail.category }}</span>
-                        <h3 style="font-size:1.1rem;margin:0 0 8px;color:#1a1a1a;">{{ detail.name }}</h3>
+                        <h3 style="font-size:1.1rem;margin:0 0 8px;">{{ detail.name }}</h3>
                         <div v-if="detail.rating" style="margin-bottom:6px;"><span style="color:#f59e0b;">⭐</span> {{ detail.rating }} 分</div>
                         <div style="display:flex;align-items:flex-start;gap:4px;margin-bottom:4px;font-size:0.78rem;color:#666;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="10" r="4"/><path d="M12 2v4M12 14v8"/></svg>
-                            <span>{{ detail.address||'暂无地址' }}</span>
+                            <span>{{ detail.address||'暂无地址信息' }}</span>
                         </div>
                         <div v-if="detail.tel" style="display:flex;align-items:center;gap:4px;margin-bottom:4px;font-size:0.78rem;color:#666;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="6" x2="15" y2="6"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
                             <span>{{ detail.tel }}</span>
                         </div>
                         <div v-if="detail.etime" style="font-size:0.75rem;color:#999;margin-bottom:4px;">🕐 {{ detail.etime }}</div>
-                        <p style="font-size:0.78rem;color:#555;line-height:1.6;margin-top:8px;">{{ detail.desc||'暂无描述' }}</p>
-                        <!-- 更多图片 -->
-                        <div v-if="detail.photos&&detail.photos.length>1" style="display:flex;gap:6px;margin-top:10px;overflow-x:auto;">
-                            <img v-for="(ph,i) in detail.photos" :key="i" :src="ph" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;cursor:pointer;" @click="previewImg=ph"/>
+                        <p style="font-size:0.78rem;color:#555;line-height:1.6;margin:6px 0;">{{ detail.desc||'暂无描述' }}</p>
+                        <div style="display:flex;gap:6px;margin-top:10px;overflow-x:auto;" v-if="detail.photos&&detail.photos.length>1">
+                            <img v-for="(ph,i) in detail.photos" :key="i" :src="ph" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;"/>
                         </div>
                     </div>
-                    <!-- 操作按钮 -->
                     <div style="padding:12px 16px;border-top:1px solid #f0f0f0;display:flex;gap:8px;">
                         <button @click="navTo(detail)" style="flex:1;padding:10px;border:none;border-radius:8px;background:#34a853;color:#fff;font-size:0.8rem;cursor:pointer;">🧭 高德导航</button>
                         <button @click="setRS(detail)" style="padding:10px 14px;border:1.5px solid #34a853;border-radius:8px;background:#fff;color:#34a853;font-size:0.78rem;cursor:pointer;">设起点</button>
@@ -297,419 +305,311 @@
                 </div>
             </div>
 
-            <!-- 右键 -->
+            <!-- 右键菜单 -->
             <div class="ctx" v-if="cm.vis" :style="{left:cm.x+'px',top:cm.y+'px'}">
                 <button @click="mZoomIn">🔍 放大</button>
                 <button @click="mZoomOut">🔎 缩小</button>
-                <button @click="mCenter">🎯 以此为中心</button>
-                <hr/>
+                <button @click="mCenter">🎯 以此为中心</button><hr/>
                 <button @click="mRouteStart">🟢 设为起点</button>
-                <button @click="mRouteEnd">🔴 设为终点</button>
-                <hr/>
+                <button @click="mRouteEnd">🔴 设为终点</button><hr/>
                 <button @click="mMeasure">📏 从此处测距</button>
                 <button @click="mNearby">🔍 查看附近</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast -->
-    <div class="toasts">
-        <div class="tst" v-for="t in ts" :key="t.id" :class="t.tp">{{ t.msg }}</div>
-    </div>
+    <div class="toasts"><div class="tst" v-for="t in ts" :key="t.id" :class="t.tp">{{ t.msg }}</div></div>
 </div>
 
 <script>
-var _Vue = Vue, _L = L;
+(function(){
+var Vue_ = Vue, L_ = L;
+var KEY = '6656b79d228d2d201eb95900f3cdd0d1';
 
-_Vue.createApp({
-    data: function() {
-        return {
-            showCover: true,
-            tab: 'browse',
-            map: null, layer: 'v', sl: false, sw: false,
-            vLayer: null, sLayer: null,
-            allPOIs: [], loading: true,
-            q: '', cat: '全部',
-            detail: null, previewImg: null,
-            md: null, mPts: [], mLayer: null,
-            routeMode: false, rs: null, re: null, rp: 'start', strategy: 'fastest',
-            wpts: [], ri: null, rl: false, rLayer: null,
-            cm: { vis: false, x: 0, y: 0, ll: null },
-            ts: [],
-            w: { icon: '☁️', temp: '--', text: '加载中', city: '怀集县', hum: '--', wind: '--', fc: [] },
-            cc: { '景区':'#e53e3e','农业':'#38a169','农庄':'#38a169','餐饮':'#3182ce','住宿':'#805ad5','公共服务':'#f59e0b','医疗':'#8b5cf6','购物':'#06b6d4','交通':'#64748b' },
-            cs: { '景区':'mountain','农业':'leaf','餐饮':'food','住宿':'hotel','公共服务':'shield','医疗':'plus','购物':'cart','交通':'bus' },
-        };
+// 图标工厂
+function mkIcon(color, shape) {
+    var svg = '<circle cx="12" cy="12" r="10" fill="'+color+'" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
+    if (shape==='mountain') svg = '<polygon points="12,4 22,20 2,20" fill="'+color+'" stroke="#fff" stroke-width="1.5"/>';
+    else if (shape==='leaf') svg = '<ellipse cx="12" cy="12" rx="8" ry="5" fill="'+color+'" stroke="#fff" stroke-width="1.5" transform="rotate(-15 12 12)"/><line x1="12" y1="7" x2="12" y2="17" stroke="#fff" stroke-width="1.2"/>';
+    else if (shape==='food') svg = '<path d="M5 10 Q5 4 12 4 Q19 4 19 10 L18 18 Q18 20 12 20 Q6 20 6 18 Z" fill="'+color+'" stroke="#fff" stroke-width="1.5"/>';
+    else if (shape==='hotel') svg = '<rect x="3" y="6" width="18" height="14" rx="2" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><rect x="7" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="13" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="7" y="15" width="10" height="3" fill="#fff" opacity="0.6"/>';
+    else if (shape==='shield') svg = '<path d="M12 3 L21 7 L21 13 Q21 17 12 21 Q3 17 3 13 L3 7 Z" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><text x="12" y="14" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">★</text>';
+    else if (shape==='plus') svg = '<rect x="3" y="7" width="18" height="10" rx="3" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><line x1="12" y1="10" x2="12" y2="14" stroke="#fff" stroke-width="1.8"/><line x1="10" y1="12" x2="14" y2="12" stroke="#fff" stroke-width="1.8"/>';
+    else if (shape==='cart') svg = '<rect x="3" y="5" width="14" height="12" rx="2" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><circle cx="7" cy="18" r="1.5" fill="#fff"/><circle cx="15" cy="18" r="1.5" fill="#fff"/>';
+    else if (shape==='bus') svg = '<rect x="2" y="5" width="20" height="13" rx="3" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><rect x="5" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><rect x="13" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><circle cx="6" cy="17" r="2" fill="#333"/><circle cx="18" cy="17" r="2" fill="#333"/>';
+    else if (shape==='fuel') svg = '<rect x="5" y="6" width="12" height="12" rx="2" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><rect x="7" y="8" width="4" height="8" rx="1" fill="#fff" opacity="0.6"/>';
+    return L_.divIcon({className:'',iconSize:[24,24],iconAnchor:[12,12],popupAnchor:[0,-14],html:'<svg width="24" height="24" viewBox="0 0 24 24" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">'+svg+'</svg>'});
+}
+function wIcon(w){var m={'晴':'☀️','少云':'🌤️','多云':'☁️','小雨':'🌧️','中雨':'🌧️','大雨':'⛈️','暴雨':'⛈️','阵雨':'🌦️','雾':'🌫️','阴':'☁️','霾':'🌫️'};return m[w]||'🌤️';}
+
+Vue_.createApp({
+    data:function(){return{
+        showCover:true, tab:'browse',
+        map:null,layer:'v',sl:false,sw:false,vLayer:null,sLayer:null,
+        allPOIs:[],loading:true,
+        q:'',cat:'全部',
+        detail:null,
+        md:null,mPts:[],mLayer:null,
+        routeMode:false,rs:null,re:null,routePicking:'start',routeStrategy:'fastest',
+        waypoints:[],routeInfo:null,routeLoading:false,rLayer:null,
+        cm:{vis:false,x:0,y:0,ll:null},
+        ts:[],
+        w:{icon:'☁️',temp:'--',text:'加载中',city:'怀集县',hum:'--',wind:'--',fc:[]},
+        mapSearchQ:'',mapSearchFocused:false,mapSearchCat:'全部',
+    };},
+    computed:{
+        catColors:function(){return{'景区':'#e53e3e','酒店':'#805ad5','餐饮':'#3182ce','购物':'#06b6d4','服务':'#f59e0b','交通':'#64748b','医疗':'#8b5cf6','加油站':'#ef4444','农业':'#38a169'};},
+        catShapes:function(){return{'景区':'mountain','酒店':'hotel','餐饮':'food','购物':'cart','服务':'shield','交通':'bus','医疗':'plus','加油站':'fuel','农业':'leaf'};},
+        legendItems:function(){return[{c:'#e53e3e',n:'景区'},{c:'#805ad5',n:'酒店'},{c:'#3182ce',n:'餐饮'},{c:'#06b6d4',n:'购物'},{c:'#f59e0b',n:'服务'},{c:'#64748b',n:'交通'}];},
+        filteredPOIs:function(){
+            var l=this.allPOIs;
+            if(this.cat!=='全部')l=l.filter(function(p){return p.category===this.cat;},this);
+            if(this.q.trim()){var q_=this.q.trim().toLowerCase();l=l.filter(function(p){return(p.name||'').toLowerCase().indexOf(q_)>=0||(p.category||'').toLowerCase().indexOf(q_)>=0||(p.address||'').toLowerCase().indexOf(q_)>=0;});}
+            return l;
+        },
+        mapSearchResults:function(){
+            var l=this.allPOIs;
+            if(this.mapSearchCat!=='全部')l=l.filter(function(p){return p.category===this.mapSearchCat;},this);
+            if(this.mapSearchQ.trim()){var q_=this.mapSearchQ.trim().toLowerCase();l=l.filter(function(p){return(p.name||'').toLowerCase().indexOf(q_)>=0||(p.address||'').toLowerCase().indexOf(q_)>=0;});}
+            return l;
+        },
+        measVal:function(){
+            if(this.mPts.length<2)return'—';
+            if(this.md==='d'){var t=0;for(var i=1;i<this.mPts.length;i++)t+=L_.latLng(this.mPts[i-1].lat,this.mPts[i-1].lng).distanceTo(L_.latLng(this.mPts[i].lat,this.mPts[i].lng));return fd(t);}
+            if(this.md==='a'&&this.mPts.length>=3){var s=this;var pts=this.mPts.map(function(p){var pr=s.map.latLngToContainerPoint(L_.latLng(p.lat,p.lng));return[pr.x,pr.y];});var r1=L_.latLng(this.mPts[0].lat,this.mPts[0].lng),r2=L_.latLng(this.mPts[0].lat+0.01,this.mPts[0].lng);var pp=Math.abs(this.map.latLngToContainerPoint(r1).y-this.map.latLngToContainerPoint(r2).y);var mpp=111320*0.01/pp,ap=0,n=pts.length;for(var j=0;j<n;j++){var k=(j+1)%n;ap+=pts[j][0]*pts[k][1]-pts[k][0]*pts[j][1];}return fa(Math.abs(ap)/2*mpp*mpp);}
+            return'—';
+        },
+        navUrl:function(){if(!this.rs||!this.re)return'#';var u='https://uri.amap.com/navigation?from='+this.rs.lng+','+this.rs.lat+',起点&to='+this.re.lng+','+this.re.lat+',终点&mode=car&callnative=1';if(this.waypoints.length)u+='&mid='+this.waypoints.map(function(w){return w.lng+','+w.lat;}).join('|');return u;},
     },
-    computed: {
-        filteredPOIs: function() {
-            var list = this.allPOIs;
-            if (this.cat !== '全部') list = list.filter(function(p) { return p.category === this.cat; }, this);
-            if (this.q.trim()) {
-                var q = this.q.trim().toLowerCase();
-                list = list.filter(function(p) {
-                    return (p.name||'').toLowerCase().indexOf(q) >= 0 ||
-                           (p.category||'').toLowerCase().indexOf(q) >= 0 ||
-                           (p.address||'').toLowerCase().indexOf(q) >= 0;
-                });
-            }
-            return list;
+    methods:{
+        enter:function(){this.showCover=false;var s=this;this.$nextTick(function(){s._init();});},
+        _init:function(){
+            if(this.map)return;
+            this.map=L_.map('map',{center:[23.934,112.185],zoom:12,zoomControl:true,preferCanvas:true});
+            this.vLayer=L_.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,updateWhenZooming:false,updateWhenIdle:true}).addTo(this.map);
+            this.sLayer=L_.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,updateWhenZooming:false,updateWhenIdle:true});
+            this.mLayer=L_.layerGroup().addTo(this.map);
+            this.rLayer=L_.layerGroup().addTo(this.map);
+            this._dynLayer=L_.layerGroup().addTo(this.map);
+            loadW(this);
+            loadAllPOIs(this);
+            var s=this;
+            this.map.on('click',function(e){s._mClick(e);});
+            this.map.on('dblclick',function(e){s._mDbl(e);});
+            this.map.on('contextmenu',function(e){s._mCtx(e);});
+            this.map.on('click',function(){if(s.cm.vis)s.cm.vis=false;});
         },
-        measVal: function() {
-            if (this.mPts.length < 2) return '—';
-            if (this.md === 'd') {
-                var t = 0;
-                for (var i = 1; i < this.mPts.length; i++)
-                    t += _L.latLng(this.mPts[i-1].lat, this.mPts[i-1].lng).distanceTo(_L.latLng(this.mPts[i].lat, this.mPts[i].lng));
-                return this._fd(t);
-            }
-            if (this.md === 'a' && this.mPts.length >= 3) {
-                var self = this;
-                var pts = this.mPts.map(function(p) { var pr = self.map.latLngToContainerPoint(_L.latLng(p.lat, p.lng)); return [pr.x, pr.y]; });
-                var r1 = _L.latLng(this.mPts[0].lat, this.mPts[0].lng), r2 = _L.latLng(this.mPts[0].lat + 0.01, this.mPts[0].lng);
-                var pp = Math.abs(this.map.latLngToContainerPoint(r1).y - this.map.latLngToContainerPoint(r2).y);
-                var mpp = 111320 * 0.01 / pp, ap = 0, n = pts.length;
-                for (var j = 0; j < n; j++) { var k = (j + 1) % n; ap += pts[j][0] * pts[k][1] - pts[k][0] * pts[j][1]; }
-                return this._fa(Math.abs(ap) / 2 * mpp * mpp);
-            }
-            return '—';
-        },
-        navUrl: function() {
-            if (!this.rs || !this.re) return '#';
-            var u = 'https://uri.amap.com/navigation?from=' + this.rs.lng + ',' + this.rs.lat + ',起点&to=' + this.re.lng + ',' + this.re.lat + ',终点&mode=car&callnative=1';
-            if (this.wpts.length) u += '&mid=' + this.wpts.map(function(w) { return w.lng + ',' + w.lat; }).join('|');
-            return u;
-        },
-    },
-    methods: {
-        enter: function() {
-            this.showCover = false;
-            var self = this;
-            this.$nextTick(function() { self._init(); });
-        },
-        _init: function() {
-            if (this.map) return;
-            this.map = _L.map('map', {
-                center: [23.934, 112.185], zoom: 12,
-                zoomControl: true, preferCanvas: true,
-            });
-            this.vLayer = _L.tileLayer(
-                'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-                    subdomains: ['1','2','3','4'], maxZoom: 18,
-                    updateWhenZooming: false, updateWhenIdle: true,
-                }
-            ).addTo(this.map);
-            this.sLayer = _L.tileLayer(
-                'https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
-                    subdomains: ['1','2','3','4'], maxZoom: 18,
-                    updateWhenZooming: false, updateWhenIdle: true,
-                }
-            );
-            this.mLayer = _L.layerGroup().addTo(this.map);
-            this.rLayer = _L.layerGroup().addTo(this.map);
-            this._loadW();
-            this._loadAllPOIs();
-            var self = this;
-            this.map.on('click', function(e) { self._mClick(e); });
-            this.map.on('dblclick', function(e) { self._mDbl(e); });
-            this.map.on('contextmenu', function(e) { self._mCtx(e); });
-            this.map.on('click', function() { if (self.cm.vis) self.cm.vis = false; });
-        },
-        setLayer: function(t) {
-            if (!this.map) return;
-            if (t === 'v') { this.map.removeLayer(this.sLayer); this.vLayer.addTo(this.map); }
-            else { this.map.removeLayer(this.vLayer); this.sLayer.addTo(this.map); }
-            this.layer = t; this.sl = false;
-        },
-        resetV: function() { if (this.map) { this.map.setView([23.934, 112.185], 12); this.map.closePopup(); } },
-
-        // ==== POI加载 ====
-        _loadAllPOIs: function() {
-            var self = this;
-            this.loading = true;
-            var cats = ['景区|景点|公园|寺庙|温泉|漂流|溶洞', '餐厅|饭店|酒楼|美食|小吃|农家乐', '酒店|宾馆|民宿|旅馆|度假村', '商场|超市|市场|购物', '政府|派出所|公安局|银行|社区|医院'];
-            var catNames = ['景区', '餐饮', '住宿', '购物', '公共服务'];
-            var catIcons = ['🏔️', '🍴', '🏨', '🛒', '🏛️'];
-            var fetches = cats.map(function(kw) {
-                return fetch('https://restapi.amap.com/v3/place/text?key=6656b79d228d2d201eb95900f3cdd0d1&keywords=' + encodeURIComponent(kw) + '&city=怀集县&citylimit=true&offset=30&extensions=all&page=1')
-                    .then(function(r) { return r.json(); })
-                    .then(function(d) {
-                        if (d.status === '1' && d.pois) return d.pois.map(function(p, i) {
-                            var loc = (p.location||'0,0').split(',');
-                            return {
-                                id: p.id || ('api_' + Math.random()),
-                                name: p.name, lat: parseFloat(loc[1]), lng: parseFloat(loc[0]),
-                                address: p.address||'', tel: p.tel||'',
-                                rating: (p.biz_ext&&p.biz_ext.rating) ? p.biz_ext.rating : '',
-                                etime: (p.biz_ext&&p.biz_ext.open_time) ? p.biz_ext.open_time : '',
-                                photos: (p.photos||[]).map(function(ph) { return ph.url||''; }).filter(Boolean).slice(0, 5),
-                            };
-                        });
-                        return [];
-                    }).catch(function() { return []; });
-            });
-            Promise.all(fetches).then(function(results) {
-                var all = [], seen = {};
-                results.forEach(function(arr, i) {
-                    arr.forEach(function(p) {
-                        if (!seen[p.id]) { seen[p.id] = true; p.category = catNames[i]; p.icon = catIcons[i]; all.push(p); }
-                    });
-                });
-                self.allPOIs = all; self.loading = false;
-                self.$nextTick(function() { self._renderMarkers(); });
-                self._toast('已加载怀集县 ' + all.length + ' 个地点', 'ok');
-            }).catch(function() { self.loading = false; });
-        },
-        _renderMarkers: function() {
-            if (!this.map) return;
-            if (this._markers) this._markers.forEach(function(m) { m.remove(); });
-            this._markers = [];
-            var self = this;
-            this.allPOIs.forEach(function(p) {
-                var color = self.cc[p.category] || '#999';
-                var shape = self.cs[p.category] || 'circle';
-                var icon = _mkIcon(color, shape);
-                var m = _L.marker([p.lat, p.lng], { icon: icon }).addTo(self.map);
-                m.bindPopup('<div style="min-width:150px;"><span style="display:inline-block;padding:2px 8px;border-radius:8px;color:#fff;font-size:0.65rem;background:' + color + ';margin-bottom:4px;">' + p.category + '</span><h4 style="margin:0 0 4px;font-size:0.85rem;">' + p.name + '</h4>' + (p.address?'<p style="margin:0;font-size:0.72rem;color:#888;">📍 ' + p.address + '</p>':'') + '<button onclick="void(0)" style="margin-top:6px;padding:4px 12px;border-radius:6px;border:1px solid #34a853;background:#fff;color:#34a853;font-size:0.7rem;cursor:pointer;">查看详情 →</button></div>');
-                m.on('click', function() { self.showDetail(p); });
-                self._markers.push(m);
+        setLayer:function(t){if(!this.map)return;if(t==='v'){this.map.removeLayer(this.sLayer);this.vLayer.addTo(this.map);}else{this.map.removeLayer(this.vLayer);this.sLayer.addTo(this.map);}this.layer=t;this.sl=false;},
+        resetV:function(){if(this.map){this.map.setView([23.934,112.185],12);this.map.closePopup();}},
+        renderMarkers:function(){
+            if(!this.map)return;
+            if(this._markers)this._markers.forEach(function(m){m.remove();});
+            this._markers=[];
+            var s=this;
+            this.allPOIs.forEach(function(p){
+                var col=s.catColors[p.category]||'#999';
+                var sh=s.catShapes[p.category]||'circle';
+                var ic=mkIcon(col,sh);
+                var m=L_.marker([p.lat,p.lng],{icon:ic}).addTo(s.map);
+                // Popup: 基础信息+点击查看详情
+                var ph='';if(p.photos&&p.photos.length)ph='<br/><img src="'+p.photos[0]+'" style="width:100%;max-height:100px;object-fit:cover;border-radius:6px;margin-top:4px;"/>';
+                m.bindPopup('<div style="min-width:160px;"><span style="display:inline-block;padding:2px 8px;border-radius:8px;color:#fff;font-size:0.65rem;background:'+col+';margin-bottom:4px;">'+p.category+'</span><h4 style="margin:0 0 4px;font-size:0.85rem;">'+p.name+'</h4>'+(p.address?'<p style="margin:0;font-size:0.72rem;color:#888;">📍 '+p.address+'</p>':'')+(p.tel?'<p style="margin:0;font-size:0.72rem;color:#666;">📞 '+p.tel+'</p>':'')+(p.rating?'<p style="margin:0;font-size:0.7rem;color:#f59e0b;">⭐ '+p.rating+' 分</p>':'')+ph+'</div>');
+                m.on('mouseover',function(){this.openPopup();});
+                m.on('mouseout',function(){this.closePopup();});
+                // Click marker = open detail
+                m.on('click',function(){s.showDetail(p);});
+                s._markers.push(m);
             });
         },
-        showDetail: function(p) {
-            this.detail = JSON.parse(JSON.stringify(p));
-            if (this.map) this.map.flyTo([p.lat, p.lng], 15, { duration: 0.8 });
+        showDetail:function(p){
+            this.detail=JSON.parse(JSON.stringify(p));
+            // Try to load more photos if we don't have them yet
+            if(!this.detail.photos||this.detail.photos.length===0){
+                var s=this;
+                loadPhotos(p.id,function(photos){s.detail.photos=photos;});
+            }
+            if(this.map)this.map.flyTo([p.lat,p.lng],15,{duration:0.8});
         },
-        navTo: function(p) { window.open('https://uri.amap.com/navigation?to=' + p.lng + ',' + p.lat + ',' + encodeURIComponent(p.name) + '&mode=car&callnative=1', '_blank'); },
-        setRS: function(p) {
-            this.tab = 'nav'; this.rs = { lat: p.lat, lng: p.lng, name: p.name };
-            this.re = null; this.ri = null; this.wpts = [];
-            if (!this.rLayer) this.rLayer = _L.layerGroup().addTo(this.map);
-            else this.rLayer.clearLayers();
-            this._drawRP(); this._toast('起点: ' + p.name, 'if');
-            this.detail = null;
-        },
-        setRE: function(p) {
-            this.re = { lat: p.lat, lng: p.lng, name: p.name };
-            this._drawRP(); this._toast('终点: ' + p.name, 'if');
-            this.detail = null;
+        navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank');},
+        setRS:function(p){this.tab='nav';this.rs={lat:p.lat,lng:p.lng,name:p.name};this.re=null;this.routeInfo=null;this.waypoints=[];if(!this.rLayer)this.rLayer=L_.layerGroup().addTo(this.map);else this.rLayer.clearLayers();drawRP(this);toast(this,'起点: '+p.name,'if');this.detail=null;},
+        setRE:function(p){this.re={lat:p.lat,lng:p.lng,name:p.name};drawRP(this);toast(this,'终点: '+p.name,'if');this.detail=null;},
+
+        // 搜索栏
+        mapSearchBlur:function(){var s=this;setTimeout(function(){s.mapSearchFocused=false;},200);},
+        mapSearchEnter:function(){if(this.mapSearchResults.length>0){this.showDetail(this.mapSearchResults[0]);this.mapSearchFocused=false;this.mapSearchQ='';}},
+
+        // 路线
+        calcRoute:function(){
+            var s=this;if(!s.rs||!s.re||!s.map)return;
+            s.routeLoading=true;s.routeInfo=null;
+            var st=s.routeStrategy==='fastest'?'10':'2';
+            var u='https://restapi.amap.com/v3/direction/driving?key='+KEY+'&origin='+s.rs.lng+','+s.rs.lat+'&destination='+s.re.lng+','+s.re.lat+'&strategy='+st+'&extensions=all';
+            if(s.waypoints.length)u+='&waypoints='+s.waypoints.map(function(w){return w.lng+','+w.lat;}).join('|');
+            fetch(u).then(function(r){return r.json();}).then(function(d){
+                if(!d.route||!d.route.paths||d.route.paths.length===0){toast(s,'未找到可行路线','err');s.routeLoading=false;return;}
+                var p=d.route.paths[0],coords=[];
+                p.steps.forEach(function(step){step.polyline.split(';').forEach(function(pt){var parts=pt.split(',');coords.push([parseFloat(parts[1]),parseFloat(parts[0])]);});});
+                if(s.rLayer)s.rLayer.clearLayers();
+                L_.polyline(coords,{color:'#34a853',weight:5,opacity:0.85}).addTo(s.rLayer);
+                drawRP(s);
+                var dk=(parseInt(p.distance)/1000).toFixed(1),dm=Math.round(parseInt(p.duration)/60);
+                s.routeInfo={distance:dk+' km',duration:dm>=60?Math.floor(dm/60)+'h'+(dm%60)+'min':dm+' 分钟'};
+                s.map.fitBounds(L_.latLngBounds(coords.concat([[s.rs.lat,s.rs.lng],[s.re.lat,s.re.lng]])).pad(0.2));
+                toast(s,'路线约 '+dk+' km','ok');s.routeLoading=false;
+            }).catch(function(e){toast(s,'路线失败: '+e.message,'err');s.routeLoading=false;});
         },
 
-        // ==== 导航面板 ====
-        pickRoute: function(which) { this.rp = which; this.routeMode = true; this._toast('请在地图上点击选择' + (which==='start'?'起点':'终点'), 'if'); },
-        addWaypoint: function() { this.rp = 'waypoint'; this._toast('请在地图上点击添加途径点', 'if'); },
-        _drawRP: function() {
-            if (!this.rLayer) return; this.rLayer.clearLayers();
-            var iS = _L.divIcon({ className: '', html: '<div style="width:22px;height:22px;background:#34a853;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">起</div>', iconSize: [22,22], iconAnchor: [11,11] });
-            var iE = _L.divIcon({ className: '', html: '<div style="width:22px;height:22px;background:#e53e3e;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">终</div>', iconSize: [22,22], iconAnchor: [11,11] });
-            var iW = _L.divIcon({ className: '', html: '<div style="width:18px;height:18px;background:#f59e0b;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">经</div>', iconSize: [18,18], iconAnchor: [9,9] });
-            if (this.rs) _L.marker([this.rs.lat, this.rs.lng], { icon: iS }).addTo(this.rLayer);
-            if (this.re) _L.marker([this.re.lat, this.re.lng], { icon: iE }).addTo(this.rLayer);
-            var self = this;
-            this.wpts.forEach(function(w) { _L.marker([w.lat, w.lng], { icon: iW }).addTo(self.rLayer); });
+        // 地图点击
+        _mClick:function(e){
+            if(this.cm.vis){this.cm.vis=false;return;}
+            if((this.tab==='nav'||this.routeMode)&&this.routePicking){
+                var pt={lat:e.latlng.lat,lng:e.latlng.lng,name:e.latlng.lat.toFixed(4)+','+e.latlng.lng.toFixed(4)};
+                if(this.routePicking==='start'){this.rs=pt;this.routePicking='end';}
+                else if(this.routePicking==='end'){this.re=pt;this.routePicking='start';}
+                else if(this.routePicking==='waypoint'){this.waypoints.push(pt);this.routePicking='start';}
+                drawRP(this);return;
+            }
+            if(!this.md)return;
+            this.mPts.push({lat:e.latlng.lat,lng:e.latlng.lng});redrawM(this);
         },
-        calcRoute: function() {
-            var self = this;
-            if (!this.rs || !this.re || !this.map) return;
-            this.rl = true; this.ri = null;
-            var s = this.strategy === 'fastest' ? '10' : '2';
-            var u = 'https://restapi.amap.com/v3/direction/driving?key=6656b79d228d2d201eb95900f3cdd0d1&origin=' + this.rs.lng + ',' + this.rs.lat + '&destination=' + this.re.lng + ',' + this.re.lat + '&strategy=' + s + '&extensions=all';
-            if (this.wpts.length) u += '&waypoints=' + this.wpts.map(function(w) { return w.lng + ',' + w.lat; }).join('|');
-            fetch(u).then(function(r) { return r.json(); }).then(function(d) {
-                if (!d.route || !d.route.paths || d.route.paths.length === 0) { self._toast('未找到可行路线', 'err'); self.rl = false; return; }
-                var p = d.route.paths[0], coords = [];
-                p.steps.forEach(function(s) { s.polyline.split(';').forEach(function(pt) { var parts = pt.split(','); coords.push([parseFloat(parts[1]), parseFloat(parts[0])]); }); });
-                if (self.rLayer) self.rLayer.clearLayers();
-                _L.polyline(coords, { color: '#34a853', weight: 5, opacity: 0.85 }).addTo(self.rLayer);
-                self._drawRP();
-                var dk = (parseInt(p.distance)/1000).toFixed(1), dm = Math.round(parseInt(p.duration)/60);
-                self.ri = { distance: dk + ' km', duration: dm >= 60 ? Math.floor(dm/60) + 'h' + (dm%60) + 'min' : dm + ' 分钟' };
-                self.map.fitBounds(_L.latLngBounds(coords.concat([[self.rs.lat, self.rs.lng], [self.re.lat, self.re.lng]])).pad(0.2));
-                self._toast('路线计算完成，约 ' + dk + ' km', 'ok');
-                self.rl = false;
-            }).catch(function(e) { self._toast('路线计算失败: ' + e.message, 'err'); self.rl = false; });
-        },
+        _mDbl:function(e){if(!this.md)return;L_.DomEvent.preventDefault(e.originalEvent);L_.DomEvent.stopPropagation(e.originalEvent);if(this.mPts.length<2){this.md=null;this.mPts=[];if(this.mLayer)this.mLayer.clearLayers();}else this.md=null;},
+        toggleM:function(m){if(this.md===m){this.md=null;this.mPts=[];if(this.mLayer)this.mLayer.clearLayers();return;}this.md=m;this.mPts=[];if(this.mLayer)this.mLayer.clearLayers();},
 
-        // ==== 地图点击 ====
-        _mClick: function(e) {
-            if (this.cm.vis) { this.cm.vis = false; return; }
-            if ((this.tab === 'nav' || this.routeMode) && this.rp) {
-                var pt = { lat: e.latlng.lat, lng: e.latlng.lng, name: e.latlng.lat.toFixed(4) + ',' + e.latlng.lng.toFixed(4) };
-                if (this.rp === 'start') { this.rs = pt; this.rp = 'end'; }
-                else if (this.rp === 'end') { this.re = pt; this.rp = 'start'; }
-                else if (this.rp === 'waypoint') { this.wpts.push(pt); this.rp = 'start'; }
-                this._drawRP(); return;
-            }
-            if (!this.md) return;
-            this.mPts.push({ lat: e.latlng.lat, lng: e.latlng.lng });
-            this._redrawM();
-        },
-        _mDbl: function(e) {
-            if (!this.md) return;
-            _L.DomEvent.preventDefault(e.originalEvent); _L.DomEvent.stopPropagation(e.originalEvent);
-            if (this.mPts.length < 2) { this.md = null; this.mPts = []; if (this.mLayer) this.mLayer.clearLayers(); }
-            else this.md = null;
-        },
-        toggleM: function(m) { if (this.md === m) { this.md = null; this.mPts = []; if (this.mLayer) this.mLayer.clearLayers(); return; } this.md = m; this.mPts = []; if (this.mLayer) this.mLayer.clearLayers(); },
-        _redrawM: function() {
-            if (!this.mLayer) return; this.mLayer.clearLayers();
-            var pts = this.mPts, lls = pts.map(function(p) { return [p.lat, p.lng]; });
-            lls.forEach(function(ll) { _L.circleMarker(ll, { radius: 4, color: '#34a853', fillColor: '#fff', fillOpacity: 1, weight: 2.5 }).addTo(this.mLayer); }, this);
-            for (var i = 1; i < lls.length; i++) {
-                var a = _L.latLng(lls[i-1]), b = _L.latLng(lls[i]), dist = a.distanceTo(b);
-                _L.polyline([lls[i-1], lls[i]], { color: '#34a853', weight: 3, dashArray: this.md === 'a' ? '6 4' : null }).addTo(this.mLayer);
-                var mid = _L.latLng((lls[i-1][0]+lls[i][0])/2, (lls[i-1][1]+lls[i][1])/2);
-                _L.marker(mid, { icon: _L.divIcon({ className: '', html: '<div style="background:rgba(52,168,83,0.9);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;white-space:nowrap;">' + this._fd(dist) + '</div>', iconSize: [0,0], iconAnchor: [0,0] }), interactive: false }).addTo(this.mLayer);
-            }
-            if (this.md === 'a' && lls.length >= 3) {
-                _L.polyline([lls[lls.length-1], lls[0]], { color: '#e53e3e', weight: 2, dashArray: '4 6' }).addTo(this.mLayer);
-                _L.polygon(lls, { color: '#34a853', fillColor: '#6ee7b7', fillOpacity: 0.2, weight: 2 }).addTo(this.mLayer);
-                var cx = lls.reduce(function(s,ll) { return s+ll[0]; }, 0) / lls.length;
-                var cy = lls.reduce(function(s,ll) { return s+ll[1]; }, 0) / lls.length;
-                _L.marker([cx, cy], { icon: _L.divIcon({ className: '', html: '<div style="background:rgba(229,62,62,0.9);color:#fff;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600;white-space:nowrap;">' + this.measVal + '</div>', iconSize: [0,0], iconAnchor: [0,0] }), interactive: false }).addTo(this.mLayer);
-            }
-        },
-        _fd: function(m) { if (m < 1) return '< 1 米'; if (m < 1000) return m.toFixed(1) + ' 米'; return (m/1000).toFixed(2) + ' 公里'; },
-        _fa: function(m2) { if (m2 < 1) return '< 1 ㎡'; if (m2 < 1000000) return m2.toFixed(0) + ' ㎡'; return (m2/666.667).toFixed(1) + ' 亩'; },
-
-        // ==== 右键 ====
-        _mCtx: function(e) {
+        // 右键
+        _mCtx:function(e){
             e.originalEvent.preventDefault();
-            var mx = e.originalEvent.clientX, my = e.originalEvent.clientY;
-            if (mx + 180 > window.innerWidth) mx -= 180;
-            if (my + 280 > window.innerHeight) my -= 280;
-            this.cm = { vis: true, x: mx, y: my, ll: e.latlng };
-            this._regeo(e.latlng);
+            var mx=e.originalEvent.clientX,my=e.originalEvent.clientY;
+            if(mx+180>window.innerWidth)mx-=180;
+            if(my+280>window.innerHeight)my-=280;
+            this.cm={vis:true,x:mx,y:my,ll:e.latlng};
+            regeo(this,e.latlng);
         },
-        mZoomIn: function() { if (this.map) this.map.zoomIn(); this.cm.vis = false; },
-        mZoomOut: function() { if (this.map) this.map.zoomOut(); this.cm.vis = false; },
-        mCenter: function() { if (this.map && this.cm.ll) this.map.setView(this.cm.ll, 16); this.cm.vis = false; },
-        mRouteStart: function() {
-            if (this.map && this.cm.ll) {
-                this.tab = 'nav'; this.rs = { lat: this.cm.ll.lat, lng: this.cm.ll.lng, name: '坐标点' };
-                this.re = null; this.ri = null; this.wpts = [];
-                if (!this.rLayer) this.rLayer = _L.layerGroup().addTo(this.map);
-                else this.rLayer.clearLayers();
-                this._drawRP(); this._toast('起点已设置', 'if');
-            }
-            this.cm.vis = false;
-        },
-        mRouteEnd: function() {
-            if (this.map && this.cm.ll) {
-                if (!this.rs) { this._toast('请先设置起点', 'wn'); }
-                else { this.re = { lat: this.cm.ll.lat, lng: this.cm.ll.lng, name: '坐标点' }; this._drawRP(); this._toast('终点已设置', 'if'); }
-            }
-            this.cm.vis = false;
-        },
-        mMeasure: function() {
-            if (this.map && this.cm.ll) {
-                this.md = 'd'; this.mPts = [{ lat: this.cm.ll.lat, lng: this.cm.ll.lng }];
-                if (this.mLayer) this.mLayer.clearLayers();
-            }
-            this.cm.vis = false;
-        },
-        mNearby: function() {
-            var self = this;
-            if (this.map && this.cm.ll) {
-                var ll = this.cm.ll;
-                this.cm.vis = false;
-                this._toast('搜索附近…', 'if');
-                var u = 'https://restapi.amap.com/v3/place/around?key=6656b79d228d2d201eb95900f3cdd0d1&location=' + ll.lng + ',' + ll.lat + '&types=050000|060000|070000|080000|090000|110000&radius=2000&offset=20&extensions=all';
-                fetch(u).then(function(r) { return r.json(); }).then(function(d) {
-                    if (d.status === '1' && d.pois && d.pois.length > 0) {
-                        if (self._dLayer) self._dLayer.clearLayers();
-                        else self._dLayer = _L.layerGroup().addTo(self.map);
-                        var ms = [];
-                        d.pois.slice(0, 20).forEach(function(poi) {
-                            var parts = poi.location.split(',');
-                            var m = _L.marker([parseFloat(parts[1]), parseFloat(parts[0])], { icon: _mkIcon('#ff6b6b', 'circle') }).addTo(self._dLayer);
-                            m.bindPopup('<div style="min-width:140px;"><span style="display:inline-block;padding:2px 8px;border-radius:8px;color:#fff;font-size:0.65rem;background:#ff6b6b;">周边</span><h4 style="margin:4px 0;font-size:0.82rem;">' + poi.name + '</h4><p style="margin:0;font-size:0.7rem;color:#888;">📍 ' + (poi.address||'未知') + '</p></div>');
-                            ms.push(m);
-                        });
-                        self._toast('找到 ' + ms.length + ' 个周边POI', 'ok');
-                        if (ms.length > 0) { var b = _L.latLngBounds(ms.map(function(m) { return m.getLatLng(); })); if (b.isValid()) self.map.fitBounds(b.pad(0.15)); }
-                    } else { self._toast('附近未找到POI', 'if'); }
-                }).catch(function(e) { self._toast('搜索失败: ' + e.message, 'err'); });
-            }
-        },
-
-        // ==== 工具 ====
-        _loadW: function() {
-            var self = this;
-            fetch('https://restapi.amap.com/v3/weather/weatherInfo?key=6656b79d228d2d201eb95900f3cdd0d1&city=441224&extensions=all')
-                .then(function(r) { return r.json(); })
-                .then(function(d) {
-                    if (d.lives && d.lives.length > 0) {
-                        var l = d.lives[0];
-                        self.w.temp = l.temperature; self.w.text = l.weather;
-                        self.w.hum = l.humidity + '%'; self.w.wind = l.winddirection + ' ' + l.windpower + '级';
-                        self.w.icon = _wIcon(l.weather); self.w.city = l.city || '怀集县';
-                    }
-                    if (d.forecasts && d.forecasts.length > 0) self.w.fc = d.forecasts[0].casts || [];
-                }).catch(function() { self.w.text = '天气不可用'; });
-        },
-        _regeo: function(ll) {
-            var self = this;
-            fetch('https://restapi.amap.com/v3/geocode/regeo?key=6656b79d228d2d201eb95900f3cdd0d1&location=' + ll.lng + ',' + ll.lat + '&extensions=base')
-                .then(function(r) { return r.json(); })
-                .then(function(d) { if (d.regeocode) self._toast('📍 ' + d.regeocode.formatted_address, 'if'); })
-                .catch(function() {});
-        },
-        _toast: function(msg, tp) {
-            tp = tp || 'if'; var id = Date.now() + Math.random();
-            this.ts.push({ id: id, msg: msg, tp: tp });
-            var self = this;
-            setTimeout(function() { for (var i = 0; i < self.ts.length; i++) { if (self.ts[i].id === id) { self.ts.splice(i, 1); break; } } }, 3000);
-        },
+        mZoomIn:function(){if(this.map)this.map.zoomIn();this.cm.vis=false;},
+        mZoomOut:function(){if(this.map)this.map.zoomOut();this.cm.vis=false;},
+        mCenter:function(){if(this.map&&this.cm.ll)this.map.setView(this.cm.ll,16);this.cm.vis=false;},
+        mRouteStart:function(){if(this.map&&this.cm.ll){this.tab='nav';this.rs={lat:this.cm.ll.lat,lng:this.cm.ll.lng,name:'坐标点'};this.re=null;this.routeInfo=null;this.waypoints=[];if(!this.rLayer)this.rLayer=L_.layerGroup().addTo(this.map);else this.rLayer.clearLayers();drawRP(this);toast(this,'起点已设置','if');}this.cm.vis=false;},
+        mRouteEnd:function(){if(this.map&&this.cm.ll){if(!this.rs){toast(this,'请先设置起点','wn');}else{this.re={lat:this.cm.ll.lat,lng:this.cm.ll.lng,name:'坐标点'};drawRP(this);toast(this,'终点已设置','if');}}this.cm.vis=false;},
+        mMeasure:function(){if(this.map&&this.cm.ll){this.md='d';this.mPts=[{lat:this.cm.ll.lat,lng:this.cm.ll.lng}];if(this.mLayer)this.mLayer.clearLayers();}this.cm.vis=false;},
+        mNearby:function(){var s=this;if(this.map&&this.cm.ll){var ll=this.cm.ll;this.cm.vis=false;toast(s,'搜索附近…','if');fetch('https://restapi.amap.com/v3/place/around?key='+KEY+'&location='+ll.lng+','+ll.lat+'&types=050000|060000|070000|080000|090000|110000|140000|170000&radius=2000&offset=20&extensions=all').then(function(r){return r.json();}).then(function(d){if(d.status==='1'&&d.pois&&d.pois.length>0){if(s._dynLayer)s._dynLayer.clearLayers();var ms=[];d.pois.slice(0,20).forEach(function(poi){var parts=poi.location.split(',');var col='#ff6b6b';var m=L_.marker([parseFloat(parts[1]),parseFloat(parts[0])],{icon:mkIcon(col,'circle')}).addTo(s._dynLayer);m.bindPopup('<div style="min-width:140px;"><span style="display:inline-block;padding:2px 8px;border-radius:8px;color:#fff;font-size:0.65rem;background:'+col+';">周边</span><h4 style="margin:4px 0;font-size:0.82rem;">'+poi.name+'</h4><p style="margin:0;font-size:0.7rem;color:#888;">📍 '+(poi.address||'未知')+'</p></div>');m.on('mouseover',function(){this.openPopup();});m.on('mouseout',function(){this.closePopup();});ms.push(m);});toast(s,'找到 '+ms.length+' 个周边','ok');if(ms.length>0){var b=L_.latLngBounds(ms.map(function(m){return m.getLatLng();}));if(b.isValid())s.map.fitBounds(b.pad(0.15));}}else{toast(s,'附近未找到','if');}}).catch(function(e){toast(s,'搜索失败: '+e.message,'err');});}},
     },
-    mounted: function() {
-        var self = this;
-        document.addEventListener('click', function(e) {
-            if (self.cm.vis && !e.target.closest('.ctx')) self.cm.vis = false;
-            if (self.sl && !e.target.closest('.lpop') && !e.target.closest('.cbtn')) self.sl = false;
-            if (self.sw && !e.target.closest('.wpop') && !e.target.closest('.wthr')) self.sw = false;
+    mounted:function(){
+        var s=this;
+        document.addEventListener('click',function(e){
+            if(s.cm.vis&&!e.target.closest('.ctx'))s.cm.vis=false;
+            if(s.sl&&!e.target.closest('.lpop')&&!e.target.closest('.cbtn'))s.sl=false;
+            if(s.sw&&!e.target.closest('.wpop')&&!e.target.closest('.wthr'))s.sw=false;
         });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                if (self.detail) self.detail = null;
-                else if (self.md) { self.md = null; self.mPts = []; if (self.mLayer) self.mLayer.clearLayers(); }
-                else if (self.cm.vis) self.cm.vis = false;
-            }
+        document.addEventListener('keydown',function(e){
+            if(e.key==='Escape'){if(s.detail)s.detail=null;else if(s.md){s.md=null;s.mPts=[];if(s.mLayer)s.mLayer.clearLayers();}else if(s.cm.vis)s.cm.vis=false;}
         });
     },
 }).mount('#app');
 
-// ==== 图标工厂 ====
-function _mkIcon(color, shape) {
-    var svg = '';
-    if (shape === 'mountain') {
-        svg = '<polygon points="12,4 22,20 2,20" fill="' + color + '" stroke="#fff" stroke-width="1.5"/>';
-    } else if (shape === 'leaf') {
-        svg = '<ellipse cx="12" cy="12" rx="8" ry="5" fill="' + color + '" stroke="#fff" stroke-width="1.5" transform="rotate(-15 12 12)"/><line x1="12" y1="7" x2="12" y2="17" stroke="#fff" stroke-width="1.2"/>';
-    } else if (shape === 'food') {
-        svg = '<path d="M5 10 Q5 4 12 4 Q19 4 19 10 L18 18 Q18 20 12 20 Q6 20 6 18 Z" fill="' + color + '" stroke="#fff" stroke-width="1.5"/>';
-    } else if (shape === 'hotel') {
-        svg = '<rect x="3" y="6" width="18" height="14" rx="2" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><rect x="7" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="13" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="7" y="15" width="10" height="3" fill="#fff" opacity="0.6"/>';
-    } else if (shape === 'shield') {
-        svg = '<path d="M12 3 L21 7 L21 13 Q21 17 12 21 Q3 17 3 13 L3 7 Z" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><text x="12" y="14" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">★</text>';
-    } else if (shape === 'plus') {
-        svg = '<rect x="3" y="7" width="18" height="10" rx="3" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><line x1="12" y1="10" x2="12" y2="14" stroke="#fff" stroke-width="1.8"/><line x1="10" y1="12" x2="14" y2="12" stroke="#fff" stroke-width="1.8"/>';
-    } else if (shape === 'cart') {
-        svg = '<rect x="3" y="5" width="14" height="12" rx="2" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><circle cx="7" cy="18" r="1.5" fill="#fff"/><circle cx="15" cy="18" r="1.5" fill="#fff"/>';
-    } else if (shape === 'bus') {
-        svg = '<rect x="2" y="5" width="20" height="13" rx="3" fill="' + color + '" stroke="#fff" stroke-width="1.5"/><rect x="5" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><rect x="13" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><circle cx="6" cy="17" r="2" fill="#333"/><circle cx="18" cy="17" r="2" fill="#333"/>';
-    } else {
-        svg = '<circle cx="12" cy="12" r="10" fill="' + color + '" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
-    }
-    return _L.divIcon({
-        className: '', iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -14],
-        html: '<svg width="24" height="24" viewBox="0 0 24 24" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">' + svg + '</svg>',
-    });
+// ====== 辅助函数 ======
+function fd(m){if(m<1)return'<1米';if(m<1000)return m.toFixed(1)+'米';return(m/1000).toFixed(2)+'公里';}
+function fa(m2){if(m2<1)return'<1㎡';if(m2<1000000)return m2.toFixed(0)+'㎡';return(m2/666.667).toFixed(1)+'亩';}
+function toast(s,msg,tp){tp=tp||'if';var id=Date.now()+Math.random();s.ts.push({id:id,msg:msg,tp:tp});setTimeout(function(){for(var i=0;i<s.ts.length;i++){if(s.ts[i].id===id){s.ts.splice(i,1);break;}}},3000);}
+function regeo(s,ll){fetch('https://restapi.amap.com/v3/geocode/regeo?key='+KEY+'&location='+ll.lng+','+ll.lat+'&extensions=base').then(function(r){return r.json();}).then(function(d){if(d.regeocode)toast(s,'📍 '+d.regeocode.formatted_address,'if');}).catch(function(){});}
+
+function drawRP(s){
+    if(!s.rLayer)return;s.rLayer.clearLayers();
+    var iS=L_.divIcon({className:'',html:'<div style="width:22px;height:22px;background:#34a853;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">起</div>',iconSize:[22,22],iconAnchor:[11,11]});
+    var iE=L_.divIcon({className:'',html:'<div style="width:22px;height:22px;background:#e53e3e;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">终</div>',iconSize:[22,22],iconAnchor:[11,11]});
+    var iW=L_.divIcon({className:'',html:'<div style="width:18px;height:18px;background:#f59e0b;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">经</div>',iconSize:[18,18],iconAnchor:[9,9]});
+    if(s.rs)L_.marker([s.rs.lat,s.rs.lng],{icon:iS}).addTo(s.rLayer);
+    if(s.re)L_.marker([s.re.lat,s.re.lng],{icon:iE}).addTo(s.rLayer);
+    s.waypoints.forEach(function(w){L_.marker([w.lat,w.lng],{icon:iW}).addTo(s.rLayer);});
 }
 
-function _wIcon(w) {
-    var m = { '晴':'☀️','少云':'🌤️','晴间多云':'⛅','多云':'☁️','小雨':'🌧️','中雨':'🌧️','大雨':'⛈️','暴雨':'⛈️','阵雨':'🌦️','雷阵雨':'⛈️','小雪':'🌨️','阴':'☁️','雾':'🌫️','霾':'🌫️' };
-    return m[w] || '🌤️';
+function redrawM(s){
+    if(!s.mLayer)return;s.mLayer.clearLayers();
+    var pts=s.mPts,lls=pts.map(function(p){return[p.lat,p.lng];});
+    lls.forEach(function(ll){L_.circleMarker(ll,{radius:4,color:'#34a853',fillColor:'#fff',fillOpacity:1,weight:2.5}).addTo(s.mLayer);});
+    for(var i=1;i<lls.length;i++){
+        var a=L_.latLng(lls[i-1]),b=L_.latLng(lls[i]),dist=a.distanceTo(b);
+        L_.polyline([lls[i-1],lls[i]],{color:'#34a853',weight:3,dashArray:s.md==='a'?'6 4':null}).addTo(s.mLayer);
+        var mid=L_.latLng((lls[i-1][0]+lls[i][0])/2,(lls[i-1][1]+lls[i][1])/2);
+        L_.marker(mid,{icon:L_.divIcon({className:'',html:'<div style="background:rgba(52,168,83,0.9);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;white-space:nowrap;">'+fd(dist)+'</div>',iconSize:[0,0],iconAnchor:[0,0]}),interactive:false}).addTo(s.mLayer);
+    }
+    if(s.md==='a'&&lls.length>=3){
+        L_.polyline([lls[lls.length-1],lls[0]],{color:'#e53e3e',weight:2,dashArray:'4 6'}).addTo(s.mLayer);
+        L_.polygon(lls,{color:'#34a853',fillColor:'#6ee7b7',fillOpacity:0.2,weight:2}).addTo(s.mLayer);
+        var cx=lls.reduce(function(s,ll){return s+ll[0];},0)/lls.length;
+        var cy=lls.reduce(function(s,ll){return s+ll[1];},0)/lls.length;
+        L_.marker([cx,cy],{icon:L_.divIcon({className:'',html:'<div style="background:rgba(229,62,62,0.9);color:#fff;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600;white-space:nowrap;">'+s.measVal+'</div>',iconSize:[0,0],iconAnchor:[0,0]}),interactive:false}).addTo(s.mLayer);
+    }
 }
+
+// ====== 天气 ======
+function loadW(s){
+    fetch('https://restapi.amap.com/v3/weather/weatherInfo?key='+KEY+'&city=441224&extensions=all')
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(d.lives&&d.lives.length>0){var l=d.lives[0];s.w.temp=l.temperature;s.w.text=l.weather;s.w.hum=l.humidity+'%';s.w.wind=l.winddirection+' '+l.windpower+'级';s.w.icon=wIcon(l.weather);s.w.city=l.city||'怀集县';}
+            if(d.forecasts&&d.forecasts.length>0)s.w.fc=d.forecasts[0].casts||[];
+        }).catch(function(){s.w.text='天气不可用';});
+}
+
+// ====== 全量POI加载 (8大类,每类2页,共50条/页 = 最多800条) ======
+function loadAllPOIs(s){
+    s.loading=true;
+    var queries=[
+        {kw:'景区|景点|公园|寺庙|温泉|漂流|溶洞|古镇|森林|湿地',cat:'景区',icon:'🏔️'},
+        {kw:'酒店|宾馆|民宿|旅馆|度假村|公寓',cat:'酒店',icon:'🏨'},
+        {kw:'餐厅|饭店|酒楼|美食|小吃|农家乐|大排档|快餐',cat:'餐饮',icon:'🍴'},
+        {kw:'商场|超市|市场|便利店|专卖店|购物|商业',cat:'购物',icon:'🛒'},
+        {kw:'政府|派出所|公安局|法院|银行|邮局|社区|村委会|居委会',cat:'服务',icon:'🏛️'},
+        {kw:'汽车站|火车站|公交站|停车场|加油站|充电站',cat:'交通',icon:'🚌'},
+        {kw:'医院|诊所|卫生院|药店|保健',cat:'医疗',icon:'🏥'},
+        {kw:'加油站|加气站|充电站',cat:'加油站',icon:'⛽'},
+    ];
+    var allFetches=[];
+    queries.forEach(function(q){
+        // 每类加载2页
+        [1,2].forEach(function(page){
+            allFetches.push(
+                fetch('https://restapi.amap.com/v3/place/text?key='+KEY+'&keywords='+encodeURIComponent(q.kw)+'&city=怀集县&citylimit=true&offset=50&page='+page+'&extensions=all')
+                    .then(function(r){return r.json();})
+                    .then(function(d){
+                        if(d.status==='1'&&d.pois)return d.pois.map(function(p){
+                            var loc=(p.location||'0,0').split(',');
+                            return{
+                                id:p.id||('poi_'+Math.random()),
+                                name:p.name,lat:parseFloat(loc[1]),lng:parseFloat(loc[0]),
+                                category:q.cat,icon:q.icon,
+                                address:p.address||'',tel:p.tel||'',
+                                rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',
+                                etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',
+                                photos:(p.photos||[]).map(function(ph){return ph.url||'';}).filter(function(u){return u;}).slice(0,3),
+                            };
+                        });
+                        return[];
+                    }).catch(function(){return[];})
+            );
+        });
+    });
+    Promise.all(allFetches).then(function(results){
+        var all=[],seen={};
+        results.forEach(function(arr){arr.forEach(function(p){if(!seen[p.id]){seen[p.id]=true;all.push(p);}});});
+        s.allPOIs=all;s.loading=false;
+        s.$nextTick(function(){s.renderMarkers();});
+        toast(s,'已从高德加载怀集县 '+all.length+' 个地点坐标','ok');
+    }).catch(function(){s.loading=false;});
+}
+
+// 加载更多图片
+function loadPhotos(poiId,cb){
+    fetch('https://restapi.amap.com/v3/place/detail?key='+KEY+'&id='+poiId+'&extensions=all')
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(d.status==='1'&&d.pois&&d.pois.length>0){
+                var p=d.pois[0];
+                var photos=(p.photos||[]).map(function(ph){return ph.url||'';}).filter(function(u){return u;}).slice(0,5);
+                cb(photos);
+            }else{cb([]);}
+        }).catch(function(){cb([]);});
+}
+})();
 </script>
 </body>
 </html>
