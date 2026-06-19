@@ -19,7 +19,7 @@
             --transition: 0.7s cubic-bezier(0.4, 0, 0.2, 1);
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body,html { width:100%; height:100%; font-family:'Noto Sans SC',-apple-system,sans-serif; overflow:hidden; background:#000; }
+        body,html { width:100%; height:100%; font-family:'Noto Sans SC',-apple-system,sans-serif; overflow:hidden; background:#1a4d2e; }
 
         /* ====== 翻页容器 ====== */
         #app { width:100%; height:100%; overflow:hidden; position:relative; }
@@ -167,8 +167,8 @@
          :style="{ transform:'translateY('+pageOffset+'px)' }"
          :class="{ resisting:isResisting }"
          @wheel.passive="handleWheel"
-         @touchstart.passive="handleTouchStart"
-         @touchend.passive="handleTouchEnd">
+         @touchstart="handleTouchStart"
+         @touchend="handleTouchEnd">
 
         <!-- ============ 封面 ============ -->
         <section class="cover-section" :class="{'fade-out':pageOffset<0}">
@@ -241,8 +241,10 @@
                     </button>
                     <div class="weather-popup" v-if="showWeatherPopup" @click.stop>
                         <div style="font-weight:600;margin-bottom:6px">{{ weatherData.city }} · {{ weatherData.weather }}</div>
-                        <div class="w-row" v-for="w in (weatherData.forecasts||[])" :key="w.date">
-                            <span>{{ w.date }}</span><span>{{ w.dayweather }} {{ w.nightweather }}</span><span>{{ w.nighttemp }}~{{ w.daytemp }}°C</span>
+                        <div v-if="weatherData.forecasts">
+                            <div class="w-row" v-for="w in weatherData.forecasts" :key="w.date">
+                                <span>{{ w.date }}</span><span>{{ w.dayweather }} {{ w.nightweather }}</span><span>{{ w.nighttemp }}~{{ w.daytemp }}°C</span>
+                            </div>
                         </div>
                         <div style="margin-top:6px;font-size:0.7rem;color:#999">湿度 {{ weatherData.humidity||'--' }} | 风向 {{ weatherData.wind||'--' }}</div>
                     </div>
@@ -555,7 +557,8 @@ createApp({
                 const label = CAT_LABELS[poi.category] || '●';
                 const icon = poi.rating ? createScenicIcon() : createMarkerIcon(color, label);
                 const marker = L.marker([poi.lat, poi.lng], { icon }).addTo(this.map);
-                marker.bindPopup(`<div class="pp"><span class="pp-cat" style="background:${color}">${poi.icon||''} ${poi.category}</span><h4>${poi.name}</h4><p class="pp-desc">${poi.desc||''}</p>${poi.rating?`<p style="font-size:0.75rem;color:#e53e3e;margin-top:2px">⭐ ${poi.rating} 级景区</p>`:''}</div>`);
+                const ratingHtml = poi.rating ? `<p style="font-size:0.75rem;color:#e53e3e;margin-top:2px">⭐ ${poi.rating} 级景区</p>` : '';
+                marker.bindPopup(`<div class="pp"><span class="pp-cat" style="background:${color}">${poi.icon||''} ${poi.category}</span><h4>${poi.name}</h4><p class="pp-desc">${poi.desc||''}</p>${ratingHtml}</div>`);
                 marker.on('mouseover',function(){this.openPopup();});
                 marker.on('mouseout',function(){this.closePopup();});
                 this.poiMarkers.push(marker);
