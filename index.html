@@ -647,6 +647,95 @@
         }
 
         /* ============================================================
+           天气小部件
+           ============================================================ */
+        .weather-widget {
+            position: absolute;
+            top: 15px;
+            right: 140px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.92);
+            border-radius: 25px;
+            box-shadow: var(--shadow-md);
+            padding: 6px 16px 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .weather-widget:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.15); }
+        .weather-widget .weather-icon { font-size: 1.5rem; }
+        .weather-widget .weather-temp { font-weight: 600; color: #333; }
+        .weather-widget .weather-desc { color: #888; font-size: 0.75rem; }
+        .weather-detail {
+            position: absolute;
+            top: 50px;
+            right: 140px;
+            z-index: 1000;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 16px 20px;
+            width: 200px;
+            font-size: 0.82rem;
+        }
+        .weather-detail .weather-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .weather-detail .weather-row:last-child { border-bottom: none; }
+
+        /* ============================================================
+           动态 POI 加载面板
+           ============================================================ */
+        .dynamic-poi-panel {
+            position: absolute;
+            bottom: 25px;
+            left: 15px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .poi-category-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 20px;
+            background: #fff;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .poi-category-btn:hover { background: var(--green-bg); transform: translateX(2px); }
+        .poi-category-btn.loading { opacity: 0.6; pointer-events: none; }
+        .poi-category-btn .cat-count {
+            background: var(--green-mid);
+            color: #fff;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .poi-category-btn .cat-spinner {
+            width: 12px; height: 12px;
+            border: 2px solid #ccc;
+            border-top-color: var(--green-mid);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* ============================================================
             Leaflet 弹出窗口美化
            ============================================================ */
         .leaflet-popup-content-wrapper {
@@ -960,14 +1049,53 @@
                     </template>
                 </div>
 
-                <!-- 图例 -->
-                <div class="legend">
-                    <div class="legend-title">📍 地点图例</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#e53e3e;"></span> 景区景点</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#38a169;"></span> 农家乐</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#dd6b20;"></span> 农庄</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#3182ce;"></span> 餐饮美食</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#805ad5;"></span> 住宿酒店</div>
+                <!-- 天气小部件 -->
+                <div class="weather-widget" @click="showWeatherDetail = !showWeatherDetail" title="点击查看详细天气">
+                    <span class="weather-icon">{{ weatherData.icon }}</span>
+                    <span class="weather-temp">{{ weatherData.temp || '--' }}°C</span>
+                    <span class="weather-desc">{{ weatherData.weather || '加载中...' }}</span>
+                </div>
+                <div class="weather-detail" v-if="showWeatherDetail" @click.stop>
+                    <div style="font-weight:600;margin-bottom:8px;">🌤️ {{ weatherData.city }}天气预报</div>
+                    <div class="weather-row" v-for="w in weatherData.forecasts" :key="w.date">
+                        <span>{{ w.date }}</span>
+                        <span>{{ w.dayweather }} {{ w.nightweather }}</span>
+                        <span>{{ w.nighttemp }}°C ~ {{ w.daytemp }}°C</span>
+                    </div>
+                    <div class="weather-row" v-if="!weatherData.forecasts">
+                        <span>点击地图定位后加载天气</span>
+                    </div>
+                    <div style="margin-top:8px;font-size:0.7rem;color:#999;">
+                        湿度: {{ weatherData.humidity || '--' }} | 风向: {{ weatherData.wind || '--' }}
+                    </div>
+                </div>
+
+                <!-- 动态POI分类按钮 -->
+                <div class="dynamic-poi-panel">
+                    <button class="poi-category-btn" :class="{ loading: poiLoading }"
+                            @click="loadPOIFromAmap('景点')" title="加载怀集景点">
+                        🏔️ 景区景点 <span class="cat-count">{{ poiCounts['景点'] || 0 }}</span>
+                    </button>
+                    <button class="poi-category-btn" :class="{ loading: poiLoading }"
+                            @click="loadPOIFromAmap('农家乐')" title="加载农家乐">
+                        🏡 农家乐 <span class="cat-count">{{ poiCounts['农家乐'] || 0 }}</span>
+                    </button>
+                    <button class="poi-category-btn" :class="{ loading: poiLoading }"
+                            @click="loadPOIFromAmap('餐饮')" title="加载餐饮美食">
+                        🍽️ 餐饮美食 <span class="cat-count">{{ poiCounts['餐饮'] || 0 }}</span>
+                    </button>
+                    <button class="poi-category-btn" :class="{ loading: poiLoading }"
+                            @click="loadPOIFromAmap('住宿')" title="加载住宿酒店">
+                        🏨 住宿酒店 <span class="cat-count">{{ poiCounts['住宿'] || 0 }}</span>
+                    </button>
+                    <button class="poi-category-btn" :class="{ loading: poiLoading }"
+                            @click="loadPOIFromAmap('购物')" title="加载购物商圈">
+                        🛍️ 购物商圈 <span class="cat-count">{{ poiCounts['购物'] || 0 }}</span>
+                    </button>
+                    <button class="poi-category-btn" style="background:#f0fff4;font-weight:600;"
+                            @click="clearAmapPOIs" title="清除动态加载的POI">
+                        ✕ 清除动态标记
+                    </button>
                 </div>
             </div>
 
@@ -998,6 +1126,10 @@
                 <button class="context-menu-item" @click="ctxAddMarker">
                     <span class="menu-icon">📍</span> 在此添加标记
                 </button>
+                <div class="context-divider"></div>
+                <button class="context-menu-item" @click="ctxNearbyPOI">
+                    <span class="menu-icon">🔍</span> 查看附近有什么
+                </button>
             </div>
         </section>
     </div>
@@ -1014,7 +1146,118 @@
 const { createApp } = Vue;
 
 // ============================================================
-// 怀集县 POI 数据
+// 高德地图 API 配置
+// ============================================================
+const AMAP_KEY = '6656b79d228d2d201eb95900f3cdd0d1';
+const AMAP_CITY = '怀集县';
+const AMAP_CITYCODE = '441224';
+
+// ============================================================
+// 高德 API 工具函数
+// ============================================================
+const AmapAPI = {
+    // 基础请求封装
+    async request(path, params) {
+        const qs = Object.entries(params)
+            .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+            .join('&');
+        const url = `https://restapi.amap.com/v3${path}?key=${AMAP_KEY}&${qs}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.status !== '1') throw new Error(data.info || '请求失败');
+        return data;
+    },
+
+    // POI 搜索（按关键词/类别）
+    async searchPOI(keywords, page = 1) {
+        return this.request('/place/text', {
+            keywords,
+            city: AMAP_CITY,
+            citylimit: 'true',
+            offset: 25,
+            page: String(page),
+            extensions: 'all',
+        });
+    },
+
+    // 周边 POI 搜索
+    async aroundPOI(lng, lat, types, radius = 3000) {
+        return this.request('/place/around', {
+            location: `${lng},${lat}`,
+            types,
+            radius: String(radius),
+            offset: 20,
+            extensions: 'all',
+        });
+    },
+
+    // 驾车路线规划
+    async drivingRoute(origin, destination) {
+        return this.request('/direction/driving', {
+            origin,
+            destination,
+            strategy: '10',
+            extensions: 'all',
+        });
+    },
+
+    // 步行路线规划
+    async walkingRoute(origin, destination) {
+        return this.request('/direction/walking', {
+            origin,
+            destination,
+        });
+    },
+
+    // 骑行路线规划
+    async bicyclingRoute(origin, destination) {
+        return this.request('/direction/bicycling', {
+            origin,
+            destination,
+        });
+    },
+
+    // 地理编码（地址→坐标）
+    async geocode(address) {
+        return this.request('/geocode/geo', {
+            address,
+            city: AMAP_CITY,
+        });
+    },
+
+    // 逆地理编码（坐标→地址）
+    async regeo(lng, lat) {
+        return this.request('/geocode/regeo', {
+            location: `${lng},${lat}`,
+            extensions: 'base',
+        });
+    },
+
+    // IP 定位
+    async ipLocation() {
+        return this.request('/ip', {});
+    },
+
+    // 天气查询
+    async weather(cityCode = AMAP_CITYCODE) {
+        return this.request('/weather/weatherInfo', {
+            city: cityCode,
+            extensions: 'all',
+        });
+    },
+
+    // 输入提示
+    async inputTips(keywords) {
+        return this.request('/assistant/inputtips', {
+            keywords,
+            city: AMAP_CITY,
+            citylimit: 'true',
+        });
+    },
+};
+
+// ============================================================
+// 怀集县本地预置 POI 数据
 // ============================================================
 const POI_DATA = [
     // ---- 景区景点 ----
@@ -1137,6 +1380,15 @@ createApp({
 
             // ---- Toast ----
             toasts: [],
+
+            // ---- 高德API增强数据 ----
+            weatherData: { icon: '🌤️', temp: '--', weather: '加载中...', city: AMAP_CITY, humidity: '--', wind: '--', forecasts: [] },
+            showWeatherDetail: false,
+            poiCounts: {},
+            dynamicPOILayer: null,
+            dynamicPOIMarkers: [],
+            poiLoading: false,
+            _searchResults: null,
         };
     },
 
@@ -1146,8 +1398,12 @@ createApp({
             return this.pageOffset === 0 ? 0 : 1;
         },
 
-        // 过滤后的 POI
+        // 过滤后的 POI（支持本地 + 高德API搜索）
         filteredPOIs() {
+            // 优先使用高德搜索的临时结果
+            if (this._searchResults && this._searchResults.length) {
+                return this._searchResults;
+            }
             if (!this.searchQuery.trim()) return [];
             const q = this.searchQuery.trim().toLowerCase();
             return POI_DATA.filter(p =>
@@ -1328,6 +1584,12 @@ createApp({
             // 初始化路线图层
             this.routeLayer = L.layerGroup().addTo(this.map);
 
+            // 初始化动态 POI 图层
+            this.dynamicPOILayer = L.layerGroup().addTo(this.map);
+
+            // 加载天气
+            this.loadWeather();
+
             // 地图点击事件 (测量)
             this.map.on('click', this.onMapClick);
             this.map.on('dblclick', this.onMapDblClick);
@@ -1404,27 +1666,51 @@ createApp({
         // 搜索
         // ============================================================
         onSearchBlur() {
-            // 延迟关闭，让 mousedown 能触发
-            setTimeout(() => { this.searchFocused = false; }, 200);
+            setTimeout(() => {
+                this.searchFocused = false;
+                this._searchResults = null;
+            }, 200);
         },
 
         onSearchEnter() {
             if (this.filteredPOIs.length > 0) {
                 this.flyToPOI(this.filteredPOIs[0]);
-                this.searchFocused = false;
+                this._searchResults = null;
+            } else {
+                // 触发高德地理编码搜索
+                this.searchByAddress();
             }
         },
 
         flyToPOI(poi) {
             if (!this.map) return;
             this.map.flyTo([poi.lat, poi.lng], 16, { duration: 1.2 });
-            // 打开对应 marker 的 popup
-            const marker = this.poiMarkers.find((m, i) => POI_DATA[i].id === poi.id);
-            if (marker) {
-                setTimeout(() => marker.openPopup(), 1300);
+
+            if (poi.isAmapGeo) {
+                // 高德地理编码结果，添加临时标记
+                const marker = L.marker([poi.lat, poi.lng], {
+                    icon: createPoiIcon('#e53e3e'),
+                }).addTo(this.map);
+                marker.bindPopup(`
+                    <div class="poi-popup">
+                        <h4>${poi.name}</h4>
+                        <p class="poi-desc">${poi.desc || ''}</p>
+                    </div>
+                `).openPopup();
+                setTimeout(() => { this.map.removeLayer(marker); }, 10000);
+            } else {
+                // 本地 POI，打开对应 marker 的 popup
+                const marker = this.poiMarkers.find(m => {
+                    const idx = this.poiMarkers.indexOf(m);
+                    return POI_DATA[idx] && POI_DATA[idx].id === poi.id;
+                });
+                if (marker) {
+                    setTimeout(() => marker.openPopup(), 1300);
+                }
             }
             this.searchQuery = '';
             this.searchFocused = false;
+            this._searchResults = null;
         },
 
         // ============================================================
@@ -1620,7 +1906,7 @@ createApp({
             const mx = e.originalEvent.clientX;
             const my = e.originalEvent.clientY;
             // 防止菜单超出屏幕
-            const menuW = 190, menuH = 220;
+            const menuW = 200, menuH = 320;
             let x = mx, y = my;
             if (x + menuW > window.innerWidth) x = mx - menuW;
             if (y + menuH > window.innerHeight) y = my - menuH;
@@ -1631,6 +1917,9 @@ createApp({
                 y: y,
                 latlng: e.latlng,
             };
+
+            // 异步加载地址（逆地理编码）
+            this.reverseGeocodeAtPoint(e.latlng);
         },
 
         ctxZoomIn() {
@@ -1723,6 +2012,52 @@ createApp({
             this.contextMenu.visible = false;
         },
 
+        async ctxNearbyPOI() {
+            if (this.map && this.contextMenu.latlng) {
+                const ll = this.contextMenu.latlng;
+                this.contextMenu.visible = false;
+                this.showToast('正在搜索附近 POI...', 'info');
+
+                try {
+                    const data = await AmapAPI.aroundPOI(ll.lng, ll.lat, '050000|060000|070000|080000|090000|110000', 2000);
+                    if (data.pois && data.pois.length > 0) {
+                        // 清除旧动态标记
+                        if (this.dynamicPOILayer) this.dynamicPOILayer.clearLayers();
+                        this.dynamicPOIMarkers = [];
+
+                        data.pois.slice(0, 20).forEach(poi => {
+                            const [plng, plat] = poi.location.split(',').map(Number);
+                            const marker = L.marker([plat, plng], {
+                                icon: createPoiIcon('#e53e3e'),
+                            }).addTo(this.dynamicPOILayer);
+                            marker.bindPopup(`
+                                <div class="poi-popup">
+                                    <span class="poi-cat">${poi.type.split(';')[0] || '周边'}</span>
+                                    <h4>${poi.name}</h4>
+                                    <p style="font-size:0.75rem;color:#888;">📍 ${poi.address || '未知地址'}</p>
+                                </div>
+                            `);
+                            marker.on('mouseover', function() { this.openPopup(); });
+                            marker.on('mouseout', function() { this.closePopup(); });
+                            this.dynamicPOIMarkers.push(marker);
+                        });
+
+                        this.showToast(`找到 ${Math.min(data.pois.length, 20)} 个周边POI`, 'success');
+                        if (this.dynamicPOIMarkers.length > 0) {
+                            const bounds = L.latLngBounds(
+                                this.dynamicPOIMarkers.map(m => m.getLatLng())
+                            );
+                            if (bounds.isValid()) this.map.fitBounds(bounds.pad(0.15));
+                        }
+                    } else {
+                        this.showToast('附近未找到POI', 'info');
+                    }
+                } catch (err) {
+                    this.showToast('搜索附近POI失败: ' + err.message, 'error');
+                }
+            }
+        },
+
         // ============================================================
         // 路线查询
         // ============================================================
@@ -1792,55 +2127,90 @@ createApp({
             if (!this.routeStart || !this.routeEnd || !this.map) return;
 
             this.routeLoading = true;
-            const [lng1, lat1] = [this.routeStart.lng, this.routeStart.lat];
-            const [lng2, lat2] = [this.routeEnd.lng, this.routeEnd.lat];
+            this.routeInfo = null;
+            const origin = `${this.routeStart.lng},${this.routeStart.lat}`;
+            const destination = `${this.routeEnd.lng},${this.routeEnd.lat}`;
 
             try {
-                const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?geometries=geojson&overview=full&steps=true`;
-                const res = await fetch(url);
-                const data = await res.json();
+                // 使用高德驾车路线规划 API
+                const data = await AmapAPI.drivingRoute(origin, destination);
 
-                if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+                if (!data.route || !data.route.paths || data.route.paths.length === 0) {
                     this.showToast('未找到可行路线，请更换起终点尝试', 'error');
                     this.routeLoading = false;
                     return;
                 }
 
-                const route = data.routes[0];
-                const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+                const path = data.route.paths[0];
+                const steps = path.steps;
+
+                // 解析路线坐标串（高德返回的是 polyline 字符串）
+                const coords = this.parseAmapPolyline(path.steps);
 
                 if (this.routeLayer) this.routeLayer.clearLayers();
 
+                // 绘制路线
                 L.polyline(coords, {
                     color: '#3182ce',
                     weight: 6,
                     opacity: 0.8,
                 }).addTo(this.routeLayer);
 
+                // 绘制转弯提示点
+                steps.forEach(step => {
+                    const pts = step.polyline.split(';');
+                    const endPt = pts[pts.length - 1].split(',');
+                    const ll = [parseFloat(endPt[1]), parseFloat(endPt[0])];
+                    if (step.road && step.road.trim()) {
+                        L.circleMarker(ll, {
+                            radius: 3,
+                            color: '#3182ce',
+                            fillColor: '#fff',
+                            fillOpacity: 1,
+                            weight: 2,
+                        }).addTo(this.routeLayer);
+                    }
+                });
+
                 this.drawRouteEndpoints();
 
-                const distKm = (route.distance / 1000).toFixed(1);
-                const durMin = Math.round(route.duration / 60);
+                const distKm = (parseInt(path.distance) / 1000).toFixed(1);
+                const durMin = Math.round(parseInt(path.duration) / 60);
                 this.routeInfo = {
                     distance: distKm + ' km',
                     duration: durMin >= 60
-                        ? Math.floor(durMin / 60) + 'h' + (durMin % 60) + 'min'
+                        ? Math.floor(durMin / 60) + '小时' + (durMin % 60) + '分钟'
                         : durMin + ' 分钟',
                 };
 
-                this.map.fitBounds(L.latLngBounds([
+                // 自动缩放到路线范围
+                const allCoords = coords.concat([
                     [this.routeStart.lat, this.routeStart.lng],
                     [this.routeEnd.lat, this.routeEnd.lng],
-                ]).pad(0.2));
+                ]);
+                this.map.fitBounds(L.latLngBounds(allCoords).pad(0.2));
 
-                this.showToast(`路线计算完成，全程约 ${distKm} km`, 'success');
+                this.showToast(`路线计算完成，全程约 ${distKm} km，预计 ${this.routeInfo.duration}`, 'success');
 
             } catch (err) {
                 console.error('路线计算失败:', err);
-                this.showToast('路线计算失败，请检查网络连接后重试', 'error');
+                this.showToast('路线计算失败: ' + err.message, 'error');
             } finally {
                 this.routeLoading = false;
             }
+        },
+
+        // 解析高德路线 polyline 编码
+        parseAmapPolyline(steps) {
+            const coords = [];
+            steps.forEach(step => {
+                const pts = step.polyline.split(';');
+                pts.forEach(pt => {
+                    const [lng, lat] = pt.split(',');
+                    coords.push([parseFloat(lat), parseFloat(lng)]);
+                });
+            });
+            return coords;
         },
 
         clearRoute() {
@@ -1856,32 +2226,257 @@ createApp({
         },
 
         // ============================================================
-        // 定位功能
+        // 天气加载
         // ============================================================
+        async loadWeather() {
+            try {
+                const data = await AmapAPI.weather(AMAP_CITYCODE);
+                if (data.lives && data.lives.length > 0) {
+                    const live = data.lives[0];
+                    this.weatherData.temp = live.temperature;
+                    this.weatherData.weather = live.weather;
+                    this.weatherData.humidity = live.humidity + '%';
+                    this.weatherData.wind = live.winddirection + ' ' + live.windpower + '级';
+                    this.weatherData.icon = this.getWeatherIcon(live.weather);
+                    this.weatherData.city = live.city || AMAP_CITY;
+                }
+                if (data.forecasts && data.forecasts.length > 0) {
+                    this.weatherData.forecasts = data.forecasts[0].casts || [];
+                }
+            } catch (err) {
+                console.error('天气加载失败:', err);
+                this.weatherData.weather = '天气不可用';
+            }
+        },
+
+        getWeatherIcon(weather) {
+            const map = {
+                '晴': '☀️', '少云': '🌤️', '晴间多云': '⛅',
+                '多云': '☁️', '阴': '☁️', '有风': '🌬️',
+                '小雨': '🌧️', '中雨': '🌧️', '大雨': '⛈️', '暴雨': '⛈️',
+                '阵雨': '🌦️', '雷阵雨': '⛈️', '小雪': '🌨️', '中雪': '🌨️',
+                '雾': '🌫️', '霾': '🌫️', '浮尘': '🌫️',
+            };
+            return map[weather] || '🌤️';
+        },
+
+        // ============================================================
+        // 动态 POI 加载（从高德 API）
+        // ============================================================
+        async loadPOIFromAmap(category) {
+            if (this.poiLoading) return;
+            this.poiLoading = true;
+
+            const keywordsMap = {
+                '景点': '景区|景点|公园|寺庙|古镇|温泉|漂流',
+                '农家乐': '农家乐|采摘园|农庄|生态园',
+                '餐饮': '餐厅|饭店|酒楼|美食|小吃',
+                '住宿': '酒店|宾馆|民宿|旅馆|度假村',
+                '购物': '商场|超市|市场|商圈|购物中心',
+            };
+
+            try {
+                const keywords = keywordsMap[category] || category;
+                const data = await AmapAPI.searchPOI(keywords);
+
+                if (!data.pois || data.pois.length === 0) {
+                    this.showToast(`未找到${category}相关POI`, 'info');
+                    this.poiLoading = false;
+                    return;
+                }
+
+                const colorMap = {
+                    '景点': '#e53e3e', '农家乐': '#dd6b20', '餐饮': '#3182ce',
+                    '住宿': '#805ad5', '购物': '#38a169',
+                };
+                const color = colorMap[category] || '#999';
+
+                let count = 0;
+                data.pois.forEach(poi => {
+                    const [lng, lat] = poi.location.split(',').map(Number);
+                    const marker = L.marker([lat, lng], {
+                        icon: createPoiIcon(color),
+                    }).addTo(this.dynamicPOILayer);
+
+                    const ratingHtml = poi.biz_ext && poi.biz_ext.rating
+                        ? `<p style="font-size:0.75rem;color:#e53e3e;margin-top:2px;">⭐ ${poi.biz_ext.rating} 分</p>` : '';
+                    const telHtml = poi.tel ? `<p style="font-size:0.75rem;color:#666;">📞 ${poi.tel}</p>` : '';
+                    const addrHtml = poi.address ? `<p style="font-size:0.75rem;color:#888;">📍 ${poi.address}</p>` : '';
+
+                    marker.bindPopup(`
+                        <div class="poi-popup">
+                            <span class="poi-cat">${category}</span>
+                            <h4>${poi.name}</h4>
+                            ${addrHtml}
+                            ${telHtml}
+                            ${ratingHtml}
+                            <p style="font-size:0.72rem;color:#aaa;margin-top:4px;">数据来源：高德地图</p>
+                        </div>
+                    `);
+                    marker.on('mouseover', function() { this.openPopup(); });
+                    marker.on('mouseout', function() { this.closePopup(); });
+
+                    this.dynamicPOIMarkers.push(marker);
+                    count++;
+                });
+
+                this.poiCounts[category] = count;
+                this.showToast(`已加载 ${count} 个${category}POI`, 'success');
+
+                // 自动缩放到可见POI范围
+                if (count > 0) {
+                    const bounds = L.latLngBounds(
+                        this.dynamicPOIMarkers
+                            .filter(m => this.dynamicPOILayer.hasLayer(m))
+                            .map(m => m.getLatLng())
+                    );
+                    if (bounds.isValid()) {
+                        this.map.fitBounds(bounds.pad(0.15));
+                    }
+                }
+            } catch (err) {
+                console.error('POI加载失败:', err);
+                this.showToast(`加载${category}失败: ${err.message}`, 'error');
+            } finally {
+                this.poiLoading = false;
+            }
+        },
+
+        clearAmapPOIs() {
+            if (this.dynamicPOILayer) {
+                this.dynamicPOILayer.clearLayers();
+            }
+            this.dynamicPOIMarkers = [];
+            this.poiCounts = {};
+            this.showToast('已清除所有动态标记', 'info');
+        },
+
+        // ============================================================
+        // 地址搜索（地理编码）
+        // ============================================================
+        async searchByAddress() {
+            const q = this.searchQuery.trim();
+            if (!q) return;
+
+            try {
+                // 先在本地 POI 中搜索
+                const localResults = POI_DATA.filter(p =>
+                    p.name.toLowerCase().includes(q.toLowerCase()) ||
+                    p.category.toLowerCase().includes(q.toLowerCase()) ||
+                    (p.desc && p.desc.toLowerCase().includes(q.toLowerCase()))
+                );
+
+                // 同时调用高德地理编码
+                let amapResults = [];
+                try {
+                    const data = await AmapAPI.geocode(q);
+                    if (data.geocodes && data.geocodes.length > 0) {
+                        amapResults = data.geocodes.map(g => {
+                            const [lng, lat] = g.location.split(',').map(Number);
+                            return {
+                                id: 'geo_' + Math.random(),
+                                name: g.formatted_address || g.name,
+                                lat,
+                                lng,
+                                category: '地址查询',
+                                icon: '📍',
+                                desc: g.formatted_address || '',
+                                isAmapGeo: true,
+                            };
+                        });
+                    }
+                } catch (e) {
+                    console.log('地理编码搜索失败:', e);
+                }
+
+                // 合并结果
+                const allResults = [
+                    ...localResults.slice(0, 5),
+                    ...amapResults.filter(a => !localResults.some(l => l.name === a.name)),
+                ];
+
+                if (allResults.length > 0) {
+                    this.searchFocused = true;
+                    // 临时替换 filteredPOIs 的返回逻辑
+                    this._searchResults = allResults;
+                }
+            } catch (err) {
+                console.error('搜索失败:', err);
+            }
+        },
+
+        // ============================================================
+        // 逆地理编码（坐标→地址）
+        // ============================================================
+        async reverseGeocodeAtPoint(latlng) {
+            try {
+                const data = await AmapAPI.regeo(latlng.lng, latlng.lat);
+                if (data.regeocode) {
+                    const addr = data.regeocode.formatted_address || '未知地址';
+                    this.showToast(`📍 ${addr}`, 'info');
+                }
+            } catch (e) {
+                // 静默失败
+            }
+        },
         locateMe() {
             if (!this.map) return;
             if (!navigator.geolocation) {
-                this.showToast('您的浏览器不支持地理定位功能', 'error');
+                // 降级使用高德 IP 定位
+                this.locateByIP();
                 return;
             }
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
+                async (pos) => {
                     const { latitude, longitude } = pos.coords;
                     this.map.flyTo([latitude, longitude], 15, { duration: 1 });
+
+                    // 逆地理编码获取地址
+                    let addrText = '您当前的位置';
+                    try {
+                        const data = await AmapAPI.regeo(longitude, latitude);
+                        if (data.regeocode) {
+                            addrText = data.regeocode.formatted_address || '您当前的位置';
+                        }
+                    } catch (e) { /* ignore */ }
+
                     L.circleMarker([latitude, longitude], {
                         radius: 10,
                         color: '#3182ce',
                         fillColor: '#3182ce',
                         fillOpacity: 0.4,
                         weight: 3,
-                    }).addTo(this.map).bindPopup('📍 您当前的位置').openPopup();
-                    this.showToast('已定位到您当前的位置', 'success');
+                    }).addTo(this.map).bindPopup(`📍 ${addrText}`).openPopup();
+                    this.showToast('已定位: ' + addrText, 'success');
                 },
                 (err) => {
-                    this.showToast('定位失败: ' + err.message, 'error');
+                    this.showToast('GPS定位失败，尝试IP定位...', 'warn');
+                    this.locateByIP();
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
+        },
+
+        async locateByIP() {
+            try {
+                const data = await AmapAPI.ipLocation();
+                if (data.rectangle) {
+                    // IP定位返回的是矩形范围，取中心点
+                    const rect = data.rectangle.split(';');
+                    if (rect.length === 2) {
+                        const [lng1, lat1] = rect[0].split(',').map(Number);
+                        const [lng2, lat2] = rect[1].split(',').map(Number);
+                        const centerLat = (lat1 + lat2) / 2;
+                        const centerLng = (lng1 + lng2) / 2;
+                        this.map.flyTo([centerLat, centerLng], 12, { duration: 1 });
+                        this.showToast('已定位到: ' + (data.city || '您的城市'), 'info');
+                    }
+                } else {
+                    this.showToast('无法获取位置信息', 'error');
+                }
+            } catch (e) {
+                this.showToast('定位失败', 'error');
+            }
         },
         // ============================================================
         // Toast 通知
