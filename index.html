@@ -139,7 +139,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 <body>
 <div id="app">
 <div class="cover" v-if="showCover">
-<div class="cover-box"><h1>绿美怀集</h1><p>广东省 · 肇庆市 · 怀集县</p><button @click="enter">进入地图导览</button></div>
+<div class="cover-box"><h1>绿美怀集</h1><p>广东省 · 肇庆市 · 怀集县</p><button @click="enter">进入网页</button></div>
 </div>
 
 <div class="main" v-else>
@@ -338,9 +338,12 @@ measVal:function(){if(this.mPts.length<2)return'—';if(this.md==='d'){var t=0;f
 navUrl:function(){if(!this.rs||!this.re)return'#';var u='https://uri.amap.com/navigation?from='+this.rs.lng+','+this.rs.lat+',起点&to='+this.re.lng+','+this.re.lat+',终点&mode=car&callnative=1';if(this.waypoints.length)u+='&mid='+this.waypoints.map(function(w){return w.lng+','+w.lat}).join('|');return u;},
 },
 methods:{
-enter:function(){this.showCover=false;var s=this;this.$nextTick(function(){s._init()})},
+enter:function(){this.showCover=false;var s=this;setTimeout(function(){s._init()},150)},
 _init:function(){
+try{
 if(this.map)return;
+var el=document.getElementById('map');
+if(!el){console.error('map div not found');return}
 this.map=L.map('map',{center:[23.934,112.185],zoom:12,zoomControl:true,preferCanvas:true});
 this.vL=L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,keepBuffer:4}).addTo(this.map);
 this.sL=L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,keepBuffer:4});
@@ -351,11 +354,13 @@ this.map.on('click',function(e){s._mc(e)});
 this.map.on('dblclick',function(e){s._md(e)});
 this.map.on('contextmenu',function(e){s._mct(e)});
 this.map.on('click',function(){if(s.cm.vis)s.cm.vis=false});
+}catch(e){console.error('initMap error:',e)}
 },
 setLayer:function(t){if(!this.map)return;if(t==='v'){this.map.removeLayer(this.sL);this.vL.addTo(this.map)}else{this.map.removeLayer(this.vL);this.sL.addTo(this.map)}this.layer=t;this.sl=false},
 resetV:function(){if(this.map){this.map.setView([23.934,112.185],12);this.map.closePopup()}},
 
 renderMarkers:function(){
+try{
 if(!this.map)return;if(this._ms)this._ms.forEach(function(m){m.remove()});this._ms=[];
 var s=this;
 this.allPOIs.forEach(function(p){
@@ -367,6 +372,7 @@ m.on('mouseover',function(){this.openPopup()});m.on('mouseout',function(){this.c
 m.on('click',function(){s.showDetail(p)});
 s._ms.push(m)
 });
+}catch(e){console.error(e)}
 },
 showDetail:function(p){
 var copy=JSON.parse(JSON.stringify(p));
