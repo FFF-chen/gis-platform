@@ -246,14 +246,14 @@ var V=Vue,K='6656b79d228d2d201eb95900f3cdd0d1';
 
 // 8大分类 - 全量POI
 var CATS=[
-  {n:'景点',kw:'风景名胜|景区|景点|公园|寺庙|温泉|漂流|溶洞|古镇|湖河山水',icon:'🏔️',sh:'mountain',c:'#e53e3e'},
-  {n:'住宿',kw:'酒店|宾馆|旅馆|民宿|度假村|招待所|公寓|客栈',icon:'🏨',sh:'hotel',c:'#805ad5'},
-  {n:'农家乐',kw:'农家乐|农庄|采摘园|生态园|农业基地|农场|田园|牧场|种植园',icon:'🌾',sh:'leaf',c:'#38a169'},
-  {n:'餐饮',kw:'餐厅|饭店|酒楼|美食|小吃|火锅|烧烤|快餐|大排档',icon:'🍴',sh:'food',c:'#3182ce'},
-  {n:'购物',kw:'商场|超市|便利店|市场|专卖店|商店|购物',icon:'🛒',sh:'cart',c:'#06b6d4'},
-  {n:'服务',kw:'政府|派出所|银行|邮局|社区|居委会|游客中心',icon:'🏛️',sh:'shield',c:'#f59e0b'},
-  {n:'交通',kw:'汽车站|火车站|高铁站|公交站|停车场|加油站|充电站',icon:'🚌',sh:'bus',c:'#64748b'},
-  {n:'医疗',kw:'医院|诊所|卫生院|药店|卫生室|保健|急救',icon:'🏥',sh:'plus',c:'#8b5cf6'},
+  {n:'景点',kw:'景区|景点|公园|寺庙|温泉|漂流|溶洞|古镇|故居|博物馆',icon:'🏔️',sh:'mountain',c:'#e53e3e'},
+  {n:'住宿',kw:'酒店|宾馆|旅馆|民宿|度假村|招待所',icon:'🏨',sh:'hotel',c:'#805ad5'},
+  {n:'农家乐',kw:'农家乐|农庄|采摘园|生态园|农业基地|种植园',icon:'🌾',sh:'leaf',c:'#38a169'},
+  {n:'餐饮',kw:'餐厅|饭店|酒楼|小吃|火锅|烧烤|快餐|大排档|粉面|粥',icon:'🍴',sh:'food',c:'#3182ce'},
+  {n:'购物',kw:'商场|超市|便利店|市场|专卖店|商店|步行街|百货',icon:'🛒',sh:'cart',c:'#06b6d4'},
+  {n:'服务',kw:'政府|派出所|银行|邮局|社区|村委会|游客中心|公安局',icon:'🏛️',sh:'shield',c:'#f59e0b'},
+  {n:'交通',kw:'汽车站|火车站|公交站|停车场|加油站|充电站',icon:'🚌',sh:'bus',c:'#64748b'},
+  {n:'医疗',kw:'医院|诊所|卫生院|药店|卫生室',icon:'🏥',sh:'plus',c:'#8b5cf6'},
 ];
 var _cc={},_cs={};
 CATS.forEach(function(c){_cc[c.n]=c.c;_cs[c.n]=c.sh;});
@@ -326,13 +326,21 @@ methods:{
     });
   },
 
-  // OPEN DETAIL
+  // OPEN DETAIL - 设dp后定时确认
   openDetail:function(p){
-    var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,category:p.category,icon:p.icon,address:p.address||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',photos:p.photos?p.photos.slice():[]};
+    var copy={
+      id:p.id,name:p.name,lat:p.lat,lng:p.lng,
+      category:p.category,icon:p.icon||'📍',
+      address:p.address||'',tel:p.tel||'',
+      rating:p.rating||'',etime:p.etime||'',
+      photos:p.photos?p.photos.concat():[]
+    };
     this.dp=copy;
-    if(!copy.photos||copy.photos.length===0){var s=this;loadPhotos(p.id,function(ph){if(s.dp&&s.dp.id===p.id)s.dp.photos=ph})}
-    if(this.map)this.map.flyTo([p.lat,p.lng],16,{duration:0.8});
-    this.cm.vis=false;this.fbfocus=false;this.mmode=null;this.rpicking=null;
+    if(!copy.photos.length){var s=this;loadPhotos(p.id,function(ph){if(s.dp&&s.dp.id===p.id)s.dp.photos=s.dp.photos.concat(ph)})}
+    if(this.map)this.map.flyTo([p.lat,p.lng],15,{duration:1});
+    // 防闪烁：flyTo结束后再确认dp还在（防止任何可能的清除）
+    var s=this,id=copy.id;
+    setTimeout(function(){if(s.dp&&s.dp.id!==id)s.dp=copy;},1200);
   },
 
   navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank')},
