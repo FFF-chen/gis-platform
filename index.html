@@ -244,16 +244,51 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei',sans-serif;o
 (function(){
 var V=Vue,K='6656b79d228d2d201eb95900f3cdd0d1';
 
-// 8大分类 - 全量POI
+// 8大分类 - 全量POI// 保底：怀集真实地名
+var SEED = [
+  {n:'燕岩风景区',lat:23.908,lng:112.228,cat:'景点',icon:'🏔️'},
+  {n:'世外桃源景区',lat:23.916,lng:112.213,cat:'景点',icon:'🌸'},
+  {n:'燕峰峡漂流',lat:23.952,lng:112.160,cat:'景点',icon:'🌊'},
+  {n:'塔山公园',lat:23.922,lng:112.182,cat:'景点',icon:'🏯'},
+  {n:'文昌书院',lat:23.928,lng:112.190,cat:'景点',icon:'📚'},
+  {n:'六祖岩',lat:23.900,lng:112.240,cat:'景点',icon:'🪨'},
+  {n:'凤岗河湿地公园',lat:23.960,lng:112.195,cat:'景点',icon:'🌿'},
+  {n:'下帅壮族瑶族乡',lat:23.885,lng:112.155,cat:'景点',icon:'🎭'},
+  {n:'怀集县博物馆',lat:23.930,lng:112.185,cat:'景点',icon:'🏛️'},
+  {n:'怀集体育中心',lat:23.933,lng:112.182,cat:'景点',icon:'🏟️'},
+  {n:'怀集现代农业产业园',lat:23.948,lng:112.215,cat:'农家乐',icon:'🌾'},
+  {n:'华光农业生态园',lat:23.955,lng:112.225,cat:'农家乐',icon:'🏡'},
+  {n:'岭南佳果园',lat:23.915,lng:112.195,cat:'农家乐',icon:'🍊'},
+  {n:'怀集华苑大酒店',lat:23.925,lng:112.187,cat:'住宿',icon:'🏨'},
+  {n:'怀集悦湖度假酒店',lat:23.930,lng:112.195,cat:'住宿',icon:'🏨'},
+  {n:'怀集味道',lat:23.926,lng:112.188,cat:'餐饮',icon:'🥢'},
+  {n:'桥头酒楼',lat:23.924,lng:112.185,cat:'餐饮',icon:'🥢'},
+  {n:'怀集县人民政府',lat:23.926,lng:112.183,cat:'服务',icon:'🏛️'},
+  {n:'怀集县公安局',lat:23.925,lng:112.184,cat:'服务',icon:'🛡️'},
+  {n:'怀集汽车站',lat:23.923,lng:112.180,cat:'交通',icon:'🚌'},
+  {n:'怀集高铁站',lat:23.918,lng:112.170,cat:'交通',icon:'🚄'},
+  {n:'怀集县人民医院',lat:23.928,lng:112.188,cat:'医疗',icon:'🏥'},
+  {n:'怀集中医院',lat:23.924,lng:112.190,cat:'医疗',icon:'🏥'},
+];
+
+// 每类多个短关键词批次(每次2-3词, 防止URL过长)
 var CATS=[
-  {n:'景点',kw:'景区|景点|公园|寺庙|温泉|漂流|溶洞|古镇|故居|博物馆',icon:'🏔️',sh:'mountain',c:'#e53e3e'},
-  {n:'住宿',kw:'酒店|宾馆|旅馆|民宿|度假村|招待所',icon:'🏨',sh:'hotel',c:'#805ad5'},
-  {n:'农家乐',kw:'农家乐|农庄|采摘园|生态园|农业基地|种植园',icon:'🌾',sh:'leaf',c:'#38a169'},
-  {n:'餐饮',kw:'餐厅|饭店|酒楼|小吃|火锅|烧烤|快餐|大排档|粉面|粥',icon:'🍴',sh:'food',c:'#3182ce'},
-  {n:'购物',kw:'商场|超市|便利店|市场|专卖店|商店|步行街|百货',icon:'🛒',sh:'cart',c:'#06b6d4'},
-  {n:'服务',kw:'政府|派出所|银行|邮局|社区|村委会|游客中心|公安局',icon:'🏛️',sh:'shield',c:'#f59e0b'},
-  {n:'交通',kw:'汽车站|火车站|公交站|停车场|加油站|充电站',icon:'🚌',sh:'bus',c:'#64748b'},
-  {n:'医疗',kw:'医院|诊所|卫生院|药店|卫生室',icon:'🏥',sh:'plus',c:'#8b5cf6'},
+  {n:'景点',icon:'🏔️',sh:'mountain',c:'#e53e3e',
+   kws:[['景点','景区'],['公园','寺庙'],['温泉','漂流'],['溶洞','古镇'],['博物馆','故居'],['湿地','森林']]},
+  {n:'住宿',icon:'🏨',sh:'hotel',c:'#805ad5',
+   kws:[['酒店','宾馆'],['民宿','旅馆'],['度假村','招待所']]},
+  {n:'农家乐',icon:'🌾',sh:'leaf',c:'#38a169',
+   kws:[['农家乐','农庄'],['采摘园','生态园'],['农业基地','种植园']]},
+  {n:'餐饮',icon:'🍴',sh:'food',c:'#3182ce',
+   kws:[['餐厅','饭店'],['小吃','快餐'],['火锅','烧烤'],['农家菜','大排档']]},
+  {n:'购物',icon:'🛒',sh:'cart',c:'#06b6d4',
+   kws:[['商场','超市'],['便利店','市场'],['步行街','专卖店']]},
+  {n:'服务',icon:'🏛️',sh:'shield',c:'#f59e0b',
+   kws:[['政府','派出所'],['银行','邮局'],['村委会','社区']]},
+  {n:'交通',icon:'🚌',sh:'bus',c:'#64748b',
+   kws:[['汽车站','火车站'],['公交站','停车场'],['加油站','充电站']]},
+  {n:'医疗',icon:'🏥',sh:'plus',c:'#8b5cf6',
+   kws:[['医院','诊所'],['卫生院','药店']]},
 ];
 var _cc={},_cs={};
 CATS.forEach(function(c){_cc[c.n]=c.c;_cs[c.n]=c.sh;});
@@ -441,19 +476,53 @@ function loadW(s){fetch('https://restapi.amap.com/v3/weather/weatherInfo?key='+K
 function we(w){var m={'晴':'☀️','少云':'🌤️','多云':'☁️','小雨':'🌧️','中雨':'🌧️','大雨':'⛈️','暴雨':'⛈️','阵雨':'🌦️','雾':'🌫️','阴':'☁️','霾':'🌫️'};return m[w]||'🌤️'}
 
 function loadAll(s){
-  var fetches=[];
-  CATS.forEach(function(c){
-    [1,2,3].forEach(function(page){
-      fetches.push(fetch('https://restapi.amap.com/v3/place/text?key='+K+'&keywords='+encodeURIComponent(c.kw)+'&city=怀集县&citylimit=true&offset=50&page='+page+'&extensions=all').then(function(r){return r.json()}).then(function(d){if(d.status==='1'&&d.pois)return d.pois.map(function(p){var lo=(p.location||'0,0').split(',');return{id:p.id||('p_'+Math.random()),name:p.name,lat:parseFloat(lo[1]),lng:parseFloat(lo[0]),category:c.n,icon:c.icon,address:p.address||'',tel:p.tel||'',rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3)}});return[]}).catch(function(){return[]}));
+  var results=[];
+  // 先加保底种子数据
+  SEED.forEach(function(p){
+    results.push({id:'seed_'+p.n, name:p.n, lat:p.lat, lng:p.lng, category:p.cat, icon:p.icon, address:p.n, tel:'', rating:'', etime:'', photos:[]});
+  });
+  // 每类多个短关键词批次，每批单独请求
+  var totalFetches=0;
+  CATS.forEach(function(cat){
+    cat.kws.forEach(function(kwBatch){
+      var kw=kwBatch.join('|');
+      [1,2].forEach(function(page){
+        totalFetches++;
+        fetch('https://restapi.amap.com/v3/place/text?key='+K+'&keywords='+encodeURIComponent(kw)+'&city=怀集县&citylimit=true&offset=50&page='+page+'&extensions=all')
+          .then(function(r){return r.json()})
+          .then(function(d){
+            if(d.status==='1'&&d.pois){
+              d.pois.forEach(function(p){
+                var lo=(p.location||'0,0').split(',');
+                results.push({
+                  id:p.id||('api_'+Math.random()),
+                  name:p.name, lat:parseFloat(lo[1]), lng:parseFloat(lo[0]),
+                  category:cat.n, icon:cat.icon,
+                  address:p.address||'', tel:p.tel||'',
+                  rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',
+                  etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',
+                  photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3)
+                });
+              });
+            }
+          }).catch(function(){})
+          .finally(function(){
+            totalFetches--;
+            if(totalFetches<=0) finalize();
+          });
+      });
     });
   });
-  Promise.all(fetches).then(function(results){
+  function finalize(){
     var all=[],seen={},cCounts={},ac=[];
-    results.forEach(function(arr){arr.forEach(function(p){if(!seen[p.id]){seen[p.id]=true;all.push(p);cCounts[p.category]=(cCounts[p.category]||0)+1}})});
+    results.forEach(function(p){
+      if(!p.id)return;
+      if(!seen[p.id]){seen[p.id]=true;all.push(p);cCounts[p.category]=(cCounts[p.category]||0)+1}
+    });
     CATS.forEach(function(c){if(cCounts[c.n]>0)ac.push(c)});
-    s.allPOIs=all;s.catCounts=cCounts;s.activeCats=ac;
+    s.allPOIs=all; s.catCounts=cCounts; s.activeCats=ac;
     s.$nextTick(function(){s.renderMarkers()});
-  }).catch(function(){});
+  }
 }
 
 function loadPhotos(id,cb){fetch('https://restapi.amap.com/v3/place/detail?key='+K+'&id='+id+'&extensions=all').then(function(r){return r.json()}).then(function(d){if(d.status==='1'&&d.pois&&d.pois.length>0){cb((d.pois[0].photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,5))}else{cb([])}}).catch(function(){cb([])})}
