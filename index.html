@@ -319,8 +319,7 @@ methods:{
       m.bindPopup('<div style="min-width:170px"><span style="display:inline-block;padding:2px 8px;border-radius:8px;color:#fff;font-size:0.62rem;background:'+co+'">'+p.category+'</span><h4 style="margin:4px 0;font-size:0.85rem">'+p.name+'</h4>'+(p.address?'<p style="margin:0;font-size:0.7rem;color:#888">📍 '+p.address+'</p>':'')+(p.rating?'<p style="margin:0;font-size:0.68rem;color:#f59e0b">⭐ '+p.rating+'</p>':'')+imgTag+'</div>');
       m.on('mouseover',function(){this.openPopup()});
       m.on('mouseout',function(){this.closePopup()});
-      // CRITICAL: stopPropagation to prevent map click from also firing
-      m.on('click',function(e){L.DomEvent.stopPropagation(e);s.openDetail(p)});
+      m.on('click',function(){s.openDetail(p)});
       s._markers.push(m);
     });
   },
