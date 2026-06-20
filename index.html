@@ -482,36 +482,23 @@ function loadAll(s){
     results.push({id:'seed_'+p.n, name:p.n, lat:p.lat, lng:p.lng, category:p.cat, icon:p.icon, address:p.n, tel:'', rating:'', etime:'', photos:[]});
   });
   // 每类多个短关键词批次，每批单独请求
-  var totalFetches=0;
+  var fetches=[];
   CATS.forEach(function(cat){
     cat.kws.forEach(function(kwBatch){
-      var kw=kwBatch.join('|');
       [1,2].forEach(function(page){
-        totalFetches++;
-        fetch('https://restapi.amap.com/v3/place/text?key='+K+'&keywords='+encodeURIComponent(kw)+'&city=怀集县&citylimit=true&offset=50&page='+page+'&extensions=all')
-          .then(function(r){return r.json()})
-          .then(function(d){
-            if(d.status==='1'&&d.pois){
-              d.pois.forEach(function(p){
-                var lo=(p.location||'0,0').split(',');
-                results.push({
-                  id:p.id||('api_'+Math.random()),
-                  name:p.name, lat:parseFloat(lo[1]), lng:parseFloat(lo[0]),
-                  category:cat.n, icon:cat.icon,
-                  address:p.address||'', tel:p.tel||'',
-                  rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',
-                  etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',
-                  photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3)
-                });
-              });
-            }
-          }).catch(function(){})
-          .finally(function(){
-            totalFetches--;
-            if(totalFetches<=0) finalize();
-          });
+        fetches.push(
+          fetch('https://restapi.amap.com/v3/place/text?key='+K+'&keywords='+encodeURIComponent(kwBatch.join('|'))+'&city=怀集县&citylimit=true&offset=50&page='+page+'&extensions=all')
+            .then(function(r){return r.json()})
+            .then(function(d){
+              if(d.status==='1'&&d.pois)return d.pois.map(function(p){var lo=(p.location||'0,0').split(',');return{id:p.id,name:p.name,lat:parseFloat(lo[1]),lng:parseFloat(lo[0]),category:cat.n,icon:cat.icon,address:p.address||'',tel:p.tel||'',rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3)}})})
+            .catch(function(){return[]})
+        );
       });
     });
+  });
+  Promise.all(fetches).then(function(batches){
+    batches.forEach(function(arr){arr.forEach(function(p){results.push(p)})});
+    finalize();
   });
   function finalize(){
     var all=[],seen={},cCounts={},ac=[];
