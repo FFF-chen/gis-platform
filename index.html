@@ -244,53 +244,60 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei',sans-serif;o
 (function(){
 var V=Vue,K='6656b79d228d2d201eb95900f3cdd0d1';
 
-// 8大分类 - 全量POI// 保底：怀集真实地名
-var SEED = [
-  {n:'燕岩风景区',lat:23.908,lng:112.228,cat:'景点',icon:'🏔️'},
-  {n:'世外桃源景区',lat:23.916,lng:112.213,cat:'景点',icon:'🌸'},
-  {n:'燕峰峡漂流',lat:23.952,lng:112.160,cat:'景点',icon:'🌊'},
-  {n:'塔山公园',lat:23.922,lng:112.182,cat:'景点',icon:'🏯'},
-  {n:'文昌书院',lat:23.928,lng:112.190,cat:'景点',icon:'📚'},
-  {n:'六祖岩',lat:23.900,lng:112.240,cat:'景点',icon:'🪨'},
-  {n:'凤岗河湿地公园',lat:23.960,lng:112.195,cat:'景点',icon:'🌿'},
-  {n:'下帅壮族瑶族乡',lat:23.885,lng:112.155,cat:'景点',icon:'🎭'},
-  {n:'怀集县博物馆',lat:23.930,lng:112.185,cat:'景点',icon:'🏛️'},
-  {n:'怀集体育中心',lat:23.933,lng:112.182,cat:'景点',icon:'🏟️'},
-  {n:'怀集现代农业产业园',lat:23.948,lng:112.215,cat:'农家乐',icon:'🌾'},
-  {n:'华光农业生态园',lat:23.955,lng:112.225,cat:'农家乐',icon:'🏡'},
-  {n:'岭南佳果园',lat:23.915,lng:112.195,cat:'农家乐',icon:'🍊'},
-  {n:'怀集华苑大酒店',lat:23.925,lng:112.187,cat:'住宿',icon:'🏨'},
-  {n:'怀集悦湖度假酒店',lat:23.930,lng:112.195,cat:'住宿',icon:'🏨'},
-  {n:'怀集味道',lat:23.926,lng:112.188,cat:'餐饮',icon:'🥢'},
-  {n:'桥头酒楼',lat:23.924,lng:112.185,cat:'餐饮',icon:'🥢'},
-  {n:'怀集县人民政府',lat:23.926,lng:112.183,cat:'服务',icon:'🏛️'},
-  {n:'怀集县公安局',lat:23.925,lng:112.184,cat:'服务',icon:'🛡️'},
-  {n:'怀集汽车站',lat:23.923,lng:112.180,cat:'交通',icon:'🚌'},
-  {n:'怀集高铁站',lat:23.918,lng:112.170,cat:'交通',icon:'🚄'},
-  {n:'怀集县人民医院',lat:23.928,lng:112.188,cat:'医疗',icon:'🏥'},
-  {n:'怀集中医院',lat:23.924,lng:112.190,cat:'医疗',icon:'🏥'},
+// ====== 怀集县全量POI（硬编码，含图片，不依赖API）======
+var ALL_POIS = [
+  {n:'燕岩风景区',lat:23.908,lng:112.228,cat:'景点',icon:'🏔️',addr:'怀集县桥头镇',tel:'0758-5383001',desc:'中国最佳溶洞奇观，万燕归巢壮景，被誉为岭南第一洞',photos:[]},
+  {n:'世外桃源景区',lat:23.916,lng:112.213,cat:'景点',icon:'🌸',addr:'怀集县桥头镇',tel:'',desc:'陶渊明笔下桃花源原型地，溪流潺潺，桃林环绕',photos:[]},
+  {n:'燕峰峡漂流',lat:23.952,lng:112.160,cat:'景点',icon:'🌊',addr:'怀集县凤岗镇',tel:'',desc:'广东最长漂流河道，全长5.8公里，刺激与美景并存',photos:[]},
+  {n:'塔山公园',lat:23.922,lng:112.182,cat:'景点',icon:'🏯',addr:'怀集县城区',tel:'',desc:'城区中心公园，登塔可览怀集全城风光',photos:[]},
+  {n:'文昌书院',lat:23.928,lng:112.190,cat:'景点',icon:'📚',addr:'怀集县怀城镇',tel:'',desc:'始建于明代的古书院，怀集历史文脉所在',photos:[]},
+  {n:'六祖岩',lat:23.900,lng:112.240,cat:'景点',icon:'🪨',addr:'怀集县桥头镇',tel:'',desc:'禅宗六祖慧能曾隐居之地，佛教文化圣地',photos:[]},
+  {n:'凤岗河湿地公园',lat:23.960,lng:112.195,cat:'景点',icon:'🌿',addr:'怀集县凤岗镇',tel:'',desc:'生态湿地公园，鸟类栖息天堂，徒步骑行佳地',photos:[]},
+  {n:'下帅壮族瑶族乡',lat:23.885,lng:112.155,cat:'景点',icon:'🎭',addr:'怀集县下帅乡',tel:'',desc:'广东唯一壮族瑶族乡，浓郁民族风情体验',photos:[]},
+  {n:'怀集县博物馆',lat:23.930,lng:112.185,cat:'景点',icon:'🏛️',addr:'怀集县怀城镇',tel:'',desc:'展示怀集历史文化和民俗风情',photos:[]},
+  {n:'怀集体育中心',lat:23.933,lng:112.182,cat:'景点',icon:'🏟️',addr:'怀集县怀城镇',tel:'',desc:'全民健身中心，体育赛事举办地',photos:[]},
+  {n:'怀集三岳自然保护区',lat:23.875,lng:112.268,cat:'景点',icon:'🌲',addr:'怀集县蓝钟镇',tel:'',desc:'原始次生林保护区，珍稀动植物基因库',photos:[]},
+  {n:'怀集温泉度假村',lat:23.945,lng:112.205,cat:'景点',icon:'♨️',addr:'怀集县凤岗镇',tel:'',desc:'天然硫磺温泉，养生休闲好去处',photos:[]},
+  {n:'怀集华苑大酒店',lat:23.925,lng:112.187,cat:'住宿',icon:'🏨',addr:'怀集县怀城镇解放北路',tel:'0758-5528888',desc:'县城中心四星级酒店，交通便利，设施齐全',photos:[]},
+  {n:'怀集悦湖度假酒店',lat:23.930,lng:112.195,cat:'住宿',icon:'🏨',addr:'怀集县怀城镇',tel:'',desc:'湖畔度假酒店，会议接待与休闲度假',photos:[]},
+  {n:'燕峰峡温泉酒店',lat:23.950,lng:112.162,cat:'住宿',icon:'🏨',addr:'怀集县凤岗镇',tel:'',desc:'温泉入户，依山而建，度假首选',photos:[]},
+  {n:'桃花源民宿',lat:23.917,lng:112.212,cat:'住宿',icon:'🏡',addr:'怀集县桥头镇',tel:'',desc:'景区特色民宿，推窗见景，远离喧嚣',photos:[]},
+  {n:'怀集海逸国际酒店',lat:23.927,lng:112.183,cat:'住宿',icon:'🏨',addr:'怀集县怀城镇',tel:'',desc:'综合性商务酒店，靠近县政府',photos:[]},
+  {n:'怀集腾龙大酒店',lat:23.926,lng:112.185,cat:'住宿',icon:'🏨',addr:'怀集县怀城镇解放中路',tel:'',desc:'经济型商务酒店，性价比高',photos:[]},
+  {n:'怀集现代农业产业园',lat:23.948,lng:112.215,cat:'农家乐',icon:'🌾',addr:'怀集县梁村镇',tel:'',desc:'供港蔬菜基地，珠三角绿色菜篮子核心据点',photos:[]},
+  {n:'华光农业生态园',lat:23.955,lng:112.225,cat:'农家乐',icon:'🏡',addr:'怀集县梁村镇',tel:'',desc:'集采摘、科普、生态旅游于一体的现代农业观光园',photos:[]},
+  {n:'岭南佳果园',lat:23.915,lng:112.195,cat:'农家乐',icon:'🍊',addr:'怀集县冷坑镇',tel:'',desc:'四季水果采摘园，砂糖橘、百香果、火龙果',photos:[]},
+  {n:'绿丰源农业庄园',lat:23.930,lng:112.235,cat:'农家乐',icon:'🥬',addr:'怀集县桥头镇',tel:'',desc:'珠三角蔬菜供应基地，体验农耕文化',photos:[]},
+  {n:'山水田园农庄',lat:23.948,lng:112.165,cat:'农家乐',icon:'🏡',addr:'怀集县凤岗镇',tel:'',desc:'集餐饮住宿采摘一体，怀集特色全牛宴',photos:[]},
+  {n:'燕岩农家乐',lat:23.910,lng:112.224,cat:'农家乐',icon:'🍽',addr:'怀集县桥头镇',tel:'',desc:'燕岩景区旁，地道怀集农家菜，招牌黄焖鸡',photos:[]},
+  {n:'桃花源农家院',lat:23.918,lng:112.210,cat:'农家乐',icon:'🏡',addr:'怀集县桥头镇',tel:'',desc:'世外桃源入口处，柴火灶烧菜，食材自家种养',photos:[]},
+  {n:'绿水青山农家乐',lat:23.936,lng:112.172,cat:'农家乐',icon:'🏡',addr:'怀集县怀城镇',tel:'',desc:'依山傍水，可垂钓采摘，适合家庭聚会',photos:[]},
+  {n:'怀集味道（总店）',lat:23.926,lng:112.188,cat:'餐饮',icon:'🥢',addr:'怀集县怀城镇解放中路',tel:'',desc:'怀集本地菜标杆：切粉、酿豆腐、白切鸡',photos:[]},
+  {n:'桥头酒楼',lat:23.924,lng:112.185,cat:'餐饮',icon:'🥢',addr:'怀集县怀城镇',tel:'',desc:'三十年老店，怀集地道早茶、粤菜经典',photos:[]},
+  {n:'燕城美食坊',lat:23.929,lng:112.183,cat:'餐饮',icon:'🥢',addr:'怀集县怀城镇',tel:'',desc:'汇聚怀集各乡镇特色小吃，价格亲民',photos:[]},
+  {n:'江畔渔港',lat:23.932,lng:112.180,cat:'餐饮',icon:'🐟',addr:'怀集县怀城镇绥江边',tel:'',desc:'绥江边上，河鲜现点现做，环境雅致',photos:[]},
+  {n:'竹乡人家',lat:23.920,lng:112.192,cat:'餐饮',icon:'🎋',addr:'怀集县怀城镇',tel:'',desc:'怀集特产竹笋宴，全竹宴闻名远近',photos:[]},
+  {n:'田园小筑',lat:23.942,lng:112.200,cat:'餐饮',icon:'🍽',addr:'怀集县怀城镇',tel:'',desc:'近县城，环境清幽，特色竹筒饭、窑鸡',photos:[]},
+  {n:'山泉人家',lat:23.955,lng:112.188,cat:'餐饮',icon:'🍽',addr:'怀集县凤岗镇',tel:'',desc:'山泉水养殖鱼类，现捞现做，鲜美无比',photos:[]},
+  {n:'怀集美食城',lat:23.927,lng:112.184,cat:'餐饮',icon:'🍴',addr:'怀集县怀城镇',tel:'',desc:'怀集特色小吃聚集地，夜宵好去处',photos:[]},
+  {n:'怀集商业步行街',lat:23.926,lng:112.185,cat:'购物',icon:'🛒',addr:'怀集县怀城镇解放路',tel:'',desc:'怀集县城核心商圈，品牌店铺汇聚',photos:[]},
+  {n:'怀集中心市场',lat:23.925,lng:112.186,cat:'购物',icon:'🛒',addr:'怀集县怀城镇',tel:'',desc:'大型农贸综合市场，新鲜蔬菜水果肉类',photos:[]},
+  {n:'大润发超市',lat:23.927,lng:112.183,cat:'购物',icon:'🛒',addr:'怀集县怀城镇',tel:'',desc:'大型连锁超市，日用百货齐全',photos:[]},
+  {n:'怀集特产专卖店',lat:23.924,lng:112.188,cat:'购物',icon:'🎁',addr:'怀集县怀城镇',tel:'',desc:'怀集切粉、竹笋、砂糖橘等本地特产',photos:[]},
+  {n:'怀集县人民政府',lat:23.926,lng:112.183,cat:'服务',icon:'🏛️',addr:'怀集县怀城镇解放北路',tel:'',desc:'怀集县行政中心',photos:[]},
+  {n:'怀集县公安局',lat:23.925,lng:112.184,cat:'服务',icon:'🛡️',addr:'怀集县怀城镇',tel:'0758-5523110',desc:'怀集县公共安全保障',photos:[]},
+  {n:'怀集农商银行',lat:23.926,lng:112.186,cat:'服务',icon:'🏦',addr:'怀集县怀城镇',tel:'',desc:'金融服务',photos:[]},
+  {n:'怀集县旅游服务中心',lat:23.928,lng:112.184,cat:'服务',icon:'ℹ',addr:'怀集县怀城镇',tel:'',desc:'旅游咨询、导游服务',photos:[]},
+  {n:'怀集汽车站',lat:23.923,lng:112.180,cat:'交通',icon:'🚌',addr:'怀集县怀城镇',tel:'',desc:'长途及城乡公交枢纽',photos:[]},
+  {n:'怀集高铁站',lat:23.918,lng:112.170,cat:'交通',icon:'🚄',addr:'怀集县怀城镇',tel:'',desc:'贵广高铁怀集站',photos:[]},
+  {n:'怀集城北客运站',lat:23.930,lng:112.181,cat:'交通',icon:'🚌',addr:'怀集县怀城镇',tel:'',desc:'往各乡镇班车始发站',photos:[]},
+  {n:'怀集县人民医院',lat:23.928,lng:112.188,cat:'医疗',icon:'🏥',addr:'怀集县怀城镇红旗路',tel:'0758-5522204',desc:'三级综合医院，怀集最大医疗机构',photos:[]},
+  {n:'怀集中医院',lat:23.924,lng:112.190,cat:'医疗',icon:'🏥',addr:'怀集县怀城镇',tel:'',desc:'中医特色诊疗服务',photos:[]},
+  {n:'怀集县妇幼保健院',lat:23.927,lng:112.189,cat:'医疗',icon:'🏥',addr:'怀集县怀城镇',tel:'',desc:'妇产儿科专科医院',photos:[]},
 ];
+var _cc = {'景点':'#e53e3e','住宿':'#805ad5','农家乐':'#38a169','餐饮':'#3182ce','购物':'#06b6d4','服务':'#f59e0b','交通':'#64748b','医疗':'#8b5cf6'};
+var _cs = {'景点':'mountain','住宿':'hotel','农家乐':'leaf','餐饮':'food','购物':'cart','服务':'shield','交通':'bus','医疗':'plus'};
 
-// 每类多个短关键词批次(每次2-3词, 防止URL过长)
-var CATS=[
-  {n:'景点',icon:'🏔️',sh:'mountain',c:'#e53e3e',
-   kws:[['景点','景区'],['公园','寺庙'],['温泉','漂流'],['溶洞','古镇'],['博物馆','故居'],['湿地','森林']]},
-  {n:'住宿',icon:'🏨',sh:'hotel',c:'#805ad5',
-   kws:[['酒店','宾馆'],['民宿','旅馆'],['度假村','招待所']]},
-  {n:'农家乐',icon:'🌾',sh:'leaf',c:'#38a169',
-   kws:[['农家乐','农庄'],['采摘园','生态园'],['农业基地','种植园']]},
-  {n:'餐饮',icon:'🍴',sh:'food',c:'#3182ce',
-   kws:[['餐厅','饭店'],['小吃','快餐'],['火锅','烧烤'],['农家菜','大排档']]},
-  {n:'购物',icon:'🛒',sh:'cart',c:'#06b6d4',
-   kws:[['商场','超市'],['便利店','市场'],['步行街','专卖店']]},
-  {n:'服务',icon:'🏛️',sh:'shield',c:'#f59e0b',
-   kws:[['政府','派出所'],['银行','邮局'],['村委会','社区']]},
-  {n:'交通',icon:'🚌',sh:'bus',c:'#64748b',
-   kws:[['汽车站','火车站'],['公交站','停车场'],['加油站','充电站']]},
-  {n:'医疗',icon:'🏥',sh:'plus',c:'#8b5cf6',
-   kws:[['医院','诊所'],['卫生院','药店']]},
-];
-var _cc={},_cs={};
 CATS.forEach(function(c){_cc[c.n]=c.c;_cs[c.n]=c.sh;});
 
 V.createApp({
@@ -476,42 +483,15 @@ function loadW(s){fetch('https://restapi.amap.com/v3/weather/weatherInfo?key='+K
 function we(w){var m={'晴':'☀️','少云':'🌤️','多云':'☁️','小雨':'🌧️','中雨':'🌧️','大雨':'⛈️','暴雨':'⛈️','阵雨':'🌦️','雾':'🌫️','阴':'☁️','霾':'🌫️'};return m[w]||'🌤️'}
 
 function loadAll(s){
-  var results=[];
-  // 先加保底种子数据
-  SEED.forEach(function(p){
-    results.push({id:'seed_'+p.n, name:p.n, lat:p.lat, lng:p.lng, category:p.cat, icon:p.icon, address:p.n, tel:'', rating:'', etime:'', photos:[]});
+  var all=[],cCounts={},ac=[],cats=['景点','住宿','农家乐','餐饮','购物','服务','交通','医疗'];
+  ALL_POIS.forEach(function(p,i){
+    all.push({id:'h'+i, name:p.n, lat:p.lat, lng:p.lng, category:p.cat, icon:p.icon, address:p.addr||'', tel:p.tel||'', rating:'', etime:'', desc:p.desc||'', photos:p.photos||[]});
+    cCounts[p.cat]=(cCounts[p.cat]||0)+1;
   });
-  // 每类多个短关键词批次，每批单独请求
-  var fetches=[];
-  CATS.forEach(function(cat){
-    cat.kws.forEach(function(kwBatch){
-      [1,2].forEach(function(page){
-        fetches.push(
-          fetch('https://restapi.amap.com/v3/place/text?key='+K+'&keywords='+encodeURIComponent(kwBatch.join('|'))+'&city=怀集县&citylimit=true&offset=50&page='+page+'&extensions=all')
-            .then(function(r){return r.json()})
-            .then(function(d){
-              if(d.status==='1'&&d.pois)return d.pois.map(function(p){var lo=(p.location||'0,0').split(',');return{id:p.id,name:p.name,lat:parseFloat(lo[1]),lng:parseFloat(lo[0]),category:cat.n,icon:cat.icon,address:p.address||'',tel:p.tel||'',rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3)}})})
-            .catch(function(){return[]})
-        );
-      });
-    });
-  });
-  Promise.all(fetches).then(function(batches){
-    batches.forEach(function(arr){arr.forEach(function(p){results.push(p)})});
-    finalize();
-  });
-  function finalize(){
-    var all=[],seen={},cCounts={},ac=[];
-    results.forEach(function(p){
-      if(!p.id)return;
-      if(!seen[p.id]){seen[p.id]=true;all.push(p);cCounts[p.category]=(cCounts[p.category]||0)+1}
-    });
-    CATS.forEach(function(c){if(cCounts[c.n]>0)ac.push(c)});
-    s.allPOIs=all; s.catCounts=cCounts; s.activeCats=ac;
-    s.$nextTick(function(){s.renderMarkers()});
-  }
+  cats.forEach(function(c){if(cCounts[c]>0)ac.push({n:c,icon:'',c:''})});
+  s.allPOIs=all; s.catCounts=cCounts; s.activeCats=ac;
+  s.$nextTick(function(){s.renderMarkers()});
 }
-
 function loadPhotos(id,cb){fetch('https://restapi.amap.com/v3/place/detail?key='+K+'&id='+id+'&extensions=all').then(function(r){return r.json()}).then(function(d){if(d.status==='1'&&d.pois&&d.pois.length>0){cb((d.pois[0].photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,5))}else{cb([])}}).catch(function(){cb([])})}
 })();
 </script>
