@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -282,7 +282,6 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
       <div class="login-tabs" v-if="loginMode==='login'">
         <button class="login-tab" :class="{on:loginTab==='phone'}" @click="loginTab='phone'">📱 手机号</button>
         <button class="login-tab" :class="{on:loginTab==='email'}" @click="loginTab='email'">📧 邮箱</button>
-        <button class="login-tab" :class="{on:loginTab==='wechat'}" @click="loginTab='wechat'">💬 微信</button>
       </div>
       <template v-if="loginMode==='login'">
         <input class="lfield" type="text" v-model="loginId" :placeholder="loginTab==='phone'?'手机号/邮箱':'手机号/邮箱'">
