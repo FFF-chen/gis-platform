@@ -108,13 +108,22 @@ body,html,#app{height:100%;width:100%;font-family:Microsoft YaHei,sans-serif;ove
       <div class="dpanel" :class="{open:!!sel}">
         <button class="dclose" @click="sel=null">✕</button>
         <div v-if="sel" style="display:flex;flex-direction:column;height:100%">
-          <div style="height:200px;flex-shrink:0;overflow:hidden;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:4rem">{{ sel.icon }}</div>
+          <div style="height:200px;flex-shrink:0;overflow:hidden;background:#e5e7eb;display:flex;align-items:center;justify-content:center;position:relative">
+            <img v-if="sel.photos&&sel.photos.length" :src="sel.photos[0]" style="width:100%;height:100%;object-fit:cover"/>
+            <span v-else style="font-size:4rem">{{ sel.icon }}</span>
+            <div v-if="sel.photos&&sel.photos.length>1" style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.66rem">{{ sel.photos.length }}张</div>
+          </div>
           <div style="flex:1;overflow-y:auto;padding:16px">
             <span style="display:inline-block;padding:3px 10px;border-radius:10px;color:#fff;font-size:0.7rem;background:#34a853;margin-bottom:8px">{{ sel.cat }}</span>
             <h3 style="font-size:1.1rem;margin:0 0 8px">{{ sel.name }}</h3>
+            <div v-if="sel.rating" style="margin-bottom:4px;color:#f59e0b">⭐ {{ sel.rating }} 分</div>
             <div style="font-size:0.78rem;color:#666;margin-bottom:4px">📍 {{ sel.addr||'暂无地址' }}</div>
             <div v-if="sel.tel" style="font-size:0.78rem;color:#666;margin-bottom:4px">📞 {{ sel.tel }}</div>
+            <div v-if="sel.etime" style="font-size:0.75rem;color:#999;margin-bottom:4px">🕐 {{ sel.etime }}</div>
             <p style="font-size:0.78rem;color:#555;line-height:1.6;margin-top:6px">{{ sel.desc||'暂无描述' }}</p>
+            <div v-if="sel.photos&&sel.photos.length>1" style="display:flex;gap:6px;margin-top:10px;overflow-x:auto">
+              <img v-for="(ph,i) in sel.photos" :key="i" :src="ph" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0"/>
+            </div>
           </div>
           <div style="padding:12px 16px;border-top:1px solid #f0f0f0;display:flex;gap:8px">
             <button @click="navTo(sel)" style="flex:1;padding:10px;border:none;border-radius:8px;background:#34a853;color:#fff;font-size:0.8rem;cursor:pointer">🧭 高德导航</button>
@@ -189,8 +198,62 @@ var app = Vue.createApp({
       this.allPOIs = all;
       this.$nextTick(function() { s.renderMarkers(); });
       this.loadWeather();
+      // Also fetch from Amap API to supplement with real photos/details
+      this.loadFromAPI();
       this.map.on('click', function(e) { s.onMapClick(e); });
       this.map.on('dblclick', function(e) { s.onMapDbl(e); });
+    },
+    loadFromAPI: function() {
+      var s = this;
+      var KEY = '6656b79d228d2d201eb95900f3cdd0d1';
+      var queries = [
+        {kw:'风景名胜|景区|景点|公园|寺庙|温泉|漂流|溶洞|古镇|故居',cat:'景点'},
+        {kw:'酒店|宾馆|旅馆|民宿|度假村|招待所|公寓',cat:'住宿'},
+        {kw:'农家乐|农庄|采摘园|生态园|农业基地|种植园|垂钓',cat:'农家乐'},
+        {kw:'餐厅|饭店|酒楼|美食|小吃|火锅|烧烤|快餐|大排档|粉面|茶餐厅',cat:'餐饮'},
+        {kw:'商场|超市|便利店|市场|专卖店|商店|步行街|百货',cat:'购物'},
+        {kw:'政府|派出所|公安局|银行|邮局|社区|村委会|游客中心',cat:'服务'},
+        {kw:'汽车站|火车站|公交站|停车场|加油站|充电站|服务区',cat:'交通'},
+        {kw:'医院|诊所|卫生院|药店|卫生室|保健',cat:'医疗'},
+      ];
+      var icons = {'景点':'🏔️','住宿':'🏨','农家乐':'🌾','餐饮':'🍴','购物':'🛒','服务':'🏛️','交通':'🚌','医疗':'🏥'};
+      var pending = queries.length * 2;
+      var newPOIs = [];
+      var seen = {};
+      // Track existing hardcoded POI names to avoid duplicates
+      this.allPOIs.forEach(function(p) { seen[p.name] = true; });
+      queries.forEach(function(q) {
+        [1,2].forEach(function(page) {
+          fetch('https://restapi.amap.com/v3/place/text?key='+KEY+'&keywords='+encodeURIComponent(q.kw)+'&city=怀集县&citylimit=true&offset=40&page='+page+'&extensions=all')
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+              if (d.status === '1' && d.pois) {
+                d.pois.forEach(function(p) {
+                  if (seen[p.name]) return;
+                  seen[p.name] = true;
+                  var loc = (p.location||'0,0').split(',');
+                  newPOIs.push({
+                    id: p.id, name: p.name,
+                    lat: parseFloat(loc[1]), lng: parseFloat(loc[0]),
+                    cat: q.cat, icon: icons[q.cat],
+                    addr: p.address||'', tel: p.tel||'',
+                    rating: (p.biz_ext&&p.biz_ext.rating) ? p.biz_ext.rating : '',
+                    etime: (p.biz_ext&&p.biz_ext.open_time) ? p.biz_ext.open_time : '',
+                    desc: p.address||'',
+                    photos: (p.photos||[]).map(function(ph) { return ph.url||''; }).filter(function(u) { return u; }).slice(0,3),
+                  });
+                });
+              }
+            }).catch(function() {})
+            .finally(function() {
+              pending--;
+              if (pending <= 0) {
+                s.allPOIs = s.allPOIs.concat(newPOIs);
+                s.$nextTick(function() { s.renderMarkers(); });
+              }
+            });
+        });
+      });
     },
     renderMarkers: function() {
       var s = this;
@@ -200,7 +263,9 @@ var app = Vue.createApp({
         var co = s.colors[p.cat] || '#999';
         var sh = s.shapes[p.cat] || 'circle';
         var m = L.marker([p.lat, p.lng], {icon: mkIcon(co, sh)}).addTo(s.map);
-        m.bindPopup('<b>' + p.name + '</b><br/>' + (p.addr||''));
+        var photoTag = '';
+        if (p.photos && p.photos.length) photoTag = '<br/><img src="'+p.photos[0]+'" style="width:100%;max-height:100px;object-fit:cover;border-radius:6px;margin-top:4px"/>';
+        m.bindPopup('<b>' + p.name + '</b><br/><span style="font-size:0.7rem;color:#888">' + (p.addr||'') + '</span>'+(p.rating?'<br/>⭐ '+p.rating:'')+photoTag);
         m.on('mouseover', function() { this.openPopup(); });
         m.on('mouseout', function() { this.closePopup(); });
         m.on('click', function() { s.showDetail(p); });
