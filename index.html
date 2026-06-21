@@ -118,7 +118,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 .sr-card .sc-cat{display:inline-block;padding:2px 8px;border-radius:6px;color:#fff;font-size:0.68rem;margin-bottom:6px}
 .sr-card .sc-meta{font-size:0.74rem;color:#888;display:flex;gap:8px;flex-wrap:wrap}
 
-/* Search detail card (within search overlay) */
+/* Search detail card */
 .sr-detail{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
 .sr-detail .srd-img{height:220px;background:#e5e7eb;overflow:hidden;position:relative}
 .sr-detail .srd-img img{width:100%;height:100%;object-fit:cover}
@@ -202,6 +202,14 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 .ctx-menu .ctx-item:hover{background:var(--c5)}
 .ctx-menu .ctx-divider{height:1px;background:#eee;margin:4px 0}
 
+/* CUSTOM MARKER INPUT */
+.cm-input-box{position:absolute;z-index:600;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.2);padding:14px 16px;display:flex;gap:8px;align-items:center}
+.cm-input-box input{padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.82rem;outline:none;font-family:inherit;width:160px}
+.cm-input-box input:focus{border-color:var(--c1)}
+.cm-input-box button{padding:8px 14px;border:none;border-radius:8px;cursor:pointer;font-size:0.78rem;font-family:inherit;font-weight:500}
+.cm-input-box .cm-save{background:var(--c2);color:#fff}
+.cm-input-box .cm-cancel{background:#f3f4f6;color:#555}
+
 /* CONFIRM */
 .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99999;display:flex;align-items:center;justify-content:center}
 .confirm-box{background:#fff;border-radius:14px;padding:26px 24px;width:340px;max-width:90vw;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.25)}
@@ -210,14 +218,6 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 .confirm-box button{padding:9px 24px;border-radius:8px;border:none;cursor:pointer;font-size:0.84rem;font-family:inherit;font-weight:500}
 .confirm-box .c-ok{background:var(--c2);color:#fff}
 .confirm-box .c-cancel{background:#f3f4f6;color:#555}
-
-/* CUSTOM MARKER INPUT */
-.cm-input-box{position:absolute;z-index:600;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.2);padding:14px 16px;display:flex;gap:8px;align-items:center}
-.cm-input-box input{padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.82rem;outline:none;font-family:inherit;width:160px}
-.cm-input-box input:focus{border-color:var(--c1)}
-.cm-input-box button{padding:8px 14px;border:none;border-radius:8px;cursor:pointer;font-size:0.78rem;font-family:inherit;font-weight:500}
-.cm-input-box .cm-save{background:var(--c2);color:#fff}
-.cm-input-box .cm-cancel{background:#f3f4f6;color:#555}
 
 /* TOASTS */
 .toasts{position:fixed;top:16px;right:16px;z-index:999999;pointer-events:none}
@@ -284,14 +284,14 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
         <div class="uc-fav" v-for="p in favPOIs" @click="showUC=false;showDetail(p)">
           <span>{{ p.icon }}</span><span>{{ p.name }}</span><span style="color:#999;font-size:0.68rem;margin-left:auto">{{ p.cat }}</span>
         </div>
-        <div v-if="favPOIs.length===0" style="text-align:center;color:#ccc;padding:16px;font-size:0.78rem">还没有收藏地点</div>
+        <div v-if="favPOIs.length===0" style="text-align:center;color:#ccc;padding:16px;font-size:0.78rem">还没有收藏地点，点击地图上的 ☆ 收藏吧</div>
       </div>
       <div class="uc-section">
-        <div class="uc-stitle">📌 我的标记 ({{ cstMarkers.length }})</div>
-        <div class="uc-fav" v-for="m in cstMarkers" @click="showUC=false;map.flyTo([m.lat,m.lng],15)">
+        <div class="uc-stitle">📌 我的标记 ({{ myCstMarkers.length }})</div>
+        <div class="uc-fav" v-for="m in myCstMarkers" @click="showUC=false;map.flyTo([m.lat,m.lng],15)">
           <span>📍</span><span>{{ m.label }}</span><span style="color:#999;font-size:0.68rem;margin-left:auto">{{ m.lat.toFixed(4) }},{{ m.lng.toFixed(4) }}</span>
         </div>
-        <div v-if="cstMarkers.length===0" style="text-align:center;color:#ccc;padding:16px;font-size:0.78rem">还没有自定义标记</div>
+        <div v-if="myCstMarkers.length===0" style="text-align:center;color:#ccc;padding:16px;font-size:0.78rem">还没有自定义标记</div>
       </div>
       <button class="uc-logout" @click="doLogout">退出登录</button>
     </div>
@@ -302,7 +302,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
     <div class="left-panel">
       <div class="lp-header">
         <div><h3>绿美怀集 · 导览</h3><div class="lhint">{{ wTemp }}°C · {{ allPOIs.length }} 个地点</div></div>
-        <span v-if="user" class="lp-user" @click="showUC=true" :title="'个人中心'">👤 {{ user.name }}</span>
+        <span v-if="user" class="lp-user" @click="showUC=true">👤 {{ user.name }}</span>
         <span v-if="!user" class="lp-user" @click="goLogin('map')">👤 登录</span>
       </div>
       <div class="lp-tabs">
@@ -391,7 +391,8 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
           <button class="scat" v-for="c in cats" :class="{on:scat===c}" @click="scat=c">{{ c }}</button>
         </div>
         <div class="sr-body">
-          <!-- Search detail view (shown when clicking a result) -->
+
+          <!-- Search detail (shown when clicking a result) -->
           <template v-if="srDetail">
             <div class="sr-detail">
               <div class="srd-img">
@@ -429,7 +430,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 
           <!-- Search results list -->
           <template v-if="!srDetail">
-            <div class="sr-loading" v-if="srLoading" style="text-align:center;padding:60px;color:#999">🔍 搜索中…</div>
+            <div v-if="srLoading" style="text-align:center;padding:60px;color:#999">🔍 搜索中…</div>
             <div v-if="!srLoading && srResults.length===0 && srRecResults.length===0 && srq" style="text-align:center;padding:60px;color:#999">
               <div style="font-size:3rem;margin-bottom:10px">🔍</div><div>没有找到"{{ srq }}"相关的地点</div>
             </div>
@@ -455,7 +456,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
       <!-- Weather -->
       <button class="wthr" @click="toggleWeather">{{ wIcon }} <span style="font-weight:600;color:#333">{{ wTemp }}°</span></button>
 
-      <!-- Right tools (NO login button - moved to sidebar header) -->
+      <!-- Right tools -->
       <div class="rtools">
         <button class="rbtn" @click="toggleLayer"><span class="tip">切换图层</span>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><rect x="2" y="2" width="20" height="7" rx="2"/><rect x="4" y="12" width="16" height="6" rx="2"/><circle cx="7" cy="5.5" r="1" fill="#333"/><circle cx="9" cy="15" r="1" fill="#333"/></svg>
@@ -488,7 +489,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 
       <!-- Custom marker input -->
       <div class="cm-input-box" v-if="cstInput" :style="{left:cstInput.x+'px',top:cstInput.y+'px'}">
-        <input type="text" v-model="cstLabel" placeholder="标记名称…" @keydown.enter="saveCstMarker" ref="cstInputRef">
+        <input type="text" v-model="cstLabel" placeholder="标记名称…" @keydown.enter="saveCstMarker">
         <button class="cm-save" @click="saveCstMarker">保存</button>
         <button class="cm-cancel" @click="cancelCst">取消</button>
       </div>
@@ -568,26 +569,35 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 (function(){
 var KEY='028626894c67e75ed4187d547235ad82';
 
+// ---- Account system ----
 function loadUsers(){try{return JSON.parse(localStorage.getItem('hji_users')||'[]')}catch(e){return[]}}
 function saveUsers(u){localStorage.setItem('hji_users',JSON.stringify(u))}
 function loadSession(){try{return JSON.parse(localStorage.getItem('hji_session')||'null')}catch(e){return null}}
 function saveSession(u){localStorage.setItem('hji_session',JSON.stringify(u))}
-function loadCstMarkers(){try{return JSON.parse(localStorage.getItem('hji_cst')||'[]')}catch(e){return[]}}
-function saveCstMarkers(a){localStorage.setItem('hji_cst',JSON.stringify(a))}
 
-var app=Vue.createApp({data:function(){return{
+// Each user gets their own favs and custom markers, keyed by user id
+function getUserFavs(uid){try{return JSON.parse(localStorage.getItem('hji_favs_'+uid)||'[]')}catch(e){return[]}}
+function saveUserFavs(uid,a){localStorage.setItem('hji_favs_'+uid,JSON.stringify(a))}
+function getUserCst(uid){try{return JSON.parse(localStorage.getItem('hji_cst_'+uid)||'[]')}catch(e){return[]}}
+function saveUserCst(uid,a){localStorage.setItem('hji_cst_'+uid,JSON.stringify(a))}
+
+var app=Vue.createApp({data:function(){
+  var sess=loadSession(),uid=sess?sess.id:'';
+  return{
   page:'cover',loginReturn:'cover',
   tab:'browse',
   map:null,layer:'v',vLayer:null,sLayer:null,
-  allPOIs:[],dp:null,favs:JSON.parse(localStorage.getItem('hji_favs')||'[]'),
+  allPOIs:[],dp:null,
+  favs:uid?getUserFavs(uid):[],
   query:'',filter:'全部',
   mode:null,measuring:false,mpts:[],mLayer:null,rLayer:null,
   rs:null,re:null,rpicking:null,strat:'fast',wpts:[],ri:null,rl:false,
   loginMode:'login',loginTab:'phone',
   loginId:'',loginPwd:'',regName:'',regId:'',regPwd:'',regPwd2:'',
-  user:loadSession(),
+  user:sess,
   showUC:false,
-  cstMode:false,cstInput:null,cstLabel:'',cstMarkers:loadCstMarkers(),
+  cstMode:false,cstInput:null,cstLabel:'',
+  cstMarkers:uid?getUserCst(uid):[],
   confirm:{visible:false,msg:'',cb:function(){}},
   fbq:'',fbfocus:false,
   srOpen:false,srq:'',scat:'全部',srResults:[],srRecResults:[],srLoading:false,srDetail:null,
@@ -611,16 +621,15 @@ computed:{
     return l;
   },
   filteredSrResults:function(){
-    var l=this.srResults;if(this.scat!=='全部')l=l.filter(function(p){return p.cat===this.scat},this);
-    return l.slice(0,20);
+    var l=this.srResults;if(this.scat!=='全部')l=l.filter(function(p){return p.cat===this.scat},this);return l.slice(0,20);
   },
   filteredSrRecResults:function(){
-    var l=this.srRecResults;if(this.scat!=='全部')l=l.filter(function(p){return p.cat===this.scat},this);
-    return l.slice(0,10);
+    var l=this.srRecResults;if(this.scat!=='全部')l=l.filter(function(p){return p.cat===this.scat},this);return l.slice(0,10);
   },
   favPOIs:function(){
-    var s=this;return this.allPOIs.filter(function(p){return s.favs.indexOf(p.id)>=0});
+    var st=this;return this.allPOIs.filter(function(p){return st.favs.indexOf(p.id)>=0});
   },
+  myCstMarkers:function(){return this.cstMarkers;},
   mval:function(){
     if(this.mpts.length<2)return'—';
     if(this.mode==='d'){
@@ -628,7 +637,7 @@ computed:{
       return t<1000?t.toFixed(1)+'米':(t/1000).toFixed(2)+'公里';
     }
     if(this.mode==='a'&&this.mpts.length>=3){
-      var st=this,pts=this.mpts.map(function(p){var pr=st.map.latLngToContainerPoint(L.latLng(p.lat,p.lng));return[pr.x,pr.y]});
+      var stt=this,pts=this.mpts.map(function(p){var pr=stt.map.latLngToContainerPoint(L.latLng(p.lat,p.lng));return[pr.x,pr.y]});
       var r1=L.latLng(this.mpts[0].lat,this.mpts[0].lng),r2=L.latLng(this.mpts[0].lat+0.01,this.mpts[0].lng);
       var pp=Math.abs(this.map.latLngToContainerPoint(r1).y-this.map.latLngToContainerPoint(r2).y);
       var mp=111320*0.01/pp,ap=0,n=pts.length;
@@ -663,14 +672,13 @@ methods:{
     this.map.on('click',function(e){s.onMc(e)});
     this.map.on('dblclick',function(e){s.onMd(e)});
     this.map.on('contextmenu',function(e){s.onCtx(e)});
-    // Close context menu on map click
     document.addEventListener('click',function(){s.cm.vis=false});
     this._loadAll();
     this._renderCstMarkers();
     this.loadWeather();
   },
 
-  // POI LOADING
+  // POI
   _loadAll:function(){
     var all=[];
     ALL_POIS.forEach(function(p,i){all.push({id:p.id||('h'+i),name:p.n||p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',desc:p.desc||'',photos:p.photos||[],reviews:[],etime:p.etime||''})});
@@ -679,48 +687,36 @@ methods:{
     this.loadFromAPI();
   },
 
-  // Add markers incrementally (no full re-render)
   _addMarkers:function(list){
     var s=this;if(!s._ms)s._ms=[];
     list.forEach(function(p){
       var co=s.colors[p.cat]||'#999',sh=s.shapes[p.cat]||'circle';
       var m=L.marker([p.lat,p.lng],{icon:mkIcon(co,sh)}).addTo(s.map);
       m._poi=p;
-      // Hover: show popup with debounce
-      var hoverTimer=null;
-      m.on('mouseover',function(){
-        clearTimeout(hoverTimer);
-        var self=this;
-        hoverTimer=setTimeout(function(){self.bindPopup(s._popupHTML(p)).openPopup()},350);
-      });
-      m.on('mouseout',function(){
-        clearTimeout(hoverTimer);
-        var self=this;
-        setTimeout(function(){if(!self._pinned)self.closePopup()},500);
-      });
+      var ht=null;
+      m.on('mouseover',function(){clearTimeout(ht);var self=this;ht=setTimeout(function(){self.bindPopup(s._popupHTML(p)).openPopup()},350)});
+      m.on('mouseout',function(){clearTimeout(ht);var self=this;setTimeout(function(){if(!self._pinned)self.closePopup()},500)});
       m.on('click',function(e){L.DomEvent.stopPropagation(e);this._pinned=true;s.showDetail(p);setTimeout(function(){m._pinned=false},800)});
       s._ms.push(m);
     });
-    // Register global popup button handlers
     window._hjiSetStart=function(id){var p=s._findPOI(id);if(p)s.setRouteStart(p)};
     window._hjiSetWay=function(id){var p=s._findPOI(id);if(p)s.setRouteWaypoint(p)};
     window._hjiSetEnd=function(id){var p=s._findPOI(id);if(p)s.setRouteEnd(p)};
   },
 
   _popupHTML:function(p){
-    var r='';if(p.rating)r='<br/>⭐ '+p.rating+' 分';
-    var a=p.addr||'';
-    var pt='';if(p.photos&&p.photos.length)pt='<br/><img src="'+p.photos[0]+'" style="width:100%;max-height:90px;object-fit:cover;border-radius:6px;margin-top:4px">';
+    var r='',a=p.addr||'',pt='';
+    if(p.rating)r='<br/>⭐ '+p.rating+' 分';
+    if(p.photos&&p.photos.length)pt='<br/><img src="'+p.photos[0]+'" style="width:100%;max-height:90px;object-fit:cover;border-radius:6px;margin-top:4px">';
     return '<div style="min-width:175px"><b style="font-size:0.9rem">'+p.name+'</b>'+(a?'<br/><span style="font-size:0.68rem;color:#888">📍 '+a+'</span>':'')+r+pt+'<div class="popup-actions"><button class="pop-start" onclick="window._hjiSetStart(\''+p.id+'\')">🟢起点</button><button class="pop-way" onclick="window._hjiSetWay(\''+p.id+'\')">🟡途径</button><button class="pop-end" onclick="window._hjiSetEnd(\''+p.id+'\')">🔴终点</button></div></div>';
   },
 
   _findPOI:function(id){for(var i=0;i<this.allPOIs.length;i++){if(this.allPOIs[i].id===id)return this.allPOIs[i]}return null},
 
-  // DETAIL PANEL
+  // DETAIL
   showDetail:function(p){
     var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[]};
-    this.dp=copy;
-    if(this.map)this.map.flyTo([p.lat,p.lng],15,{duration:0.8});
+    this.dp=copy;if(this.map)this.map.flyTo([p.lat,p.lng],15,{duration:0.8});
     if(!copy.photos.length){
       var s=this,pid=p.id;
       loadPhotos(pid,function(ph){if(s.dp&&s.dp.id===pid){s.dp.photos=ph;loadReviews(pid,function(rv){if(s.dp&&s.dp.id===pid)s.dp.reviews=rv})}});
@@ -728,11 +724,11 @@ methods:{
   },
   navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank')},
 
-  // FAVORITES
+  // FAVS - per user
   toggleFav:function(p){
     var idx=this.favs.indexOf(p.id);
     if(idx>=0){this.favs.splice(idx,1);this.toastMsg('已取消收藏','inf')}else{this.favs.push(p.id);this.toastMsg('已收藏 ⭐','ok')}
-    localStorage.setItem('hji_favs',JSON.stringify(this.favs));
+    if(this.user&&this.user.id)saveUserFavs(this.user.id,this.favs);
   },
   isFav:function(p){return this.favs.indexOf(p.id)>=0},
 
@@ -789,13 +785,9 @@ methods:{
   endMeasure:function(){this.mode=null;this.measuring=false;this.mpts=[];if(this.mLayer)this.mLayer.clearLayers()},
 
   onMc:function(e){
-    // Custom marker mode
     if(this.cstMode){this._placeCstMarker(e);return}
-    // Route picking
     if(this.rpicking){var pt={lat:e.latlng.lat,lng:e.latlng.lng,name:e.latlng.lat.toFixed(4)+','+e.latlng.lng.toFixed(4)};if(this.rpicking==='start'){this.rs=pt}else if(this.rpicking==='end'){this.re=pt}else if(this.rpicking==='waypoint'){this.wpts.push(pt)}this.rpicking=null;this.drawRouteMarkers();this.toastMsg('点已设置','inf');return}
-    // Measure
-    if(!this.mode||!this.measuring)return;
-    this.mpts.push({lat:e.latlng.lat,lng:e.latlng.lng});this._rm();
+    if(!this.mode||!this.measuring)return;this.mpts.push({lat:e.latlng.lat,lng:e.latlng.lng});this._rm();
   },
   onMd:function(e){if(this.mode){L.DomEvent.preventDefault(e.originalEvent)}},
   _rm:function(){
@@ -812,30 +804,22 @@ methods:{
     if(this.mode==='a'&&lls.length>=3){L.polyline([lls[lls.length-1],lls[0]],{color:'#e53e3e',weight:2,dashArray:'4 6'}).addTo(this.mLayer);L.polygon(lls,{color:'#0d9488',fillColor:'#5eead4',fillOpacity:0.2,weight:2}).addTo(this.mLayer)}
   },
 
-  // RIGHT-CLICK CONTEXT MENU
-  onCtx:function(e){
-    e.originalEvent.preventDefault();L.DomEvent.stopPropagation(e);
-    this.cm={vis:true,x:Math.min(e.originalEvent.clientX,innerWidth-160),y:Math.min(e.originalEvent.clientY,innerHeight-200),ll:e.latlng};
-  },
+  // CONTEXT MENU
+  onCtx:function(e){e.originalEvent.preventDefault();L.DomEvent.stopPropagation(e);this.cm={vis:true,x:Math.min(e.originalEvent.clientX,innerWidth-160),y:Math.min(e.originalEvent.clientY,innerHeight-200),ll:e.latlng}},
   cmSetStart:function(){var ll=this.cm.ll;this.rs={lat:ll.lat,lng:ll.lng,name:ll.lat.toFixed(4)+','+ll.lng.toFixed(4)};this.cm.vis=false;this.tab='nav';this.drawRouteMarkers();this.toastMsg('起点已设置','inf')},
   cmSetEnd:function(){var ll=this.cm.ll;this.re={lat:ll.lat,lng:ll.lng,name:ll.lat.toFixed(4)+','+ll.lng.toFixed(4)};this.cm.vis=false;this.tab='nav';this.drawRouteMarkers();this.toastMsg('终点已设置','inf')},
   cmSetWay:function(){var ll=this.cm.ll;this.wpts.push({lat:ll.lat,lng:ll.lng,name:'途径点('+ll.lat.toFixed(4)+','+ll.lng.toFixed(4)+')'});this.cm.vis=false;this.tab='nav';this.drawRouteMarkers();this.toastMsg('途径点已添加','inf')},
-  cmAddCst:function(){var e={latlng:this.cm.ll};this.cm.vis=false;this._placeCstMarker(e)},
+  cmAddCst:function(){this.cm.vis=false;var e={originalEvent:{clientX:this.cm.x,clientY:this.cm.y},latlng:this.cm.ll};this._placeCstMarker(e)},
   cmZoomIn:function(){this.cm.vis=false;this.map.flyTo([this.cm.ll.lat,this.cm.ll.lng],16)},
 
   // CUSTOM MARKERS
-  toggleCstMode:function(){
-    this.cstMode=!this.cstMode;
-    if(this.cstMode){this.endMeasure();this.toastMsg('点击地图添加自定义标记','inf');this.map.getContainer().style.cursor='crosshair'}else{this.map.getContainer().style.cursor=''}
-  },
-  _placeCstMarker:function(e){
-    var s=this;var ct=this.map.getContainer().getBoundingClientRect();this.cstInput={x:e.originalEvent.clientX-ct.left+10,y:e.originalEvent.clientY-ct.top-60};this.cstLabel='';this.cstPendingLL=e.latlng;this.cstMode=false;this.map.getContainer().style.cursor='';
-    var st=this;setTimeout(function(){var el=document.querySelector('.cm-input-box input');if(el)el.focus()},100);
-  },
+  toggleCstMode:function(){this.cstMode=!this.cstMode;if(this.cstMode){this.endMeasure();this.toastMsg('点击地图添加自定义标记','inf');this.map.getContainer().style.cursor='crosshair'}else{this.map.getContainer().style.cursor=''}},
+  _placeCstMarker:function(e){var ct=this.map.getContainer().getBoundingClientRect();this.cstInput={x:e.originalEvent.clientX-ct.left+10,y:e.originalEvent.clientY-ct.top-60};this.cstLabel='';this.cstPendingLL=e.latlng;this.cstMode=false;this.map.getContainer().style.cursor='';var st=this;setTimeout(function(){var el=document.querySelector('.cm-input-box input');if(el)el.focus()},100)},
   saveCstMarker:function(){
     var label=this.cstLabel.trim()||'我的标记';var ll=this.cstPendingLL;if(!ll)return;
     var m={id:'cst'+Date.now(),label:label,lat:ll.lat,lng:ll.lng};
-    this.cstMarkers.push(m);saveCstMarkers(this.cstMarkers);
+    this.cstMarkers.push(m);
+    if(this.user&&this.user.id)saveUserCst(this.user.id,this.cstMarkers);
     this._addCstMarkerToMap(m);this.cstInput=null;this.cstLabel='';this.toastMsg('标记已保存: '+label,'ok');
   },
   cancelCst:function(){this.cstInput=null;this.cstLabel=''},
@@ -845,43 +829,37 @@ methods:{
     });
     var mk=L.marker([m.lat,m.lng],{icon:icon}).addTo(this.map);
     mk.bindPopup('<b>📌 '+m.label+'</b><br/><span style="font-size:0.68rem;color:#888">'+m.lat.toFixed(4)+','+m.lng.toFixed(4)+'</span>');
-    mk.on('contextmenu',function(e){
-      L.DomEvent.stopPropagation(e.originalEvent);
-      if(confirm('删除标记"'+m.label+'"？')){s.map.removeLayer(mk);var idx=s.cstMarkers.indexOf(m);if(idx>=0){s.cstMarkers.splice(idx,1);saveCstMarkers(s.cstMarkers);s.toastMsg('标记已删除','inf')}}
-    });
+    mk.on('contextmenu',function(e){L.DomEvent.stopPropagation(e.originalEvent);if(confirm('删除标记"'+m.label+'"？')){s.map.removeLayer(mk);var idx=-1;for(var j=0;j<s.cstMarkers.length;j++){if(s.cstMarkers[j].id===m.id){idx=j;break}}if(idx>=0){s.cstMarkers.splice(idx,1);if(s.user&&s.user.id)saveUserCst(s.user.id,s.cstMarkers);s.toastMsg('标记已删除','inf')}}});
     if(!this._cstMs)this._cstMs=[];this._cstMs.push({marker:mk,data:m});
   },
   _renderCstMarkers:function(){var s=this;this.cstMarkers.forEach(function(m){s._addCstMarkerToMap(m)})},
 
   // LOCATION
   locateMe:function(){
-    var s=this;
-    if(!navigator.geolocation){this.toastMsg('您的浏览器不支持定位','er');return}
+    var s=this;if(!navigator.geolocation){this.toastMsg('您的浏览器不支持定位','er');return}
     this.toastMsg('正在定位…','inf');
     navigator.geolocation.getCurrentPosition(function(pos){
       var lat=pos.coords.latitude,lng=pos.coords.longitude;
       if(s.locMarker)s.map.removeLayer(s.locMarker);
-      s.locMarker=L.marker([lat,lng],{icon:L.divIcon({className:'',iconSize:[24,24],iconAnchor:[12,12],html:'<div style="width:24px;height:24px;background:#3b82f6;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.3)"></div>'})}).addTo(s.map).bindPopup('📍 我的位置').openPopup();
+      s.locMarker=L.marker([lat,lng],{icon:L.divIcon({className:'',iconSize:[24,24],iconAnchor:[12,12],
+        html:'<div style="width:24px;height:24px;background:#3b82f6;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.3)"></div>'
+      })}).addTo(s.map).bindPopup('📍 我的位置').openPopup();
       s.map.flyTo([lat,lng],15);s.toastMsg('定位成功','ok');
     },function(){s.toastMsg('定位失败，请检查浏览器权限','er')},{enableHighAccuracy:true,timeout:10000});
   },
 
   // LAYER
-  toggleLayer:function(){
-    if(this.layer==='v'){this.map.removeLayer(this.vLayer);this.sLayer.addTo(this.map);this.layer='s';this.toastMsg('已切换卫星图','inf')}
-    else{this.map.removeLayer(this.sLayer);this.vLayer.addTo(this.map);this.layer='v';this.toastMsg('已切换矢量图','inf')}
-  },
+  toggleLayer:function(){if(this.layer==='v'){this.map.removeLayer(this.vLayer);this.sLayer.addTo(this.map);this.layer='s';this.toastMsg('已切换卫星图','inf')}else{this.map.removeLayer(this.sLayer);this.vLayer.addTo(this.map);this.layer='v';this.toastMsg('已切换矢量图','inf')}},
   resetMap:function(){this.map.setView([23.934,112.185],12)},
 
-  // LOGIN
+  // LOGIN - per user persistence
   doLogin:function(){
     if(!this.loginId.trim()){this.toastMsg('请输入账号','er');return}
     if(!this.loginPwd.trim()){this.toastMsg('请输入密码','er');return}
     var users=loadUsers(),found=null;
     for(var i=0;i<users.length;i++){if((users[i].phone===this.loginId||users[i].email===this.loginId||users[i].wechat===this.loginId)&&users[i].password===this.loginPwd){found=users[i];break}}
     if(!found){this.toastMsg('账号或密码错误','er');return}
-    var sess={name:found.name,phone:found.phone,email:found.email};
-    this.user=sess;saveSession(sess);this.page=this.loginReturn;this.toastMsg('欢迎回来，'+found.name+'！','ok');this.loginId='';this.loginPwd='';
+    this._onLogin(found);this.page=this.loginReturn;this.loginId='';this.loginPwd='';
   },
   doRegister:function(){
     if(!this.regName.trim()){this.toastMsg('请输入用户名','er');return}
@@ -889,16 +867,28 @@ methods:{
     if(!this.regPwd||this.regPwd.length<6){this.toastMsg('密码至少6位','er');return}
     if(this.regPwd!==this.regPwd2){this.toastMsg('两次密码不一致','er');return}
     var users=loadUsers();
-    for(var i=0;i<users.length;i++){if(users[i].phone===this.regId||users[i].email===this.regId){this.toastMsg('该账号已注册','er');return}}
-    var isPhone=/^1\d{10}$/.test(this.regId);
-    var newUser={id:'u'+Date.now(),name:this.regName,password:this.regPwd,createdAt:new Date().toISOString()};
+    for(var i=0;i<users.length;i++){if(users[i].phone===this.regId||users[i].email===this.regId){this.toastMsg('该账号已注册，请直接登录','er');return}}
+    var isPhone=/^1\d{10}$/.test(this.regId),uid='u'+Date.now();
+    var newUser={id:uid,name:this.regName,password:this.regPwd,createdAt:new Date().toISOString()};
     if(isPhone){newUser.phone=this.regId;newUser.email=''}else{newUser.email=this.regId;newUser.phone=''}
     newUser.wechat='';users.push(newUser);saveUsers(users);
-    var sess={name:newUser.name,phone:newUser.phone,email:newUser.email};
-    this.user=sess;saveSession(sess);this.page=this.loginReturn;this.toastMsg('注册成功，欢迎！','ok');
+    // Init empty favs and custom markers for new user
+    saveUserFavs(uid,[]);saveUserCst(uid,[]);
+    this._onLogin(newUser);this.page=this.loginReturn;
     this.regName='';this.regId='';this.regPwd='';this.regPwd2='';
   },
-  doLogout:function(){this.user=null;saveSession(null);this.showUC=false;this.toastMsg('已退出登录','inf')},
+  _onLogin:function(u){
+    var sess={id:u.id,name:u.name,phone:u.phone,email:u.email};
+    this.user=sess;saveSession(sess);
+    // Load user's favs and custom markers
+    this.favs=getUserFavs(u.id);
+    this.cstMarkers=getUserCst(u.id);
+    this.toastMsg('欢迎回来，'+u.name+'！','ok');
+  },
+  doLogout:function(){
+    if(this.user&&this.user.id){saveUserFavs(this.user.id,this.favs);saveUserCst(this.user.id,this.cstMarkers)}
+    this.user=null;saveSession(null);this.showUC=false;this.favs=[];this.cstMarkers=[];this.toastMsg('已退出登录','inf');
+  },
 
   // SEARCH
   fbblur:function(){var s=this;setTimeout(function(){s.fbfocus=false},200)},
@@ -911,68 +901,42 @@ methods:{
       if(d.status==='1'&&d.pois&&d.pois.length>0){
         var results=[];d.pois.forEach(function(p){var lo=(p.location||'0,0').split(',');var cat=s._guessCat(p.type||'',p.biz_type||'');results.push({id:p.id,name:p.name,lat:parseFloat(lo[1]),lng:parseFloat(lo[0]),cat:cat,icon:s._catIcon(cat),addr:p.address||'',tel:p.tel||'',rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3),reviews:[]})});
         s.srResults=results;
-        // Nearby recommendations
         if(results.length>0){var r=results[0];fetch('https://restapi.amap.com/v3/place/around?key='+KEY+'&location='+r.lng+','+r.lat+'&radius=5000&offset=15&extensions=all').then(function(rr){return rr.json()}).then(function(dd){if(dd.status==='1'&&dd.pois){var recs=[];dd.pois.forEach(function(p){if(recs.length>=8)return;var lo=(p.location||'0,0').split(',');var cat=s._guessCat(p.type||'',p.biz_type||'');recs.push({id:p.id,name:p.name,lat:parseFloat(lo[1]),lng:parseFloat(lo[0]),cat:cat,icon:s._catIcon(cat),addr:p.address||'',tel:p.tel||'',rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3),reviews:[]})});s.srRecResults=recs}}).catch(function(){})}
       }else{s.srLoading=false;s.srResults=[];s.toastMsg('未找到相关地点','er')}
-    }).catch(function(e){s.srLoading=false;s.srResults=[];s.toastMsg('搜索失败','er')});
+    }).catch(function(){s.srLoading=false;s.srResults=[];s.toastMsg('搜索失败','er')});
   },
-
-  // Show detail within search overlay (calls Amap API for full detail)
   srShowDetail:function(p){
-    var s=this;this.srDetail=p;
-    // Fetch full detail from Amap
-    if(!p.photos||!p.photos.length){
-      var pid=p.id;
-      loadPhotos(pid,function(ph){if(s.srDetail&&s.srDetail.id===pid){s.srDetail.photos=ph;loadReviews(pid,function(rv){if(s.srDetail&&s.srDetail.id===pid)s.srDetail.reviews=rv})}});
-    }
+    this.srDetail=p;
+    var s=this;if(!p.photos||!p.photos.length){var pid=p.id;loadPhotos(pid,function(ph){if(s.srDetail&&s.srDetail.id===pid){s.srDetail.photos=ph;loadReviews(pid,function(rv){if(s.srDetail&&s.srDetail.id===pid)s.srDetail.reviews=rv})}})}
   },
   srViewOnMap:function(p){
     this.srOpen=false;this.srq='';this.srResults=[];this.srRecResults=[];this.srDetail=null;this.scat='全部';
-    // Add to allPOIs if not present
     var found=null;for(var i=0;i<this.allPOIs.length;i++){if(this.allPOIs[i].id===p.id){found=this.allPOIs[i];break}}
     if(!found){this.allPOIs.push(p);this._addMarkers([p])}
     this.showDetail(found||p);
   },
-
-  _guessCat:function(type,biz){
-    var t=(type+biz).toLowerCase();
-    if(t.indexOf('风景')>=0||t.indexOf('景区')>=0||t.indexOf('公园')>=0||t.indexOf('寺庙')>=0||t.indexOf('温泉')>=0||t.indexOf('漂流')>=0||t.indexOf('溶洞')>=0)return'景点';
-    if(t.indexOf('酒店')>=0||t.indexOf('宾馆')>=0||t.indexOf('旅馆')>=0||t.indexOf('民宿')>=0||t.indexOf('招待所')>=0||t.indexOf('公寓')>=0)return'住宿';
-    if(t.indexOf('农家')>=0||t.indexOf('农庄')>=0||t.indexOf('采摘')>=0||t.indexOf('生态')>=0)return'农家乐';
-    if(t.indexOf('餐饮')>=0||t.indexOf('餐厅')>=0||t.indexOf('饭店')>=0||t.indexOf('美食')>=0||t.indexOf('小吃')>=0)return'餐饮';
-    if(t.indexOf('购物')>=0||t.indexOf('商场')>=0||t.indexOf('超市')>=0||t.indexOf('市场')>=0||t.indexOf('商店')>=0)return'购物';
-    if(t.indexOf('政府')>=0||t.indexOf('公安')>=0||t.indexOf('银行')>=0||t.indexOf('邮局')>=0||t.indexOf('社区')>=0)return'服务';
-    if(t.indexOf('交通')>=0||t.indexOf('车站')>=0||t.indexOf('公交')>=0||t.indexOf('停车')>=0||t.indexOf('加油')>=0)return'交通';
-    if(t.indexOf('医院')>=0||t.indexOf('诊所')>=0||t.indexOf('卫生')>=0||t.indexOf('药店')>=0)return'医疗';
-    return'景点';
-  },
-  _catIcon:function(cat){var icons={'景点':'🏔️','住宿':'🏨','农家乐':'🌾','餐饮':'🍴','购物':'🛒','服务':'🏛️','交通':'🚌','医疗':'🏥'};return icons[cat]||'📍'},
+  _guessCat:function(t,b){var s=(t+b).toLowerCase();if(s.indexOf('风景')>=0||s.indexOf('景区')>=0||s.indexOf('公园')>=0||s.indexOf('寺庙')>=0||s.indexOf('温泉')>=0||s.indexOf('漂流')>=0||s.indexOf('溶洞')>=0)return'景点';if(s.indexOf('酒店')>=0||s.indexOf('宾馆')>=0||s.indexOf('旅馆')>=0||s.indexOf('民宿')>=0||s.indexOf('招待所')>=0||s.indexOf('公寓')>=0)return'住宿';if(s.indexOf('农家')>=0||s.indexOf('农庄')>=0||s.indexOf('采摘')>=0||s.indexOf('生态')>=0)return'农家乐';if(s.indexOf('餐饮')>=0||s.indexOf('餐厅')>=0||s.indexOf('饭店')>=0||s.indexOf('美食')>=0||s.indexOf('小吃')>=0)return'餐饮';if(s.indexOf('购物')>=0||s.indexOf('商场')>=0||s.indexOf('超市')>=0||s.indexOf('市场')>=0||s.indexOf('商店')>=0)return'购物';if(s.indexOf('政府')>=0||s.indexOf('公安')>=0||s.indexOf('银行')>=0||s.indexOf('邮局')>=0||s.indexOf('社区')>=0)return'服务';if(s.indexOf('交通')>=0||s.indexOf('车站')>=0||s.indexOf('公交')>=0||s.indexOf('停车')>=0||s.indexOf('加油')>=0)return'交通';if(s.indexOf('医院')>=0||s.indexOf('诊所')>=0||s.indexOf('卫生')>=0||s.indexOf('药店')>=0)return'医疗';return'景点'},
+  _catIcon:function(c){var ic={'景点':'🏔️','住宿':'🏨','农家乐':'🌾','餐饮':'🍴','购物':'🛒','服务':'🏛️','交通':'🚌','医疗':'🏥'};return ic[c]||'📍'},
 
   // WEATHER
   toggleWeather:function(){this.showW=!this.showW},
   loadWeather:function(){
-    var s=this;
-    fetch('https://restapi.amap.com/v3/weather/weatherInfo?key='+KEY+'&city=441224&extensions=all').then(function(r){return r.json()}).then(function(d){
-      if(d.lives&&d.lives.length>0){var l=d.lives[0];s.wTemp=l.temperature;s.wIcon={'晴':'☀️','多云':'☁️','小雨':'🌧️','阴':'☁️','中雨':'🌧️','大雨':'⛈️'}[l.weather]||'🌤️'}
-    }).catch(function(){});
+    var s=this;fetch('https://restapi.amap.com/v3/weather/weatherInfo?key='+KEY+'&city=441224&extensions=all').then(function(r){return r.json()}).then(function(d){if(d.lives&&d.lives.length>0){var l=d.lives[0];s.wTemp=l.temperature;s.wIcon={'晴':'☀️','多云':'☁️','小雨':'🌧️','阴':'☁️','中雨':'🌧️','大雨':'⛈️'}[l.weather]||'🌤️'}}).catch(function(){});
   },
 
-  // API LOADER (incremental - no full re-render)
+  // API LOADER
   loadFromAPI:function(){
     var s=this;
     var qs=[{k:'风景名胜|景区|景点|公园|寺庙|温泉|漂流|溶洞',c:'景点'},{k:'酒店|宾馆|旅馆|民宿|度假村|招待所',c:'住宿'},{k:'农家乐|农庄|采摘园|生态园|农业基地',c:'农家乐'},{k:'餐厅|饭店|酒楼|美食|小吃|火锅|烧烤|快餐',c:'餐饮'},{k:'商场|超市|便利店|市场|专卖店|商店',c:'购物'},{k:'政府|派出所|公安局|银行|邮局|社区',c:'服务'},{k:'汽车站|火车站|公交站|停车场|加油站',c:'交通'},{k:'医院|诊所|卫生院|药店|卫生室',c:'医疗'}];
-    var icons={'景点':'🏔️','住宿':'🏨','农家乐':'🌾','餐饮':'🍴','购物':'🛒','服务':'🏛️','交通':'🚌','医疗':'🏥'};
+    var ic={'景点':'🏔️','住宿':'🏨','农家乐':'🌾','餐饮':'🍴','购物':'🛒','服务':'🏛️','交通':'🚌','医疗':'🏥'};
     var seen={};this.allPOIs.forEach(function(p){seen[p.name]=true});
     var pend=qs.length*2,newP=[];
     qs.forEach(function(q){[1,2].forEach(function(page){
       fetch('https://restapi.amap.com/v3/place/text?key='+KEY+'&keywords='+encodeURIComponent(q.k)+'&city=怀集县&citylimit=true&offset=40&page='+page+'&extensions=all')
-      .then(function(r){return r.json()}).then(function(d){
-        if(d.status==='1'&&d.pois){d.pois.forEach(function(p){if(seen[p.name])return;seen[p.name]=true;var lo=(p.location||'0,0').split(',');newP.push({id:p.id,name:p.name,lat:parseFloat(lo[1]),lng:parseFloat(lo[0]),cat:q.c,icon:icons[q.c],addr:p.address||'',tel:p.tel||'',rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',desc:p.address||'',photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3),reviews:[]})})}
-      }).catch(function(){}).finally(function(){pend--;if(pend<=0){s.allPOIs=s.allPOIs.concat(newP);setTimeout(function(){s._addMarkers(newP)},300);s.toastMsg('补充加载 '+newP.length+' 个POI','ok')}})
+      .then(function(r){return r.json()}).then(function(d){if(d.status==='1'&&d.pois){d.pois.forEach(function(p){if(seen[p.name])return;seen[p.name]=true;var lo=(p.location||'0,0').split(',');newP.push({id:p.id,name:p.name,lat:parseFloat(lo[1]),lng:parseFloat(lo[0]),cat:q.c,icon:ic[q.c],addr:p.address||'',tel:p.tel||'',rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',desc:p.address||'',photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3),reviews:[]})})}}).catch(function(){}).finally(function(){pend--;if(pend<=0){s.allPOIs=s.allPOIs.concat(newP);setTimeout(function(){s._addMarkers(newP)},300);s.toastMsg('补充加载 '+newP.length+' 个POI','ok')}})
     })});
   },
 
-  // TOAST
   toastMsg:function(msg,cls){cls=cls||'inf';var id=Date.now()+Math.random();this.toasts.push({id:id,msg:msg,cls:cls});var s=this;setTimeout(function(){for(var i=0;i<s.toasts.length;i++){if(s.toasts[i].id===id){s.toasts.splice(i,1);break}}},3000)}
 }});
 app.mount('#app');
@@ -984,7 +948,7 @@ app.mount('#app');
 var ALL_POIS=[
   {id:'s01',n:'燕岩风景区',lat:23.908,lng:112.228,cat:'景点',icon:'🏔️',addr:'桥头镇',tel:'0758-5383001',desc:'中国最佳溶洞奇观，万燕归巢壮景，岭南第一洞',rating:'4.5',photos:[]},
   {id:'s02',n:'世外桃源景区',lat:23.916,lng:112.213,cat:'景点',icon:'🌸',addr:'桥头镇',tel:'',desc:'陶渊明笔下桃花源原型地，溪流潺潺桃林环绕',rating:'4.3',photos:[]},
-  {id:'s03',n:'燕峰峡漂流',lat:23.952,lng:112.160,cat:'景点',icon:'🌊',addr:'凤岗镇',tel:'',desc:'广东最长漂流河道，全长5.8公里惊险刺激',rating:'4.2',photos:[]},
+  {id:'s03',n:'燕峰峡漂流',lat:23.952,lng:112.160,cat:'景点',icon:'🌊',addr:'凤岗镇',tel:'',desc:'广东最长漂流河道，全长5.8公里',rating:'4.2',photos:[]},
   {id:'s04',n:'塔山公园',lat:23.922,lng:112.182,cat:'景点',icon:'🏯',addr:'怀城镇',tel:'',desc:'城区中心公园，登塔可览怀集全城风光',rating:'4.0',photos:[]},
   {id:'s05',n:'文昌书院',lat:23.928,lng:112.190,cat:'景点',icon:'📚',addr:'怀城镇',tel:'',desc:'始建于明代的古书院，怀集历史文脉所在',rating:'4.1',photos:[]},
   {id:'s06',n:'六祖岩',lat:23.900,lng:112.240,cat:'景点',icon:'🪨',addr:'桥头镇',tel:'',desc:'禅宗六祖慧能曾隐居之地，佛教文化圣地',rating:'4.2',photos:[]},
@@ -996,18 +960,18 @@ var ALL_POIS=[
   {id:'s12',n:'怀集温泉度假村',lat:23.945,lng:112.205,cat:'景点',icon:'♨️',addr:'凤岗镇',tel:'',desc:'天然硫磺温泉，养生休闲好去处',rating:'4.1',photos:[]},
   {id:'s13',n:'绥江湿地公园',lat:23.938,lng:112.175,cat:'景点',icon:'🌿',addr:'怀城镇',tel:'',desc:'绥江沿岸生态湿地，休闲散步好去处',rating:'3.6',photos:[]},
   {id:'s14',n:'冷坑观音堂',lat:23.908,lng:112.148,cat:'景点',icon:'🛕',addr:'冷坑镇',tel:'',desc:'百年古庙，香火鼎盛',rating:'3.5',photos:[]},
-  {id:'s15',n:'华苑大酒店',lat:23.925,lng:112.187,cat:'住宿',icon:'🏨',addr:'解放北路',tel:'0758-5528888',desc:'县城中心四星级酒店，交通便利设施齐全',rating:'4.2',photos:[]},
+  {id:'s15',n:'华苑大酒店',lat:23.925,lng:112.187,cat:'住宿',icon:'🏨',addr:'解放北路',tel:'0758-5528888',desc:'县城中心四星级酒店',rating:'4.2',photos:[]},
   {id:'s16',n:'悦湖度假酒店',lat:23.930,lng:112.195,cat:'住宿',icon:'🏨',addr:'怀城镇',tel:'',desc:'湖畔度假酒店，会议接待与休闲度假',rating:'4.1',photos:[]},
   {id:'s17',n:'燕峰峡温泉酒店',lat:23.950,lng:112.162,cat:'住宿',icon:'🏨',addr:'凤岗镇',tel:'',desc:'温泉入户，依山而建，度假首选',rating:'4.3',photos:[]},
   {id:'s18',n:'桃花源民宿',lat:23.917,lng:112.212,cat:'住宿',icon:'🏡',addr:'桥头镇',tel:'',desc:'景区特色民宿，推窗见景远离喧嚣',rating:'4.0',photos:[]},
-  {id:'s19',n:'海逸国际酒店',lat:23.927,lng:112.183,cat:'住宿',icon:'🏨',addr:'解放中路',tel:'',desc:'综合性商务酒店，配套齐全',rating:'3.9',photos:[]},
-  {id:'s20',n:'腾龙大酒店',lat:23.926,lng:112.185,cat:'住宿',icon:'🏨',addr:'解放中路',tel:'',desc:'经济型商务酒店，性价比高',rating:'3.7',photos:[]},
+  {id:'s19',n:'海逸国际酒店',lat:23.927,lng:112.183,cat:'住宿',icon:'🏨',addr:'解放中路',tel:'',desc:'综合性商务酒店',rating:'3.9',photos:[]},
+  {id:'s20',n:'腾龙大酒店',lat:23.926,lng:112.185,cat:'住宿',icon:'🏨',addr:'解放中路',tel:'',desc:'经济型商务酒店',rating:'3.7',photos:[]},
   {id:'s21',n:'怀集迎宾馆',lat:23.924,lng:112.186,cat:'住宿',icon:'🏨',addr:'怀城镇',tel:'',desc:'政府接待宾馆，环境清幽',rating:'3.8',photos:[]},
   {id:'s22',n:'城市便捷酒店',lat:23.928,lng:112.182,cat:'住宿',icon:'🏨',addr:'怀城镇',tel:'',desc:'连锁快捷酒店，干净实惠',rating:'3.6',photos:[]},
   {id:'s23',n:'7天连锁酒店',lat:23.923,lng:112.181,cat:'住宿',icon:'🏨',addr:'怀城镇',tel:'',desc:'全国连锁经济型酒店',rating:'3.5',photos:[]},
   {id:'s24',n:'山水间民宿',lat:23.935,lng:112.168,cat:'住宿',icon:'🏡',addr:'凤岗镇',tel:'',desc:'临山而建，田园风光尽收眼底',rating:'4.2',photos:[]},
-  {id:'s25',n:'现代农业产业园',lat:23.948,lng:112.215,cat:'农家乐',icon:'🌾',addr:'梁村镇',tel:'',desc:'供港蔬菜基地，珠三角绿色菜篮子核心据点',rating:'4.1',photos:[]},
-  {id:'s26',n:'华光农业生态园',lat:23.955,lng:112.225,cat:'农家乐',icon:'🏡',addr:'梁村镇',tel:'',desc:'集采摘、科普、生态旅游于一体',rating:'4.0',photos:[]},
+  {id:'s25',n:'现代农业产业园',lat:23.948,lng:112.215,cat:'农家乐',icon:'🌾',addr:'梁村镇',tel:'',desc:'供港蔬菜基地，珠三角绿色菜篮子',rating:'4.1',photos:[]},
+  {id:'s26',n:'华光农业生态园',lat:23.955,lng:112.225,cat:'农家乐',icon:'🏡',addr:'梁村镇',tel:'',desc:'集采摘科普生态旅游于一体',rating:'4.0',photos:[]},
   {id:'s27',n:'岭南佳果园',lat:23.915,lng:112.195,cat:'农家乐',icon:'🍊',addr:'冷坑镇',tel:'',desc:'四季水果采摘园，砂糖橘百香果火龙果',rating:'4.2',photos:[]},
   {id:'s28',n:'绿丰源农业庄园',lat:23.930,lng:112.235,cat:'农家乐',icon:'🥬',addr:'桥头镇',tel:'',desc:'珠三角蔬菜供应基地，体验农耕文化',rating:'3.9',photos:[]},
   {id:'s29',n:'山水田园农庄',lat:23.948,lng:112.165,cat:'农家乐',icon:'🏡',addr:'凤岗镇',tel:'',desc:'集餐饮住宿采摘一体，怀集特色全牛宴',rating:'4.3',photos:[]},
@@ -1018,7 +982,7 @@ var ALL_POIS=[
   {id:'s34',n:'山泉人家',lat:23.955,lng:112.188,cat:'农家乐',icon:'🍽',addr:'凤岗镇',tel:'',desc:'山泉水养殖鱼类，现捞现做鲜美无比',rating:'4.2',photos:[]},
   {id:'s35',n:'金凤凰生态农庄',lat:23.918,lng:112.175,cat:'农家乐',icon:'🏡',addr:'冷坑镇',tel:'',desc:'大型生态农场，亲子采摘体验',rating:'3.7',photos:[]},
   {id:'s36',n:'绿野仙踪采摘园',lat:23.945,lng:112.185,cat:'农家乐',icon:'🍓',addr:'怀城镇',tel:'',desc:'草莓蓝莓采摘基地，亲子乐园',rating:'3.9',photos:[]},
-  {id:'s37',n:'怀集味道（总店）',lat:23.926,lng:112.188,cat:'餐饮',icon:'🥢',addr:'解放中路',tel:'',desc:'怀集本地菜标杆：切粉、酿豆腐、白切鸡',rating:'4.4',photos:[]},
+  {id:'s37',n:'怀集味道（总店）',lat:23.926,lng:112.188,cat:'餐饮',icon:'🥢',addr:'解放中路',tel:'',desc:'怀集本地菜标杆：切粉酿豆腐白切鸡',rating:'4.4',photos:[]},
   {id:'s38',n:'桥头酒楼',lat:23.924,lng:112.185,cat:'餐饮',icon:'🥢',addr:'怀城镇',tel:'',desc:'三十年老店，怀集地道早茶粤菜经典',rating:'4.2',photos:[]},
   {id:'s39',n:'燕城美食坊',lat:23.929,lng:112.183,cat:'餐饮',icon:'🥢',addr:'怀城镇',tel:'',desc:'汇聚怀集各乡镇特色小吃，价格亲民',rating:'4.0',photos:[]},
   {id:'s40',n:'江畔渔港',lat:23.932,lng:112.180,cat:'餐饮',icon:'🐟',addr:'绥江边',tel:'',desc:'绥江边上，河鲜现点现做环境雅致',rating:'4.1',photos:[]},
@@ -1027,7 +991,7 @@ var ALL_POIS=[
   {id:'s43',n:'回味轩餐厅',lat:23.925,lng:112.189,cat:'餐饮',icon:'🍴',addr:'怀城镇',tel:'',desc:'怀集家常菜，环境温馨价格公道',rating:'3.8',photos:[]},
   {id:'s44',n:'湘味园',lat:23.929,lng:112.178,cat:'餐饮',icon:'🌶',addr:'怀城镇',tel:'',desc:'正宗湘菜馆，辣味十足',rating:'3.7',photos:[]},
   {id:'s45',n:'粤港茶餐厅',lat:23.928,lng:112.186,cat:'餐饮',icon:'🥢',addr:'怀城镇',tel:'',desc:'港式茶餐厅，丝袜奶茶菠萝包',rating:'3.6',photos:[]},
-  {id:'s46',n:'潮汕牛肉火锅',lat:23.930,lng:112.182,cat:'餐饮',icon:'🍲',addr:'怀城镇',tel:'',desc:'潮汕鲜切牛肉火锅，手打牛肉丸',rating:'4.1',photos:[]},
+  {id:'s46',n:'潮汕牛肉火锅',lat:23.930,lng:112.182,cat:'餐饮',icon:'🍲',addr:'怀城镇',tel:'',desc:'鲜切牛肉火锅，手打牛肉丸',rating:'4.1',photos:[]},
   {id:'s47',n:'肯德基(怀集店)',lat:23.927,lng:112.185,cat:'餐饮',icon:'🍗',addr:'解放中路',tel:'',desc:'国际连锁快餐',rating:'3.8',photos:[]},
   {id:'s48',n:'大排档一条街',lat:23.922,lng:112.179,cat:'餐饮',icon:'🍻',addr:'怀城镇',tel:'',desc:'夜宵大排档聚集地，烧烤啤酒',rating:'3.9',photos:[]},
   {id:'s49',n:'客家王',lat:23.931,lng:112.179,cat:'餐饮',icon:'🍲',addr:'怀城镇',tel:'',desc:'正宗客家菜，盐焗鸡梅菜扣肉',rating:'4.0',photos:[]},
@@ -1035,7 +999,7 @@ var ALL_POIS=[
   {id:'s51',n:'怀集商业步行街',lat:23.926,lng:112.185,cat:'购物',icon:'🛒',addr:'解放路',tel:'',desc:'县城核心商圈，购物休闲一条街',rating:'3.8',photos:[]},
   {id:'s52',n:'怀集中心市场',lat:23.925,lng:112.186,cat:'购物',icon:'🛒',addr:'怀城镇',tel:'',desc:'大型农贸综合市场，生鲜果蔬一应俱全',rating:'3.5',photos:[]},
   {id:'s53',n:'大润发超市',lat:23.927,lng:112.183,cat:'购物',icon:'🛒',addr:'怀城镇',tel:'',desc:'大型连锁超市，日用百货齐全',rating:'4.0',photos:[]},
-  {id:'s54',n:'怀集特产专卖店',lat:23.924,lng:112.188,cat:'购物',icon:'🎁',addr:'怀城镇',tel:'',desc:'切粉、竹笋、砂糖橘等怀集特产',rating:'4.1',photos:[]},
+  {id:'s54',n:'怀集特产专卖店',lat:23.924,lng:112.188,cat:'购物',icon:'🎁',addr:'怀城镇',tel:'',desc:'切粉竹笋砂糖橘等怀集特产',rating:'4.1',photos:[]},
   {id:'s55',n:'万达广场(怀集)',lat:23.920,lng:112.178,cat:'购物',icon:'🏬',addr:'怀城镇',tel:'',desc:'大型综合购物中心，餐饮娱乐购物一体',rating:'4.0',photos:[]},
   {id:'s56',n:'美宜佳便利店',lat:23.928,lng:112.184,cat:'购物',icon:'🏪',addr:'解放中路',tel:'',desc:'24小时连锁便利店',rating:'3.5',photos:[]},
   {id:'s57',n:'怀集电器城',lat:23.926,lng:112.182,cat:'购物',icon:'📺',addr:'怀城镇',tel:'',desc:'家电数码产品卖场',rating:'3.6',photos:[]},
@@ -1047,7 +1011,7 @@ var ALL_POIS=[
   {id:'s63',n:'怀集县人民政府',lat:23.926,lng:112.183,cat:'服务',icon:'🏛️',addr:'解放北路',tel:'',desc:'怀集县行政中心',rating:'',photos:[]},
   {id:'s64',n:'怀集县公安局',lat:23.925,lng:112.184,cat:'服务',icon:'🛡️',addr:'怀城镇',tel:'0758-5523110',desc:'公共安全保障',rating:'',photos:[]},
   {id:'s65',n:'怀集农商银行',lat:23.926,lng:112.186,cat:'服务',icon:'🏦',addr:'怀城镇',tel:'',desc:'怀集农村商业银行总行',rating:'',photos:[]},
-  {id:'s66',n:'旅游服务中心',lat:23.928,lng:112.184,cat:'服务',icon:'ℹ',addr:'怀城镇',tel:'',desc:'旅游咨询、导游服务、票务代理',rating:'3.8',photos:[]},
+  {id:'s66',n:'旅游服务中心',lat:23.928,lng:112.184,cat:'服务',icon:'ℹ',addr:'怀城镇',tel:'',desc:'旅游咨询导游服务票务代理',rating:'3.8',photos:[]},
   {id:'s67',n:'中国邮政(怀集)',lat:23.925,lng:112.187,cat:'服务',icon:'📮',addr:'怀城镇',tel:'',desc:'邮政快递综合服务',rating:'',photos:[]},
   {id:'s68',n:'中国建设银行',lat:23.927,lng:112.186,cat:'服务',icon:'🏦',addr:'解放中路',tel:'',desc:'建设银行怀集支行',rating:'',photos:[]},
   {id:'s69',n:'中国农业银行',lat:23.926,lng:112.184,cat:'服务',icon:'🏦',addr:'解放路',tel:'',desc:'农业银行怀集支行',rating:'',photos:[]},
