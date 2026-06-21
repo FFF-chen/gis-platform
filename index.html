@@ -768,17 +768,23 @@ methods:{
   _fetchCloud:function(){
     var s=this;
     cloudGet(function(d){
-      if(!d)return;
-      s.cloudData=d;
-      // Merge cloud users into localStorage for quick fallback
-      if(d.u&&d.u.length){localStorage.setItem('hji_users_cloud',JSON.stringify(d.u))}
+      if(!d){s.cloudData={c:{},u:[]};return}
+      s.cloudData=d;if(!d.u)d.u=[];
+      // Migrate legacy accounts to cloud
+      var leg=null;try{leg=JSON.parse(localStorage.getItem('hji_users')||'null')}catch(e){}
+      if(leg&&leg.length){
+        var ids={};d.u.forEach(function(u){ids[u.id]=true});
+        var added=false;
+        leg.forEach(function(u){if(!ids[u.id]){d.u.push(u);added=true}});
+        if(added){localStorage.setItem('hji_users_cloud',JSON.stringify(d.u));cloudPut(d)}
+      }
+      if(d.u.length)localStorage.setItem('hji_users_cloud',JSON.stringify(d.u));
     });
   },
   _loadUsers:function(){
-    // Cloud first, fallback to legacy localStorage
-    if(this.cloudData&&this.cloudData.u)return this.cloudData.u;
+    if(this.cloudData&&this.cloudData.u&&this.cloudData.u.length)return this.cloudData.u;
     var leg=null;try{leg=JSON.parse(localStorage.getItem('hji_users_cloud')||'null')}catch(e){}
-    if(leg)return leg;
+    if(leg&&leg.length)return leg;
     try{return JSON.parse(localStorage.getItem('hji_users')||'[]')}catch(e){return[]}
   },
   _saveUsers:function(u){
