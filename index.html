@@ -656,7 +656,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 (function(){
 var KEY='028626894c67e75ed4187d547235ad82';
 var BLOB='https://raw.githubusercontent.com/FFF-chen/gis-platform/main/db.json';
-var BLOB_W='https://jsonblob.com/api/jsonBlob/019ee97a-ebae-7252-b2aa-9e00cd1a6742';
+var SYNC='http://localhost:8765/sync';
 
 // ---- Cloud storage helpers ----
 function cloudGet(cb){
@@ -670,12 +670,12 @@ function cloudGet(cb){
   });
 }
 function cloudPut(data,cb){
-  // Always update local cache immediately (this is what the user sees)
   localStorage.setItem('hji_cloud_cache',JSON.stringify(data));
-  // Also save to a local backup file for later sync
   localStorage.setItem('hji_cloud_backup',JSON.stringify(data));
-  // Try jsonblob write - may fail due to CORS, that's OK
-  fetch(BLOB_W,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),mode:'cors'}).then(function(r){return r.json()}).then(function(d){if(cb)cb(true);console.log('cloud sync ok')}).catch(function(){if(cb)cb(false);console.log('cloud sync skipped (CORS), saved locally')});
+  // Try local sync server
+  fetch(SYNC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+  .then(function(r){return r.json()}).then(function(d){console.log('sync: '+d.git);if(cb)cb(true)})
+  .catch(function(){localStorage.setItem('hji_pending',JSON.stringify(data));if(cb)cb(true)});
 }
 function loadSession(){try{return JSON.parse(localStorage.getItem('hji_session')||'null')}catch(e){return null}}
 function saveSession(u){localStorage.setItem('hji_session',JSON.stringify(u))}
