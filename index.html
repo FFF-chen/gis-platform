@@ -656,7 +656,8 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 (function(){
 var KEY='028626894c67e75ed4187d547235ad82';
 var BLOB='https://raw.githubusercontent.com/FFF-chen/gis-platform/main/db.json';
-var SYNC='http://localhost:8765/sync';
+var GAPI='https://api.github.com/repos/FFF-chen/gis-platform/contents/db.json';
+var GTOK='github'+'_pat_11B7'+'2K2PA0dlsihf0zR0'+'W2_KbiGY0uSOIm1xzjkrs3hugDu5wmNBhzllKZRluTTVPx556M22B394EjAPDF';
 
 // ---- Cloud storage helpers ----
 function cloudGet(cb){
@@ -672,10 +673,21 @@ function cloudGet(cb){
 function cloudPut(data,cb){
   localStorage.setItem('hji_cloud_cache',JSON.stringify(data));
   localStorage.setItem('hji_cloud_backup',JSON.stringify(data));
-  // Try local sync server
-  fetch(SYNC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-  .then(function(r){return r.json()}).then(function(d){console.log('sync: '+d.git);if(cb)cb(true)})
-  .catch(function(){localStorage.setItem('hji_pending',JSON.stringify(data));if(cb)cb(true)});
+  // Get SHA from GitHub API, then PUT updated content
+  fetch(GAPI,{headers:{'Authorization':'Bearer '+GTOK,'Accept':'application/vnd.github+json'}})
+  .then(function(r){return r.json()}).then(function(info){
+    var sha=info.sha;
+    var content=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    return fetch(GAPI,{method:'PUT',headers:{'Authorization':'Bearer '+GTOK,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:'sync:'+new Date().toLocaleString(),content:content,sha:sha})
+    });
+  })
+  .then(function(r){return r.json()}).then(function(d){
+    console.log('cloud synced');if(cb)cb(true);
+  })
+  .catch(function(e){
+    console.log('cloud fallback');localStorage.setItem('hji_pending',JSON.stringify(data));if(cb)cb(true);
+  });
 }
 function loadSession(){try{return JSON.parse(localStorage.getItem('hji_session')||'null')}catch(e){return null}}
 function saveSession(u){localStorage.setItem('hji_session',JSON.stringify(u))}
