@@ -173,6 +173,10 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 .dpanel .dimg img{width:100%;height:100%;object-fit:cover}
 .dpanel .dimg .dnoimg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem}
 .dpanel .dimg .dcount{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.66rem}
+.dimg-prev,.dimg-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.3);color:#fff;border:none;width:32px;height:48px;cursor:pointer;font-size:1.6rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;z-index:5;font-family:serif}
+.dimg-prev:hover,.dimg-next:hover{background:rgba(0,0,0,0.6)}
+.dimg-prev{left:0;border-radius:0 6px 6px 0}
+.dimg-next{right:0;border-radius:6px 0 0 6px}
 .dpanel .dbody{flex:1;overflow-y:auto;padding:16px}
 .dpanel .dbadge{display:inline-block;padding:3px 10px;border-radius:10px;color:#fff;font-size:0.72rem;font-weight:500;margin-right:8px}
 .dpanel .dfav{cursor:pointer;font-size:1.3rem;transition:transform 0.2s;vertical-align:middle}
@@ -324,7 +328,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 
   <!-- MAIN -->
   <div class="main-layout" v-if="page==='map'">
-    <div class="left-panel">
+    <div class="left-panel" v-show="!srOpen">
       <div class="lp-header">
         <div><h3>绿美怀集 · 导览</h3><div class="lhint">{{ wTemp }}°C · {{ allPOIs.length }} 个地点</div></div>
         <span v-if="user" class="lp-user" @click="showUC=true">👤 {{ user.name }}</span>
@@ -408,7 +412,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
           <div class="sr-bar">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/></svg>
             <input type="text" v-model="srq" placeholder="搜索怀集…" autofocus @keydown.enter="doSearch(srq)">
-            <button @click="srOpen=false;srq='';srResults=[];srRecResults=[];srDetail=null">取消</button>
+            <button @click="closeSearch">取消</button>
           </div>
         </div>
         <div class="sr-cats">
@@ -417,41 +421,64 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
         </div>
         <div class="sr-body">
 
-          <!-- Search detail (shown when clicking a result) -->
+          <!-- Search detail - full page with mini map + details -->
           <template v-if="srDetail">
-            <div class="sr-detail">
-              <div class="srd-img">
-                <img v-if="srDetail.photos&&srDetail.photos.length" :src="srDetail.photos[0]">
-                <div class="srd-noimg" v-else>{{ srDetail.icon }}</div>
+            <button class="srd-back" @click="srBackToList" style="display:block;position:sticky;top:0;z-index:10;background:#fff;padding:10px 16px;border:none;color:var(--c1);cursor:pointer;font-size:0.85rem;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin:-12px;margin-bottom:0;width:calc(100% + 24px)">&larr; 返回搜索结果</button>
+            <!-- Mini map -->
+            <div id="srMiniMap" style="width:100%;height:220px;border-radius:12px;overflow:hidden;margin-top:12px"></div>
+            <!-- Main photo -->
+            <div class="srd-img" style="margin-top:12px;position:relative;border-radius:12px;overflow:hidden">
+              <img v-if="srDetail.photos&&srDetail.photos.length" :src="srDetail.photos[srDpImgIdx||0]||srDetail.photos[0]" style="transition:opacity 0.3s">
+              <div class="srd-noimg" v-else style="height:200px">{{ srDetail.icon }}</div>
+              <button v-if="srDetail.photos&&srDetail.photos.length>1" class="dimg-prev" @click.stop="prevSrImg" style="top:50%">&lsaquo;</button>
+              <button v-if="srDetail.photos&&srDetail.photos.length>1" class="dimg-next" @click.stop="nextSrImg" style="top:50%">&rsaquo;</button>
+              <div v-if="srDetail.photos&&srDetail.photos.length>1" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.66rem">{{ (srDpImgIdx||0)+1 }}/{{ srDetail.photos.length }}</div>
+            </div>
+            <div class="srd-body" style="padding:16px 0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                <span style="display:inline-block;padding:3px 10px;border-radius:10px;color:#fff;font-size:0.72rem" :style="{background:colors[srDetail.cat]||'#999'}">{{ srDetail.cat }}</span>
+                <span style="cursor:pointer;font-size:1.3rem" @click="toggleFav(srDetail)">{{ isFav(srDetail)?'⭐':'☆' }}</span>
+                <span style="font-size:0.74rem;color:var(--c1);cursor:pointer;text-decoration:underline;margin-left:auto" @click="srViewOnMap(srDetail)">🗺️ 地图查看</span>
               </div>
-              <div class="srd-body">
-                <button class="srd-back" @click="srDetail=null">&larr; 返回搜索结果</button>
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-                  <span style="display:inline-block;padding:3px 10px;border-radius:10px;color:#fff;font-size:0.72rem" :style="{background:colors[srDetail.cat]||'#999'}">{{ srDetail.cat }}</span>
-                  <span style="cursor:pointer;font-size:1.3rem" @click="toggleFav(srDetail)">{{ isFav(srDetail)?'⭐':'☆' }}</span>
+              <div class="srd-name">{{ srDetail.name }}</div>
+              <div class="srd-rating" v-if="srDetail.rating">⭐ {{ srDetail.rating }} 分</div>
+              <div class="srd-info" v-if="srDetail.addr">📍 {{ srDetail.addr }}</div>
+              <div class="srd-info" v-if="srDetail.tel">📞 {{ srDetail.tel }}</div>
+              <div class="srd-info" v-if="srDetail.etime">🕐 {{ srDetail.etime }}</div>
+              <div class="srd-info" v-if="srDetail.desc" style="color:#888;margin-top:4px">{{ srDetail.desc }}</div>
+              <!-- Thumbnail strip -->
+              <div style="display:flex;gap:6px;margin-top:10px;overflow-x:auto" v-if="srDetail.photos&&srDetail.photos.length>1">
+                <img v-for="(ph,i) in srDetail.photos" :src="ph" @click="srDpImgIdx=i" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;cursor:pointer" :style="{border:((srDpImgIdx||0))===i?'3px solid var(--c1)':'3px solid transparent'}">
+              </div>
+              <!-- Reviews -->
+              <div class="srd-reviews" v-if="srDetail.reviews&&srDetail.reviews.length" style="margin-top:14px">
+                <div class="srd-rtitle">📝 用户评价（来自高德地图）</div>
+                <div class="srd-rrow" v-for="(r,i) in srDetail.reviews.slice(0,6)">
+                  <span style="color:var(--amber);flex-shrink:0">{{ '⭐'.repeat(Math.round(r.rating||3)) }}</span>
+                  <span style="color:#555;flex:1">{{ r.text||'好评' }}</span>
                 </div>
-                <div class="srd-name">{{ srDetail.name }}</div>
-                <div class="srd-rating" v-if="srDetail.rating">⭐ {{ srDetail.rating }} 分</div>
-                <div class="srd-info" v-if="srDetail.addr">📍 {{ srDetail.addr }}</div>
-                <div class="srd-info" v-if="srDetail.tel">📞 {{ srDetail.tel }}</div>
-                <div class="srd-info" v-if="srDetail.desc" style="color:#888;margin-top:4px">{{ srDetail.desc }}</div>
-                <div class="srd-reviews" v-if="srDetail.reviews&&srDetail.reviews.length">
-                  <div class="srd-rtitle">📝 用户评价（来自高德地图）</div>
-                  <div class="srd-rrow" v-for="(r,i) in srDetail.reviews.slice(0,6)">
-                    <span style="color:var(--amber);flex-shrink:0">{{ '⭐'.repeat(Math.round(r.rating||3)) }}</span>
-                    <span style="color:#555;flex:1">{{ r.text||'好评' }}</span>
+              </div>
+              <!-- User comments -->
+              <div style="margin-top:14px;border-top:1px solid #f0f0f0;padding-top:10px">
+                <div style="font-weight:600;font-size:0.78rem;margin-bottom:6px;color:#333">💬 用户评论 ({{ srDetail.comments?srDetail.comments.length:0 }})</div>
+                <div v-if="srDetail.comments&&srDetail.comments.length" style="max-height:250px;overflow-y:auto;margin-bottom:8px">
+                  <div v-for="c in srDetail.comments" style="padding:6px 0;border-bottom:1px solid #f7f7f7;font-size:0.74rem">
+                    <div style="display:flex;justify-content:space-between"><span style="font-weight:600;color:var(--c1)">{{ c.uname }}</span><span style="font-size:0.64rem;color:#bbb">{{ c.time }}</span></div>
+                    <div style="color:#555;margin-top:2px">{{ c.text }}</div>
                   </div>
                 </div>
-                <div style="display:flex;gap:6px;margin-top:10px;overflow-x:auto" v-if="srDetail.photos&&srDetail.photos.length>1">
-                  <img v-for="(ph,i) in srDetail.photos" :src="ph" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0">
+                <div v-if="user" style="display:flex;gap:6px">
+                  <input type="text" v-model="srCmtText" placeholder="写下你的评论…" style="flex:1;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.76rem;outline:none;font-family:inherit" @keydown.enter="srSubmitComment">
+                  <button @click="srSubmitComment" style="padding:8px 14px;border:none;border-radius:8px;background:var(--c2);color:#fff;font-size:0.76rem;cursor:pointer;font-family:inherit;white-space:nowrap">发布</button>
                 </div>
+                <div v-if="!user" style="font-size:0.72rem;color:#999;text-align:center;padding:4px">请<a href="javascript:void(0)" style="color:var(--c1)" @click.stop="goLogin('map')">登录</a>后评论</div>
               </div>
-              <div class="srd-actions">
-                <button class="primary" @click="srViewOnMap(srDetail)">🗺️ 在地图查看</button>
-                <button style="border-color:var(--c1);color:var(--c1)" @click="srSetStart(srDetail)">🟢 起点</button>
-                <button style="border-color:var(--amber);color:var(--amber)" @click="srSetWay(srDetail)">🟡 途径</button>
-                <button style="border-color:var(--red);color:var(--red)" @click="srSetEnd(srDetail)">🔴 终点</button>
-              </div>
+            </div>
+            <div class="srd-actions" style="display:flex;gap:6px;padding:12px 0;border-top:1px solid #f0f0f0;flex-wrap:wrap;position:sticky;bottom:0;background:#f5f7fa">
+              <button class="primary" @click="srViewOnMap(srDetail)" style="flex:1;min-width:60px;padding:8px;border:1.5px solid #e5e7eb;border-radius:8px;background:var(--c1);border-color:var(--c1);color:#fff;font-size:0.74rem;cursor:pointer;font-family:inherit">🗺️ 地图查看</button>
+              <button style="flex:1;min-width:55px;padding:8px;border:2px solid var(--c1);border-radius:8px;background:#fff;color:var(--c1);font-size:0.74rem;cursor:pointer;font-family:inherit" @click="srSetStart(srDetail)">🟢 起点</button>
+              <button style="flex:1;min-width:55px;padding:8px;border:2px solid var(--amber);border-radius:8px;background:#fff;color:var(--amber);font-size:0.74rem;cursor:pointer;font-family:inherit" @click="srSetWay(srDetail)">🟡 途径</button>
+              <button style="flex:1;min-width:55px;padding:8px;border:2px solid var(--red);border-radius:8px;background:#fff;color:var(--red);font-size:0.74rem;cursor:pointer;font-family:inherit" @click="srSetEnd(srDetail)">🔴 终点</button>
             </div>
           </template>
 
@@ -538,10 +565,12 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
       <div class="dpanel" :class="{open:!!dp}">
         <button class="dclose" @click.stop="dp=null">✕</button>
         <div v-if="dp" style="display:flex;flex-direction:column;height:100%">
-          <div class="dimg">
-            <img v-if="dp.photos&&dp.photos.length" :src="dp.photos[0]">
+          <div class="dimg" style="position:relative">
+            <img v-if="dp.photos&&dp.photos.length" :src="dp.photos[dpImgIdx]||dp.photos[0]" style="transition:opacity 0.3s">
             <span class="dnoimg" v-else>{{ dp.icon }}</span>
-            <div class="dcount" v-if="dp.photos&&dp.photos.length>1">{{ dp.photos.length }}张</div>
+            <button v-if="dp.photos&&dp.photos.length>1" class="dimg-prev" @click.stop="prevDpImg">&lsaquo;</button>
+            <button v-if="dp.photos&&dp.photos.length>1" class="dimg-next" @click.stop="nextDpImg">&rsaquo;</button>
+            <div class="dcount" v-if="dp.photos&&dp.photos.length>1">{{ (dpImgIdx||0)+1 }}/{{ dp.photos.length }}</div>
           </div>
           <div class="dbody">
             <div style="display:flex;align-items:center;gap:6px">
@@ -562,7 +591,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
               </div>
             </div>
             <div class="dphotos" v-if="dp.photos&&dp.photos.length>1">
-              <img v-for="(ph,i) in dp.photos" :src="ph" @click="window.open(ph,'_blank')">
+              <img v-for="(ph,i) in dp.photos" :src="ph" @click="openImage(ph)" style="cursor:pointer" :style="{border:dpImgIdx===i?'2px solid var(--c1)':'2px solid transparent'}">
             </div>
             <!-- User comments -->
             <div style="margin-top:12px;border-top:1px solid #f0f0f0;padding-top:10px">
@@ -642,8 +671,8 @@ var app=Vue.createApp({data:function(){
   cstMarkers:uid?getUserCst(uid):[],
   confirm:{visible:false,msg:'',cb:function(){}},
   fbq:'',fbfocus:false,
-  srOpen:false,srq:'',scat:'全部',srResults:[],srRecResults:[],srLoading:false,srDetail:null,
-  wIcon:'☁️',wTemp:'--',locMarker:null,cmtText:'',
+  srOpen:false,srq:'',scat:'全部',srResults:[],srRecResults:[],srLoading:false,srDetail:null,srDpImgIdx:0,srCmtText:'',
+  wIcon:'☁️',wTemp:'--',locMarker:null,cmtText:'',dpImgIdx:0,
   cm:{vis:false,x:0,y:0,ll:null},
   toasts:[],
   cats:['景点','住宿','农家乐','餐饮','购物','服务','交通','医疗'],
@@ -759,7 +788,7 @@ methods:{
   showDetail:function(p){
     var s=this;
     var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[],comments:s._loadComments(p.id)};
-    this.dp=copy;
+    this.dp=copy;this.dpImgIdx=0;
     if(this.map){
       this.map.flyTo([p.lat,p.lng],16,{duration:0.8});
       // Un-highlight old marker
@@ -798,6 +827,19 @@ methods:{
     var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.cmtText.trim(),time:new Date().toLocaleString()};
     var cmts=this._loadComments(this.dp.id);cmts.unshift(cmt);
     this._saveComments(this.dp.id,cmts);this.dp.comments=cmts.slice();this.cmtText='';this.toastMsg('评论发布成功','ok');
+  },
+  // Photo navigation
+  nextDpImg:function(){if(this.dp&&this.dp.photos){this.dpImgIdx=(this.dpImgIdx+1)%this.dp.photos.length}},
+  prevDpImg:function(){if(this.dp&&this.dp.photos){this.dpImgIdx=(this.dpImgIdx-1+this.dp.photos.length)%this.dp.photos.length}},
+  openImage:function(url){var w=window.open('','_blank','width=900,height=700');w.document.write('<img src="'+url+'" style="max-width:100%;max-height:100vh;display:block;margin:auto">');w.document.title='照片预览'},
+  nextSrImg:function(){if(this.srDetail&&this.srDetail.photos){this.srDpImgIdx=(this.srDpImgIdx+1)%this.srDetail.photos.length}},
+  prevSrImg:function(){if(this.srDetail&&this.srDetail.photos){this.srDpImgIdx=(this.srDpImgIdx-1+this.srDetail.photos.length)%this.srDetail.photos.length}},
+  srSubmitComment:function(){
+    if(!this.srDetail||!this.srCmtText||!this.srCmtText.trim())return;
+    if(!this.user){this.toastMsg('请先登录再评论','er');return}
+    var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.srCmtText.trim(),time:new Date().toLocaleString()};
+    var cmts=this._loadComments(this.srDetail.id);cmts.unshift(cmt);
+    this._saveComments(this.srDetail.id,cmts);this.srDetail.comments=cmts.slice();this.srCmtText='';this.toastMsg('评论已发布','ok');
   },
   navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank')},
 
@@ -968,6 +1010,10 @@ methods:{
   },
 
   // SEARCH
+  closeSearch:function(){
+    if(this._srMiniMap){this._srMiniMap.remove();this._srMiniMap=null}
+    this.srOpen=false;this.srq='';this.srResults=[];this.srRecResults=[];this.srDetail=null;this.srDpImgIdx=0;this.srCmtText='';
+  },
   fbblur:function(){var s=this;setTimeout(function(){s.fbfocus=false},200)},
   doSearch:function(q){
     if(!q||!q.trim())return;q=q.trim();this.srq=q;this.srOpen=true;this.fbfocus=false;this.srLoading=true;this.srResults=[];this.srRecResults=[];this.srDetail=null;
@@ -983,6 +1029,17 @@ methods:{
     }).catch(function(){s.srLoading=false;s.srResults=[];s.toastMsg('搜索失败','er')});
   },
   srShowDetail:function(p){
+    var s=this;
+    this.srDpImgIdx=0;
+    // Init mini map
+    setTimeout(function(){
+      if(!s.srDetail||s.srDetail.id!==p.id)return;
+      var el=document.getElementById('srMiniMap');if(!el)return;
+      if(s._srMiniMap){s._srMiniMap.remove();s._srMiniMap=null}
+      s._srMiniMap=L.map(el,{center:[p.lat+0.003,p.lng],zoom:16,zoomControl:false,attributionControl:false,preferCanvas:true});
+      L.tileLayer('https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{maxZoom:18,updateWhenZooming:false}).addTo(s._srMiniMap);
+      L.marker([p.lat,p.lng],{icon:mkIcon(s.colors[p.cat]||'#999',s.shapes[p.cat]||'circle')}).addTo(s._srMiniMap);
+    },200);
     var s=this;
     p.comments=s._loadComments(p.id);
     this.srDetail=p;
@@ -1008,10 +1065,15 @@ methods:{
       }).catch(function(){loadAmap()});
     }else{loadAmap()}
   },
+  srBackToList:function(){
+    if(this._srMiniMap){this._srMiniMap.remove();this._srMiniMap=null}
+    this.srDetail=null;this.srDpImgIdx=0;this.srCmtText='';
+  },
   srSetStart:function(p){this.srDetail=null;this.setRouteStart({lat:p.lat,lng:p.lng,name:p.name})},
   srSetWay:function(p){this.setRouteWaypoint({lat:p.lat,lng:p.lng,name:p.name})},
   srSetEnd:function(p){this.srDetail=null;this.setRouteEnd({lat:p.lat,lng:p.lng,name:p.name})},
   srViewOnMap:function(p){
+    if(this._srMiniMap){this._srMiniMap.remove();this._srMiniMap=null}
     this.srOpen=false;this.srq='';this.srResults=[];this.srRecResults=[];this.srDetail=null;this.scat='全部';
     var found=null;for(var i=0;i<this.allPOIs.length;i++){if(this.allPOIs[i].id===p.id){found=this.allPOIs[i];break}}
     if(!found){this.allPOIs.push(p);this._addMarkers([p])}
