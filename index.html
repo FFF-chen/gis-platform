@@ -228,6 +228,14 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 .tst{padding:10px 16px;border-radius:10px;color:#fff;font-size:0.78rem;box-shadow:0 4px 16px rgba(0,0,0,0.2);margin-bottom:6px;animation:fI 0.3s ease-out}
 .tst.ok{background:#38a169}.tst.er{background:#e53e3e}.tst.inf{background:var(--c1)}
 @keyframes fI{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+/* Lightbox */
+.lb-overlay{position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;outline:none}
+.lb-close{position:absolute;top:14px;right:18px;z-index:10;background:rgba(255,255,255,0.15);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;transition:all 0.2s}
+.lb-close:hover{background:rgba(255,255,255,0.3)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.12);color:#fff;border:none;width:48px;height:72px;cursor:pointer;font-size:2rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;font-family:serif;z-index:10}
+.lb-nav:hover{background:rgba(255,255,255,0.25)}
+.lb-prev{left:0;border-radius:0 8px 8px 0}
+.lb-next{right:0;border-radius:8px 0 0 8px}
 
 /* LEAFLET OVERRIDES */
 .cmt-section{margin-top:12px;border-top:1px solid #f0f0f0;padding-top:10px}
@@ -425,14 +433,14 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
           <template v-if="srDetail">
             <button class="srd-back" @click="srBackToList" style="display:block;position:sticky;top:0;z-index:10;background:#fff;padding:10px 16px;border:none;color:var(--c1);cursor:pointer;font-size:0.85rem;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin:-12px;margin-bottom:0;width:calc(100% + 24px)">&larr; 返回搜索结果</button>
             <!-- Mini map -->
-            <div id="srMiniMap" style="width:100%;height:220px;border-radius:12px;overflow:hidden;margin-top:12px"></div>
+            <div id="srMiniMap" style="width:100%;height:320px;border-radius:12px;overflow:hidden;margin-top:12px"></div>
             <!-- Main photo -->
-            <div class="srd-img" style="margin-top:12px;position:relative;border-radius:12px;overflow:hidden">
-              <img v-if="srDetail.photos&&srDetail.photos.length" :src="srDetail.photos[srDpImgIdx||0]||srDetail.photos[0]" style="transition:opacity 0.3s">
+            <div class="srd-img" style="margin-top:12px;position:relative;border-radius:12px;overflow:hidden;height:200px;cursor:pointer" @dblclick="openLightbox(srDetail.photos,srDpImgIdx||0)">
+              <img v-if="srDetail.photos&&srDetail.photos.length" :src="srDetail.photos[srDpImgIdx||0]||srDetail.photos[0]" style="width:100%;height:100%;object-fit:cover;transition:opacity 0.3s">
               <div class="srd-noimg" v-else style="height:200px">{{ srDetail.icon }}</div>
               <button v-if="srDetail.photos&&srDetail.photos.length>1" class="dimg-prev" @click.stop="prevSrImg" style="top:50%">&lsaquo;</button>
               <button v-if="srDetail.photos&&srDetail.photos.length>1" class="dimg-next" @click.stop="nextSrImg" style="top:50%">&rsaquo;</button>
-              <div v-if="srDetail.photos&&srDetail.photos.length>1" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.66rem">{{ (srDpImgIdx||0)+1 }}/{{ srDetail.photos.length }}</div>
+              <div v-if="srDetail.photos&&srDetail.photos.length>1" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.66rem">双击放大 · {{ (srDpImgIdx||0)+1 }}/{{ srDetail.photos.length }}</div>
             </div>
             <div class="srd-body" style="padding:16px 0">
               <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
@@ -565,12 +573,12 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
       <div class="dpanel" :class="{open:!!dp}">
         <button class="dclose" @click.stop="dp=null">✕</button>
         <div v-if="dp" style="display:flex;flex-direction:column;height:100%">
-          <div class="dimg" style="position:relative">
-            <img v-if="dp.photos&&dp.photos.length" :src="dp.photos[dpImgIdx]||dp.photos[0]" style="transition:opacity 0.3s">
+          <div class="dimg" style="position:relative;cursor:pointer" @dblclick="openLightbox(dp.photos,dpImgIdx||0)">
+            <img v-if="dp.photos&&dp.photos.length" :src="dp.photos[dpImgIdx]||dp.photos[0]" style="transition:opacity 0.3s;width:100%;height:100%;object-fit:cover">
             <span class="dnoimg" v-else>{{ dp.icon }}</span>
             <button v-if="dp.photos&&dp.photos.length>1" class="dimg-prev" @click.stop="prevDpImg">&lsaquo;</button>
             <button v-if="dp.photos&&dp.photos.length>1" class="dimg-next" @click.stop="nextDpImg">&rsaquo;</button>
-            <div class="dcount" v-if="dp.photos&&dp.photos.length>1">{{ (dpImgIdx||0)+1 }}/{{ dp.photos.length }}</div>
+            <div class="dcount" v-if="dp.photos&&dp.photos.length>1">双击放大 · {{ (dpImgIdx||0)+1 }}/{{ dp.photos.length }}</div>
           </div>
           <div class="dbody">
             <div style="display:flex;align-items:center;gap:6px">
@@ -618,6 +626,15 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lb-overlay" v-if="lb.vis" @click="closeLightbox" @keydown.left="lbPrev" @keydown.right="lbNext" tabindex="0" ref="lbRef">
+    <button class="lb-close" @click.stop="closeLightbox">✕</button>
+    <button class="lb-nav lb-prev" @click.stop="lbPrev">&lsaquo;</button>
+    <img :src="lb.imgs[lb.idx]" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.4);user-select:none" @click.stop>
+    <button class="lb-nav lb-next" @click.stop="lbNext">&rsaquo;</button>
+    <div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,0.5);padding:4px 14px;border-radius:12px;font-size:0.78rem">{{ lb.idx+1 }}/{{ lb.imgs.length }}</div>
   </div>
 
   <!-- Confirm -->
@@ -673,7 +690,7 @@ var app=Vue.createApp({data:function(){
   fbq:'',fbfocus:false,
   srOpen:false,srq:'',scat:'全部',srResults:[],srRecResults:[],srLoading:false,srDetail:null,srDpImgIdx:0,srCmtText:'',
   wIcon:'☁️',wTemp:'--',locMarker:null,cmtText:'',dpImgIdx:0,
-  cm:{vis:false,x:0,y:0,ll:null},
+  cm:{vis:false,x:0,y:0,ll:null},lb:{vis:false,imgs:[],idx:0},
   toasts:[],
   cats:['景点','住宿','农家乐','餐饮','购物','服务','交通','医疗'],
   colors:{'景点':'#e53e3e','住宿':'#8b5cf6','农家乐':'#0d9488','餐饮':'#f59e0b','购物':'#06b6d4','服务':'#64748b','交通':'#3b82f6','医疗':'#ef4444'},
@@ -787,7 +804,7 @@ methods:{
   // DETAIL
   showDetail:function(p){
     var s=this;
-    var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[],comments:s._loadComments(p.id)};
+    var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[],comments:s._loadComments(p.name)};
     this.dp=copy;this.dpImgIdx=0;
     if(this.map){
       this.map.flyTo([p.lat,p.lng],16,{duration:0.8});
@@ -819,27 +836,44 @@ methods:{
     }
   },
   // User comments
-  _loadComments:function(pid){try{return JSON.parse(localStorage.getItem('hji_cmts_'+pid)||'[]')}catch(e){return[]}},
-  _saveComments:function(pid,a){localStorage.setItem('hji_cmts_'+pid,JSON.stringify(a))},
+  _loadComments:function(key){try{return JSON.parse(localStorage.getItem('hji_cmts_'+key)||'[]')}catch(e){return[]}},
+  _saveComments:function(key,a){localStorage.setItem('hji_cmts_'+key,JSON.stringify(a))},
   submitComment:function(){
     if(!this.dp||!this.cmtText||!this.cmtText.trim())return;
     if(!this.user){this.toastMsg('请先登录再评论','er');return}
     var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.cmtText.trim(),time:new Date().toLocaleString()};
-    var cmts=this._loadComments(this.dp.id);cmts.unshift(cmt);
-    this._saveComments(this.dp.id,cmts);this.dp.comments=cmts.slice();this.cmtText='';this.toastMsg('评论发布成功','ok');
+    var cmts=this._loadComments(this.dp.name);cmts.unshift(cmt);
+    this._saveComments(this.dp.name,cmts);this.dp.comments=cmts.slice();this.cmtText='';this.toastMsg('评论发布成功','ok');
   },
+  // Lightbox
+  openLightbox:function(imgs,idx){
+    if(!imgs||!imgs.length)return;
+    this.lb={vis:true,imgs:imgs,idx:idx||0};
+    var s=this;setTimeout(function(){
+      var el=document.querySelector('.lb-overlay');if(el)el.focus();
+      document.addEventListener('keydown',s._lbKey);s._lbKey=function(e){
+        if(e.key==='ArrowLeft')s.lbPrev();else if(e.key==='ArrowRight')s.lbNext();else if(e.key==='Escape')s.closeLightbox();
+      };
+    },100);
+  },
+  closeLightbox:function(){
+    this.lb.vis=false;
+    if(this._lbKey){document.removeEventListener('keydown',this._lbKey);this._lbKey=null}
+  },
+  lbPrev:function(){if(this.lb.imgs.length){this.lb.idx=(this.lb.idx-1+this.lb.imgs.length)%this.lb.imgs.length}},
+  lbNext:function(){if(this.lb.imgs.length){this.lb.idx=(this.lb.idx+1)%this.lb.imgs.length}},
   // Photo navigation
   nextDpImg:function(){if(this.dp&&this.dp.photos){this.dpImgIdx=(this.dpImgIdx+1)%this.dp.photos.length}},
   prevDpImg:function(){if(this.dp&&this.dp.photos){this.dpImgIdx=(this.dpImgIdx-1+this.dp.photos.length)%this.dp.photos.length}},
-  openImage:function(url){var w=window.open('','_blank','width=900,height=700');w.document.write('<img src="'+url+'" style="max-width:100%;max-height:100vh;display:block;margin:auto">');w.document.title='照片预览'},
+  openImage:function(url){this.openLightbox([url],0)},
   nextSrImg:function(){if(this.srDetail&&this.srDetail.photos){this.srDpImgIdx=(this.srDpImgIdx+1)%this.srDetail.photos.length}},
   prevSrImg:function(){if(this.srDetail&&this.srDetail.photos){this.srDpImgIdx=(this.srDpImgIdx-1+this.srDetail.photos.length)%this.srDetail.photos.length}},
   srSubmitComment:function(){
     if(!this.srDetail||!this.srCmtText||!this.srCmtText.trim())return;
     if(!this.user){this.toastMsg('请先登录再评论','er');return}
     var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.srCmtText.trim(),time:new Date().toLocaleString()};
-    var cmts=this._loadComments(this.srDetail.id);cmts.unshift(cmt);
-    this._saveComments(this.srDetail.id,cmts);this.srDetail.comments=cmts.slice();this.srCmtText='';this.toastMsg('评论已发布','ok');
+    var cmts=this._loadComments(this.srDetail.name);cmts.unshift(cmt);
+    this._saveComments(this.srDetail.name,cmts);this.srDetail.comments=cmts.slice();this.srCmtText='';this.toastMsg('评论已发布','ok');
   },
   navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank')},
 
@@ -1041,7 +1075,7 @@ methods:{
       L.marker([p.lat,p.lng],{icon:mkIcon(s.colors[p.cat]||'#999',s.shapes[p.cat]||'circle')}).addTo(s._srMiniMap);
     },200);
     var s=this;
-    p.comments=s._loadComments(p.id);
+    p.comments=s._loadComments(p.name);
     this.srDetail=p;
     var pid=p.id;
     // Always try to load Amap photos + reviews
@@ -1087,7 +1121,7 @@ methods:{
     if(!this.user)return[];
     var all=[],s=this;
     this.allPOIs.forEach(function(p){
-      var cs=s._loadComments(p.id);
+      var cs=s._loadComments(p.name);
       cs.forEach(function(c){if(c.uid===s.user.id){c.poiName=p.name;c.poiId=p.id;all.push(c)}});
     });
     return all.sort(function(a,b){return new Date(b.time)-new Date(a.time)});
