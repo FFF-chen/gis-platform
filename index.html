@@ -9,51 +9,121 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body,html,#app{height:100%;width:100%;font-family:Microsoft YaHei,sans-serif;overflow:hidden}
-.cover{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(160deg,#0f3b2c,#1a5c3a,#25804a);z-index:99998;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff}
-.cover h1{font-size:52px;letter-spacing:6px;margin-bottom:16px}
-.cover p{font-size:18px;margin-bottom:50px;color:rgba(255,255,255,0.85);letter-spacing:3px}
-.cover button{background:#34a853;color:#fff;border:none;padding:18px 52px;font-size:20px;font-weight:600;border-radius:32px;cursor:pointer;box-shadow:0 6px 20px rgba(52,168,83,0.4);transition:all 0.3s}
-.cover button:hover{background:#3ec760;transform:translateY(-3px)}
+body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei',sans-serif;overflow:hidden;background:#e8f5f0}
+:root{--c1:#0d9488;--c2:#14b8a6;--c3:#5eead4;--c4:#ccfbf1;--c5:#f0fdfa;--shadow:0 2px 12px rgba(0,0,0,0.08)}
+
+.cover{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99998;display:flex}
+.cover-bg{position:absolute;inset:0;background:url('images/1.jpg') center/cover no-repeat;filter:blur(8px) brightness(0.55);transform:scale(1.1)}
+.cover-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(13,148,136,0.5),rgba(20,184,166,0.3),rgba(13,148,136,0.6))}
+.cover-content{position:relative;z-index:1;margin:auto;text-align:center;color:#fff}
+.cover-content h1{font-size:52px;letter-spacing:8px;margin-bottom:16px;font-weight:700}
+.cover-content p{font-size:18px;margin-bottom:50px;color:rgba(255,255,255,0.9);letter-spacing:3px}
+.cover-content button{background:var(--c2);color:#fff;border:none;padding:18px 52px;font-size:20px;font-weight:600;border-radius:32px;cursor:pointer;box-shadow:0 6px 20px rgba(20,184,166,0.4);transition:all 0.3s;letter-spacing:2px}
+.cover-content button:hover{background:#0d9488;transform:translateY(-3px)}
+
 .main-layout{display:flex;width:100%;height:100%}
-.left-panel{width:300px;height:100%;background:#fff;box-shadow:2px 0 12px rgba(0,0,0,0.08);z-index:200;display:flex;flex-direction:column;flex-shrink:0}
-.lp-header{padding:16px 18px;background:linear-gradient(135deg,#0f3b2c,#1a5c3a);color:#fff}
+.left-panel{width:320px;height:100%;background:#fff;box-shadow:2px 0 12px rgba(0,0,0,0.06);z-index:200;display:flex;flex-direction:column;flex-shrink:0}
+.lp-header{padding:16px 18px;background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff}
 .lp-header h3{margin:0;font-size:1rem;font-weight:600}
-.lp-search{padding:10px 14px;position:relative}
+.lp-header .lhint{font-size:0.68rem;color:rgba(255,255,255,0.75)}
+.lp-tabs{display:flex;border-bottom:1px solid #e5e7eb}
+.lp-tab{flex:1;padding:10px 0;text-align:center;cursor:pointer;font-size:0.82rem;font-weight:500;color:#666;border-bottom:2px solid transparent;transition:all 0.2s}
+.lp-tab:hover{color:var(--c1)}
+.lp-tab.on{color:var(--c1);border-bottom-color:var(--c1)}
+.lp-search{padding:10px 14px;position:relative;border-bottom:1px solid #f0f0f0}
 .lp-search input{width:100%;padding:8px 14px 8px 34px;border:1px solid #e5e7eb;border-radius:18px;font-size:0.8rem;outline:none;background:#f9fafb;box-sizing:border-box}
-.lp-search input:focus{border-color:#34a853}
-.lp-filters{display:flex;gap:4px;padding:8px 14px;flex-wrap:wrap}
+.lp-search input:focus{border-color:var(--c1)}
+.lp-filters{display:flex;gap:4px;padding:8px 14px;flex-wrap:wrap;border-bottom:1px solid #f0f0f0}
 .chip{padding:4px 10px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.68rem;transition:all 0.15s;white-space:nowrap}
-.chip:hover{border-color:#34a853;color:#34a853}
-.chip.on{background:#34a853;color:#fff;border-color:#34a853}
-.poi-list{flex:1;overflow-y:auto;padding:6px 10px}
+.chip:hover{border-color:var(--c1);color:var(--c1)}
+.chip.on{background:var(--c1);color:#fff;border-color:var(--c1)}
+.lp-list{flex:1;overflow-y:auto;padding:6px 10px}
 .poi-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:all 0.15s;border:1px solid transparent}
-.poi-row:hover{background:#f0fdf4;border-color:#d1fae5}
-.poi-row.sel{background:#ecfdf5;border-color:#6ee7b7}
+.poi-row:hover{background:var(--c5);border-color:var(--c4)}
+.poi-row.sel{background:var(--c5);border-color:var(--c3)}
 .poi-row .pd{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px}
 .poi-row .pi{flex:1;min-width:0}
 .poi-row .pn{font-size:0.8rem;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .poi-row .pc{font-size:0.66rem;color:#9ca3af}
+
 .map-wrap{flex:1;height:100%;position:relative;background:#e8e8e8}
 #map{width:100%;height:100%}
-.dpanel{position:absolute;right:0;top:0;width:360px;height:100%;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,0.15);z-index:300;transform:translateX(100%);transition:transform 0.35s;display:flex;flex-direction:column;overflow:hidden}
-.dpanel.open{transform:translateX(0)}
-.dpanel .dclose{position:absolute;top:12px;right:12px;z-index:10;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,0.4);color:#fff;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
-.wthr{position:absolute;top:14px;left:14px;z-index:400;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:14px;background:rgba(255,255,255,0.94);box-shadow:0 2px 8px rgba(0,0,0,0.12);cursor:pointer;font-size:0.7rem;border:none}
+
+.fbar{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:500;display:flex;align-items:center;background:#fff;border-radius:28px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:3px;width:420px;max-width:80vw}
+.fbar input{flex:1;border:none;padding:10px 16px;font-size:0.85rem;outline:none;background:transparent;font-family:inherit}
+.fbar button{width:36px;height:36px;border-radius:50%;border:none;background:var(--c2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:3px}
+.fbar svg.icon{flex-shrink:0;margin-left:14px;color:#999}
+
+.sr-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:#f5f7fa;z-index:550;overflow-y:auto;display:flex;flex-direction:column}
+.sr-header{background:#fff;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:sticky;top:0;z-index:10}
+.sr-bar{display:flex;align-items:center;gap:8px;max-width:600px;margin:0 auto}
+.sr-bar input{flex:1;padding:10px 16px;border:1.5px solid #e5e7eb;border-radius:22px;font-size:0.9rem;outline:none;background:#f9fafb;font-family:inherit}
+.sr-bar input:focus{border-color:var(--c1)}
+.sr-bar button{border:none;background:none;font-size:0.85rem;cursor:pointer;color:#666;padding:8px 12px;font-family:inherit}
+.sr-cats{display:flex;gap:6px;padding:12px 16px;flex-wrap:wrap;justify-content:center;border-bottom:1px solid #eee}
+.scat{font-size:0.72rem;padding:6px 14px;border-radius:16px;background:#f0f0f0;cursor:pointer;border:none;white-space:nowrap;font-family:inherit;transition:all 0.15s}
+.scat:hover{background:var(--c4)}
+.scat.on{background:var(--c1);color:#fff}
+.sr-body{flex:1;padding:12px;max-width:900px;margin:0 auto;width:100%}
+.sr-rec{font-size:0.76rem;color:var(--c1);font-weight:600;margin-bottom:8px;padding:4px 0}
+.sr-card{display:flex;gap:14px;padding:14px;background:#fff;border-radius:12px;margin-bottom:10px;cursor:pointer;transition:all 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.04);align-items:flex-start;border:1px solid #f0f0f0}
+.sr-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);transform:translateY(-1px)}
+.sr-card .sc-img{width:90px;height:80px;border-radius:8px;flex-shrink:0;background:#e5e7eb;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:2rem}
+.sr-card .sc-img img{width:100%;height:100%;object-fit:cover}
+.sr-card .sc-info{flex:1;min-width:0}
+.sr-card .sc-name{font-size:1rem;font-weight:700;color:#1a1a1a;margin-bottom:4px}
+.sr-card .sc-cat{display:inline-block;padding:2px 8px;border-radius:6px;color:#fff;font-size:0.68rem;margin-bottom:6px}
+.sr-card .sc-meta{font-size:0.74rem;color:#888;display:flex;gap:8px;flex-wrap:wrap}
+
 .rtools{position:absolute;top:14px;right:14px;z-index:400;display:flex;flex-direction:column;gap:6px}
-.rbtn{width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,0.94);box-shadow:0 2px 8px rgba(0,0,0,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;position:relative}
+.rbtn{width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,0.94);box-shadow:var(--shadow);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;position:relative}
 .rbtn:hover{background:#fff;transform:scale(1.06)}
-.rbtn.on{background:#34a853;color:#fff}
+.rbtn.on{background:var(--c1);color:#fff}
 .rbtn.on svg{stroke:#fff}
 .rbtn .tip{position:absolute;right:44px;background:rgba(0,0,0,0.8);color:#fff;padding:4px 10px;border-radius:4px;font-size:0.68rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:500}
 .rbtn:hover .tip{opacity:1}
+
+.wthr{position:absolute;top:14px;left:14px;z-index:400;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:14px;background:rgba(255,255,255,0.94);box-shadow:var(--shadow);cursor:pointer;font-size:0.7rem;border:none}
 .legend{position:absolute;bottom:12px;left:12px;z-index:400;display:flex;gap:4px;flex-wrap:wrap}
 .legend span{display:flex;align-items:center;gap:3px;font-size:0.62rem;color:#666;background:rgba(255,255,255,0.9);padding:2px 8px;border-radius:10px}
 .legend span b{width:7px;height:7px;border-radius:50%}
-.meas{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:400;background:rgba(0,0,0,0.8);color:#fff;padding:6px 16px;border-radius:16px;font-size:0.78rem;pointer-events:none}
+
+.meas-bar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:500;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.15);border-radius:14px;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:0.78rem}
+.meas-bar button{padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:0.76rem;font-family:inherit;font-weight:500}
+.meas-bar .m-start{background:var(--c2);color:#fff}
+.meas-bar .m-calc{background:var(--c2);color:#fff}
+.meas-bar .m-end{background:#e5e7eb;color:#333}
+
+.dpanel{position:absolute;right:0;top:0;width:380px;height:100%;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,0.15);z-index:300;transform:translateX(100%);transition:transform 0.35s;display:flex;flex-direction:column;overflow:hidden}
+.dpanel.open{transform:translateX(0)}
+.dpanel .dclose{position:absolute;top:12px;right:12px;z-index:10;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,0.4);color:#fff;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
+.fav-star{font-size:1.4rem;cursor:pointer;transition:transform 0.2s}
+.fav-star:hover{transform:scale(1.2)}
+
+/* Login modal */
+.login-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:16px;padding:30px;width:360px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-box h3{text-align:center;margin-bottom:20px;color:#1a1a1a}
+.login-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid #e5e7eb}
+.login-tab{flex:1;text-align:center;padding:8px 0;cursor:pointer;font-size:0.82rem;color:#666;border-bottom:2px solid transparent;transition:all 0.2s}
+.login-tab.on{color:var(--c1);border-bottom-color:var(--c1)}
+.login-box input{width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;margin-bottom:10px;outline:none;font-family:inherit;box-sizing:border-box}
+.login-box input:focus{border-color:var(--c1)}
+.login-box .lbtn{width:100%;padding:10px;border:none;border-radius:8px;background:var(--c2);color:#fff;font-size:0.9rem;cursor:pointer;font-weight:500;margin-top:6px}
+.login-box .lbtn:hover{background:var(--c1)}
+.login-box .lclose{display:block;text-align:center;margin-top:10px;color:#999;cursor:pointer;font-size:0.78rem}
+
+/* Confirm dialog */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center}
+.confirm-box{background:#fff;border-radius:12px;padding:24px;width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
+.confirm-box p{margin-bottom:16px;font-size:0.9rem;color:#333}
+.confirm-box button{padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:0.82rem;font-family:inherit;margin:0 4px}
+.confirm-box .c-ok{background:var(--c2);color:#fff}
+.confirm-box .c-cancel{background:#e5e7eb;color:#333}
+
 .toasts{position:fixed;top:16px;right:16px;z-index:99999}
 .tst{padding:10px 16px;border-radius:8px;color:#fff;font-size:0.78rem;box-shadow:0 4px 16px rgba(0,0,0,0.2);margin-bottom:6px;animation:fI 0.3s}
-.tst.ok{background:#38a169}.tst.er{background:#e53e3e}.tst.inf{background:#3182ce}
+.tst.ok{background:#38a169}.tst.er{background:#e53e3e}.tst.inf{background:var(--c1)}
 @keyframes fI{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
 .leaflet-popup-content{margin:8px 12px;font-size:0.82rem;line-height:1.5;min-width:170px}
@@ -61,347 +131,361 @@ body,html,#app{height:100%;width:100%;font-family:Microsoft YaHei,sans-serif;ove
 </head>
 <body>
 <div id="app">
+  <!-- COVER -->
   <div class="cover" v-if="showCover">
-    <h1>绿美怀集</h1>
-    <p>广东省 · 肇庆市 · 怀集县</p>
-    <button @click="showCover=false">进入网页</button>
+    <div class="cover-bg"></div><div class="cover-overlay"></div>
+    <div class="cover-content"><h1>绿美怀集</h1><p>广东省 · 肇庆市 · 怀集县</p><button @click="showCover=false">进入网页</button></div>
   </div>
 
+  <!-- MAIN -->
   <div class="main-layout" v-if="!showCover">
     <div class="left-panel">
-      <div class="lp-header"><h3>绿美怀集 · 导览</h3></div>
-      <div class="lp-search" style="position:relative">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" style="position:absolute;left:24px;top:50%;margin-top:-8px"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/></svg>
-        <input type="text" v-model="query" placeholder="搜索全部地点…">
+      <div class="lp-header"><h3>绿美怀集 · 导览</h3><div class="lhint">{{ wTemp }}°C · {{ allPOIs.length }} 个地点</div></div>
+      <div class="lp-tabs">
+        <div class="lp-tab" :class="{on:tab==='browse'}" @click="tab='browse'">📍 导览</div>
+        <div class="lp-tab" :class="{on:tab==='nav'}" @click="tab='nav'">🚗 路线</div>
       </div>
-      <div class="lp-filters">
-        <button class="chip" :class="{on:filter==='全部'}" @click="filter='全部'">全部</button>
-        <button class="chip" v-for="c in cats" :class="{on:filter===c}" @click="filter=c">{{ c }}</button>
-      </div>
-      <div class="poi-list">
-        <div class="poi-row" v-for="p in listedPOIs" :key="p.id" :class="{sel:sel&&sel.id===p.id}" @click="showDetail(p)">
-          <span class="pd" :style="{background:colors[p.cat]||'#999'}">{{ p.icon }}</span>
-          <div class="pi"><div class="pn">{{ p.name }}</div><div class="pc">{{ p.cat }}</div></div>
+
+      <!-- BROWSE TAB -->
+      <template v-if="tab==='browse'">
+        <div class="lp-search" style="position:relative">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" style="position:absolute;left:24px;top:50%;margin-top:-8px"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/></svg>
+          <input type="text" v-model="query" placeholder="搜索…">
         </div>
-      </div>
+        <div class="lp-filters">
+          <button class="chip" :class="{on:filter==='全部'}" @click="filter='全部'">全部</button>
+          <button class="chip" v-for="c in cats" :class="{on:filter===c}" @click="filter=c">{{ c }}</button>
+        </div>
+        <div class="lp-list">
+          <div class="poi-row" v-for="p in listedPOIs" :key="p.id" :class="{sel:dp&&dp.id===p.id}" @click="showDetail(p)">
+            <span class="pd" :style="{background:colors[p.cat]||'#999'}">{{ p.icon }}</span>
+            <div class="pi"><div class="pn">{{ p.name }}</div><div class="pc">{{ p.cat }}{{ p.rating?' · ⭐'+p.rating:'' }}</div></div>
+          </div>
+        </div>
+      </template>
+
+      <!-- ROUTE TAB -->
+      <template v-if="tab==='nav'">
+        <div style="padding:12px;flex:1;overflow-y:auto">
+          <div style="font-weight:600;margin-bottom:10px;font-size:0.85rem;color:var(--c1)">🚗 路线规划</div>
+          <!-- Recommended routes -->
+          <div style="margin-bottom:14px">
+            <div style="font-size:0.74rem;font-weight:600;color:#666;margin-bottom:6px">📋 推荐游玩路线</div>
+            <div v-for="(rt,i) in recRoutes" :key="i" @click="loadRecRoute(rt)" style="padding:8px 12px;background:var(--c5);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all 0.15s;border:1px solid var(--c4)">
+              <div style="font-size:0.78rem;font-weight:600;color:var(--c1)">{{ rt.title }}</div>
+              <div style="font-size:0.68rem;color:#888">{{ rt.desc }}</div>
+            </div>
+          </div>
+          <!-- Manual route -->
+          <div style="font-weight:600;margin-bottom:8px;font-size:0.78rem;color:#666">自定义路线</div>
+          <div style="display:flex;gap:4px;margin-bottom:8px">
+            <button class="chip" :class="{on:strat==='fast'}" @click="strat='fast'">最快</button>
+            <button class="chip" :class="{on:strat==='short'}" @click="strat='short'">最短</button>
+          </div>
+          <div @click="pickRoutePt('start')" style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#f9fafb;border-radius:8px;cursor:pointer;font-size:0.74rem;cursor:pointer">
+            <span style="width:10px;height:10px;border-radius:50%;background:#0d9488;flex-shrink:0"></span>
+            <span style="flex:1">{{ rs?(rs.name+' ('+rs.lat.toFixed(4)+','+rs.lng.toFixed(4)+')'):'点击选起点' }}</span>
+            <button v-if="rs" @click.stop="rs=null" style="border:none;background:none;color:#e53e3e;cursor:pointer;font-size:0.7rem">✕</button>
+          </div>
+          <div @click="pickRoutePt('end')" style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#f9fafb;border-radius:8px;cursor:pointer;font-size:0.74rem;cursor:pointer">
+            <span style="width:10px;height:10px;border-radius:50%;background:#e53e3e;flex-shrink:0"></span>
+            <span style="flex:1">{{ re?(re.name+' ('+re.lat.toFixed(4)+','+re.lng.toFixed(4)+')'):'点击选终点' }}</span>
+            <button v-if="re" @click.stop="re=null" style="border:none;background:none;color:#e53e3e;cursor:pointer;font-size:0.7rem">✕</button>
+          </div>
+          <div v-for="(wp,i) in wpts" :key="i" style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:#fef3c7;border-radius:8px;font-size:0.74rem">
+            <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span><span style="flex:1">经{{i+1}}:{{wp.name}}</span>
+            <button @click="wpts.splice(i,1);drawRouteMarkers()" style="border:none;background:none;color:#e53e3e;cursor:pointer">✕</button>
+          </div>
+          <div @click="pickRoutePt('waypoint')" style="padding:6px 10px;text-align:center;color:var(--c1);font-size:0.74rem;cursor:pointer;border:1px dashed var(--c1);border-radius:8px;margin-bottom:6px">+ 添加途径点</div>
+          <button :disabled="!rs||!re||rl" @click="doRoute" style="display:block;width:100%;margin-top:8px;padding:9px;border:none;border-radius:8px;background:var(--c2);color:#fff;font-size:0.8rem;cursor:pointer">{{ rl?'计算中…':'开始计算路线' }}</button>
+          <div v-if="ri" style="margin-top:8px;padding:10px;background:var(--c5);border-radius:8px;display:flex;gap:12px">
+            <div style="flex:1;text-align:center"><div style="font-weight:700;font-size:1rem">{{ ri.d }}</div><div style="font-size:0.68rem;color:#888">距离</div></div>
+            <div style="flex:1;text-align:center"><div style="font-weight:700;font-size:1rem">{{ ri.t }}</div><div style="font-size:0.68rem;color:#888">时间</div></div>
+          </div>
+          <a v-if="ri" target="_blank" :href="navUrl" style="display:block;margin-top:8px;padding:9px;border:none;border-radius:8px;background:#1a73e8;color:#fff;font-size:0.8rem;cursor:pointer;text-align:center;text-decoration:none">📱 高德导航</a>
+        </div>
+      </template>
     </div>
 
+    <!-- MAP -->
     <div class="map-wrap">
       <div id="map"></div>
 
-      <!-- weather -->
-      <button class="wthr" @click="showW=!showW"><span>{{ wIcon }}</span><span style="font-weight:600;color:#333">{{ wTemp }}°</span></button>
-
-      <!-- right tools -->
-      <div class="rtools">
-        <button class="rbtn" :class="{on:layer==='s'}" @click="toggleLayer"><span class="tip">图层</span>🗺️</button>
-        <button class="rbtn" :class="{on:mode==='d'}" @click="toggleM('d')"><span class="tip">测距</span>📏</button>
-        <button class="rbtn" :class="{on:mode==='a'}" @click="toggleM('a')"><span class="tip">测面积</span>📐</button>
-        <button class="rbtn" @click="resetMap"><span class="tip">全图</span>🏠</button>
+      <!-- FLOATING SEARCH -->
+      <div class="fbar" v-if="!srOpen">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/></svg>
+        <input type="text" v-model="fbq" placeholder="搜索怀集…" @focus="fbfocus=true" @blur="fbblur" @keydown.enter="openSearchPage">
+        <button @click="openSearchPage"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/></svg></button>
       </div>
 
-      <!-- legend -->
-      <div class="legend"><span v-for="c in cats"><b :style="{background:colors[c]}"></b>{{ c }}</span></div>
-      <div class="meas" v-if="mode">总{{ mode==='d'?'长':'面积' }}: {{ measVal }}</div>
+      <!-- FULLSCREEN SEARCH -->
+      <div class="sr-overlay" v-if="srOpen">
+        <div class="sr-header"><div class="sr-bar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5"/></svg><input type="text" v-model="srq" placeholder="搜索怀集…" autofocus><button @click="srOpen=false">取消</button></div></div>
+        <div class="sr-cats"><button class="scat" :class="{on:scat==='全部'}" @click="scat='全部'">全部</button><button class="scat" v-for="c in cats" :class="{on:scat===c}" @click="scat=c">{{ c }}</button></div>
+        <div class="sr-body">
+          <div v-if="srResults.length===0" style="text-align:center;padding:60px;color:#999">没有找到相关地点</div>
+          <template v-if="srResults.length>0">
+            <div class="sr-rec" v-if="srq&&scat==='全部'">🔍 推荐地点</div>
+            <div class="sr-card" v-for="p in srResults" @click="srSelect(p)">
+              <div class="sc-img"><img v-if="p.photos&&p.photos.length" :src="p.photos[0]"><span v-else>{{ p.icon }}</span></div>
+              <div class="sc-info"><span class="sc-cat" :style="{background:colors[p.cat]}">{{ p.cat }}</span><div class="sc-name">{{ p.name }}</div><div class="sc-meta"><span v-if="p.rating">⭐{{ p.rating }}</span><span v-if="p.addr">📍{{ p.addr }}</span></div></div>
+            </div>
+          </template>
+        </div>
+      </div>
 
-      <!-- detail panel -->
-      <div class="dpanel" :class="{open:!!sel}">
-        <button class="dclose" @click="sel=null">✕</button>
-        <div v-if="sel" style="display:flex;flex-direction:column;height:100%">
-          <div style="height:200px;flex-shrink:0;overflow:hidden;background:#e5e7eb;display:flex;align-items:center;justify-content:center;position:relative">
-            <img v-if="sel.photos&&sel.photos.length" :src="sel.photos[0]" style="width:100%;height:100%;object-fit:cover"/>
-            <span v-else style="font-size:4rem">{{ sel.icon }}</span>
-            <div v-if="sel.photos&&sel.photos.length>1" style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.66rem">{{ sel.photos.length }}张</div>
+      <!-- WEATHER -->
+      <button class="wthr" @click="showW=!showW"><span>{{ wIcon }}</span><span style="font-weight:600;color:#333">{{ wTemp }}°</span></button>
+
+      <!-- RIGHT TOOLS -->
+      <div class="rtools">
+        <button class="rbtn" @click="toggleLayer"><span class="tip">图层</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><rect x="3" y="3" width="18" height="14" rx="2"/><rect x="6" y="7" width="12" height="4" rx="1"/><line x1="12" y1="15" x2="12" y2="21"/></svg>
+        </button>
+        <button class="rbtn" :class="{on:mode==='d'}" @click="startMeasure('d')"><span class="tip">测距</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><line x1="2" y1="2" x2="22" y2="22"/></svg>
+        </button>
+        <button class="rbtn" :class="{on:mode==='a'}" @click="startMeasure('a')"><span class="tip">测面积</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        </button>
+        <button class="rbtn" @click="resetMap"><span class="tip">全图</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+        </button>
+        <button class="rbtn" @click="showLogin=true"><span class="tip">登录</span>👤</button>
+      </div>
+
+      <!-- MEASURE BAR -->
+      <div class="meas-bar" v-if="mode">
+        <span>{{ mode==='d'?'📏 测距中':'📐 测面积中' }} · {{ mpts.length }}点</span><span v-if="mval!=='—'" style="font-weight:600;color:var(--c1)">{{ mval }}</span>
+        <button v-if="!measuring&&mpts.length<2" class="m-start" @click="measuring=true">开始测量</button>
+        <button v-if="measuring&&mpts.length>=2" class="m-calc" @click="calcMeasure">计算</button>
+        <button class="m-end" @click="endMeasure">结束</button>
+      </div>
+
+      <!-- LEGEND -->
+      <div class="legend"><span v-for="c in cats"><b :style="{background:colors[c]}"></b>{{ c }}</span></div>
+
+      <!-- DETAIL PANEL -->
+      <div class="dpanel" :class="{open:!!dp}">
+        <button class="dclose" @click="dp=null">✕</button>
+        <div v-if="dp" style="display:flex;flex-direction:column;height:100%">
+          <div style="height:200px;flex-shrink:0;overflow:hidden;background:#e5e7eb;position:relative">
+            <img v-if="dp.photos&&dp.photos.length" :src="dp.photos[0]" style="width:100%;height:100%;object-fit:cover">
+            <span v-else style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem">{{ dp.icon }}</span>
+            <div v-if="dp.photos&&dp.photos.length>1" style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.66rem">{{ dp.photos.length }}张</div>
           </div>
           <div style="flex:1;overflow-y:auto;padding:16px">
-            <span style="display:inline-block;padding:3px 10px;border-radius:10px;color:#fff;font-size:0.7rem;background:#34a853;margin-bottom:8px">{{ sel.cat }}</span>
-            <h3 style="font-size:1.1rem;margin:0 0 8px">{{ sel.name }}</h3>
-            <div v-if="sel.rating" style="margin-bottom:4px;color:#f59e0b">⭐ {{ sel.rating }} 分</div>
-            <div style="font-size:0.78rem;color:#666;margin-bottom:4px">📍 {{ sel.addr||'暂无地址' }}</div>
-            <div v-if="sel.tel" style="font-size:0.78rem;color:#666;margin-bottom:4px">📞 {{ sel.tel }}</div>
-            <div v-if="sel.etime" style="font-size:0.75rem;color:#999;margin-bottom:4px">🕐 {{ sel.etime }}</div>
-            <p style="font-size:0.78rem;color:#555;line-height:1.6;margin-top:6px">{{ sel.desc||'暂无描述' }}</p>
-            <div v-if="sel.photos&&sel.photos.length>1" style="display:flex;gap:6px;margin-top:10px;overflow-x:auto">
-              <img v-for="(ph,i) in sel.photos" :key="i" :src="ph" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0"/>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="display:inline-block;padding:3px 10px;border-radius:10px;color:#fff;font-size:0.7rem;background:var(--c1)">{{ dp.cat }}</span>
+              <span class="fav-star" @click="toggleFav(dp)" :title="isFav(dp)?'取消收藏':'收藏'">{{ isFav(dp)?'⭐':'☆' }}</span>
+            </div>
+            <h3 style="font-size:1.1rem;margin:0 0 8px">{{ dp.name }}</h3>
+            <div v-if="dp.rating" style="margin-bottom:4px;color:#f59e0b">⭐ {{ dp.rating }} 分</div>
+            <div style="font-size:0.78rem;color:#666;margin-bottom:3px">📍 {{ dp.addr||'暂无地址' }}</div>
+            <div v-if="dp.tel" style="font-size:0.78rem;color:#666;margin-bottom:3px">📞 {{ dp.tel }}</div>
+            <div v-if="dp.etime" style="font-size:0.75rem;color:#999;margin-bottom:3px">🕐 {{ dp.etime }}</div>
+            <!-- Reviews -->
+            <div v-if="dp.reviews&&dp.reviews.length" style="margin-top:8px">
+              <div style="font-weight:600;font-size:0.78rem;margin-bottom:4px;color:#333">📝 用户评价</div>
+              <div v-for="r in dp.reviews.slice(0,5)" style="padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:0.74rem">
+                <span style="color:#f59e0b">{{ '⭐'.repeat(Math.round(r.rating||3)) }}</span>
+                <span style="color:#666;margin-left:4px">{{ r.text||'好评' }}</span>
+              </div>
+            </div>
+            <div v-if="dp.photos&&dp.photos.length>1" style="display:flex;gap:6px;margin-top:10px;overflow-x:auto">
+              <img v-for="(ph,i) in dp.photos" :key="i" :src="ph" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0">
             </div>
           </div>
-          <div style="padding:12px 16px;border-top:1px solid #f0f0f0;display:flex;gap:8px">
-            <button @click="navTo(sel)" style="flex:1;padding:10px;border:none;border-radius:8px;background:#34a853;color:#fff;font-size:0.8rem;cursor:pointer">🧭 高德导航</button>
+          <div style="padding:12px 16px;border-top:1px solid #f0f0f0;display:flex;gap:6px;flex-wrap:wrap">
+            <button @click="navTo(dp)" style="flex:1;min-width:60px;padding:8px;border:none;border-radius:8px;background:var(--c2);color:#fff;font-size:0.76rem;cursor:pointer">🧭 导航</button>
+            <button @click="setRouteStart(dp)" style="padding:8px 10px;border:1.5px solid var(--c1);border-radius:8px;background:#fff;color:var(--c1);font-size:0.74rem;cursor:pointer">🟢 起点</button>
+            <button @click="setRouteWaypoint(dp)" style="padding:8px 10px;border:1.5px solid #f59e0b;border-radius:8px;background:#fff;color:#f59e0b;font-size:0.74rem;cursor:pointer">🟡 途径</button>
+            <button @click="setRouteEnd(dp)" style="padding:8px 10px;border:1.5px solid #e53e3e;border-radius:8px;background:#fff;color:#e53e3e;font-size:0.74rem;cursor:pointer">🔴 终点</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGIN MODAL -->
+      <div class="login-overlay" v-if="showLogin" @click.self="showLogin=false">
+        <div class="login-box">
+          <h3>👤 登录</h3>
+          <div class="login-tabs">
+            <div class="login-tab" :class="{on:loginTab==='phone'}" @click="loginTab='phone'">📱 手机号</div>
+            <div class="login-tab" :class="{on:loginTab==='email'}" @click="loginTab='email'">📧 邮箱</div>
+            <div class="login-tab" :class="{on:loginTab==='wechat'}" @click="loginTab='wechat'">💬 微信</div>
+          </div>
+          <template v-if="loginTab==='phone'">
+            <input type="tel" v-model="loginPhone" placeholder="手机号">
+            <input type="password" v-model="loginPwd" placeholder="密码">
+          </template>
+          <template v-if="loginTab==='email'">
+            <input type="email" v-model="loginEmail" placeholder="邮箱地址">
+            <input type="password" v-model="loginPwd" placeholder="密码">
+          </template>
+          <template v-if="loginTab==='wechat'">
+            <input type="text" v-model="loginWx" placeholder="微信号/扫码登录">
+            <input type="password" v-model="loginPwd" placeholder="密码">
+          </template>
+          <button class="lbtn" @click="doLogin">登 录</button>
+          <span class="lclose" @click="showLogin=false">取消</span>
+        </div>
+      </div>
+
+      <!-- CONFIRM DIALOG -->
+      <div class="confirm-overlay" v-if="confirm.visible">
+        <div class="confirm-box">
+          <p>{{ confirm.msg }}</p>
+          <div>
+            <button class="c-ok" @click="confirm.cb(true);confirm.visible=false">确定</button>
+            <button class="c-cancel" @click="confirm.cb(false);confirm.visible=false">取消</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- TOASTS -->
   <div class="toasts"><div class="tst" v-for="t in toasts" :class="t.cls">{{ t.msg }}</div></div>
 </div>
 
 <script>
-var app = Vue.createApp({
-  data: function() {
-    return {
-      showCover: true,
-      map: null, layer: 'v', vLayer: null, sLayer: null,
-      allPOIs: [], sel: null,
-      query: '', filter: '全部',
-      mode: null, mpts: [], mLayer: null,
-      showW: false, wIcon: '☁️', wTemp: '--', wText: '加载中',
-      toasts: [],
-      cats: ['景点','住宿','农家乐','餐饮','购物','服务','交通','医疗'],
-      colors: {'景点':'#e53e3e','住宿':'#805ad5','农家乐':'#38a169','餐饮':'#3182ce','购物':'#06b6d4','服务':'#f59e0b','交通':'#64748b','医疗':'#8b5cf6'},
-      shapes: {'景点':'mountain','住宿':'hotel','农家乐':'leaf','餐饮':'food','购物':'cart','服务':'shield','交通':'bus','医疗':'plus'},
-    };
-  },
-  computed: {
-    listedPOIs: function() {
-      var list = this.allPOIs;
-      if (this.filter !== '全部') list = list.filter(function(p) { return p.cat === this.filter; }, this);
-      if (this.query.trim()) {
-        var q = this.query.trim().toLowerCase();
-        list = list.filter(function(p) { return (p.name||'').toLowerCase().indexOf(q) >= 0; });
-      }
-      return list;
-    },
-    measVal: function() {
-      if (this.mpts.length < 2) return '—';
-      if (this.mode === 'd') {
-        var t = 0;
-        for (var i = 1; i < this.mpts.length; i++) {
-          t += L.latLng(this.mpts[i-1].lat, this.mpts[i-1].lng).distanceTo(L.latLng(this.mpts[i].lat, this.mpts[i].lng));
-        }
-        return t < 1000 ? t.toFixed(1) + ' 米' : (t/1000).toFixed(2) + ' 公里';
-      }
-      return '—';
-    },
-  },
-  watch: {
-    showCover: function(val) {
-      if (!val) {
-        var s = this;
-        this.$nextTick(function() { s.initMap(); });
-      }
-    },
-  },
-  methods: {
-    initMap: function() {
-      var s = this;
-      if (this.map) return;
-      this.map = L.map('map').setView([23.934, 112.185], 12);
-      this.vLayer = L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {subdomains:['1','2','3','4'], maxZoom:18}).addTo(this.map);
-      this.sLayer = L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {subdomains:['1','2','3','4'], maxZoom:18});
-      this.mLayer = L.layerGroup().addTo(this.map);
-      // Load all POIs
-      var all=[], cats=['景点','住宿','农家乐','餐饮','购物','服务','交通','医疗'];
-      ALL_POIS.forEach(function(p,i) {
-        all.push({id:'h'+i, name:p.n, lat:p.lat, lng:p.lng, cat:p.cat, icon:p.icon, addr:p.addr||'', tel:p.tel||'', desc:p.desc||'', photos:[]});
-      });
-      this.allPOIs = all;
-      this.$nextTick(function() { s.renderMarkers(); });
-      this.loadWeather();
-      // Also fetch from Amap API to supplement with real photos/details
-      this.loadFromAPI();
-      this.map.on('click', function(e) { s.onMapClick(e); });
-      this.map.on('dblclick', function(e) { s.onMapDbl(e); });
-    },
-    loadFromAPI: function() {
-      var s = this;
-      var KEY = '6656b79d228d2d201eb95900f3cdd0d1';
-      var queries = [
-        {kw:'风景名胜|景区|景点|公园|寺庙|温泉|漂流|溶洞|古镇|故居',cat:'景点'},
-        {kw:'酒店|宾馆|旅馆|民宿|度假村|招待所|公寓',cat:'住宿'},
-        {kw:'农家乐|农庄|采摘园|生态园|农业基地|种植园|垂钓',cat:'农家乐'},
-        {kw:'餐厅|饭店|酒楼|美食|小吃|火锅|烧烤|快餐|大排档|粉面|茶餐厅',cat:'餐饮'},
-        {kw:'商场|超市|便利店|市场|专卖店|商店|步行街|百货',cat:'购物'},
-        {kw:'政府|派出所|公安局|银行|邮局|社区|村委会|游客中心',cat:'服务'},
-        {kw:'汽车站|火车站|公交站|停车场|加油站|充电站|服务区',cat:'交通'},
-        {kw:'医院|诊所|卫生院|药店|卫生室|保健',cat:'医疗'},
-      ];
-      var icons = {'景点':'🏔️','住宿':'🏨','农家乐':'🌾','餐饮':'🍴','购物':'🛒','服务':'🏛️','交通':'🚌','医疗':'🏥'};
-      var pending = queries.length * 2;
-      var newPOIs = [];
-      var seen = {};
-      // Track existing hardcoded POI names to avoid duplicates
-      this.allPOIs.forEach(function(p) { seen[p.name] = true; });
-      queries.forEach(function(q) {
-        [1,2].forEach(function(page) {
-          fetch('https://restapi.amap.com/v3/place/text?key='+KEY+'&keywords='+encodeURIComponent(q.kw)+'&city=怀集县&citylimit=true&offset=40&page='+page+'&extensions=all')
-            .then(function(r) { return r.json(); })
-            .then(function(d) {
-              if (d.status === '1' && d.pois) {
-                d.pois.forEach(function(p) {
-                  if (seen[p.name]) return;
-                  seen[p.name] = true;
-                  var loc = (p.location||'0,0').split(',');
-                  newPOIs.push({
-                    id: p.id, name: p.name,
-                    lat: parseFloat(loc[1]), lng: parseFloat(loc[0]),
-                    cat: q.cat, icon: icons[q.cat],
-                    addr: p.address||'', tel: p.tel||'',
-                    rating: (p.biz_ext&&p.biz_ext.rating) ? p.biz_ext.rating : '',
-                    etime: (p.biz_ext&&p.biz_ext.open_time) ? p.biz_ext.open_time : '',
-                    desc: p.address||'',
-                    photos: (p.photos||[]).map(function(ph) { return ph.url||''; }).filter(function(u) { return u; }).slice(0,3),
-                  });
-                });
-              }
-            }).catch(function() {})
-            .finally(function() {
-              pending--;
-              if (pending <= 0) {
-                s.allPOIs = s.allPOIs.concat(newPOIs);
-                s.$nextTick(function() { s.renderMarkers(); });
-              }
-            });
-        });
-      });
-    },
-    renderMarkers: function() {
-      var s = this;
-      if (this._ms) this._ms.forEach(function(m) { m.remove(); });
-      this._ms = [];
-      this.allPOIs.forEach(function(p) {
-        var co = s.colors[p.cat] || '#999';
-        var sh = s.shapes[p.cat] || 'circle';
-        var m = L.marker([p.lat, p.lng], {icon: mkIcon(co, sh)}).addTo(s.map);
-        var photoTag = '';
-        if (p.photos && p.photos.length) photoTag = '<br/><img src="'+p.photos[0]+'" style="width:100%;max-height:100px;object-fit:cover;border-radius:6px;margin-top:4px"/>';
-        m.bindPopup('<b>' + p.name + '</b><br/><span style="font-size:0.7rem;color:#888">' + (p.addr||'') + '</span>'+(p.rating?'<br/>⭐ '+p.rating:'')+photoTag);
-        m.on('mouseover', function() { this.openPopup(); });
-        m.on('mouseout', function() { this.closePopup(); });
-        m.on('click', function() { s.showDetail(p); });
-        s._ms.push(m);
-      });
-    },
-    showDetail: function(p) {
-      this.sel = p;
-      this.map.flyTo([p.lat, p.lng], 15, {duration: 0.8});
-    },
-    navTo: function(p) {
-      window.open('https://uri.amap.com/navigation?to=' + p.lng + ',' + p.lat + ',' + encodeURIComponent(p.name) + '&mode=car&callnative=1', '_blank');
-    },
-    toggleLayer: function() {
-      if (this.layer === 'v') { this.map.removeLayer(this.vLayer); this.sLayer.addTo(this.map); this.layer = 's'; }
-      else { this.map.removeLayer(this.sLayer); this.vLayer.addTo(this.map); this.layer = 'v'; }
-    },
-    resetMap: function() { this.map.setView([23.934, 112.185], 12); },
-    toggleM: function(m) {
-      if (this.mode === m) { this.mode = null; this.mpts = []; this.mLayer.clearLayers(); return; }
-      this.mode = m; this.mpts = []; this.mLayer.clearLayers();
-    },
-    onMapClick: function(e) {
-      if (!this.mode) return;
-      this.mpts.push({lat: e.latlng.lat, lng: e.latlng.lng});
-      this.redrawM();
-    },
-    onMapDbl: function(e) {
-      if (!this.mode) return;
-      L.DomEvent.preventDefault(e.originalEvent);
-      this.mode = null;
-    },
-    redrawM: function() {
-      var s = this;
-      this.mLayer.clearLayers();
-      var pts = this.mpts, lls = pts.map(function(p) { return [p.lat, p.lng]; });
-      lls.forEach(function(ll) { L.circleMarker(ll, {radius:4, color:'#34a853', fillColor:'#fff', fillOpacity:1, weight:2.5}).addTo(s.mLayer); });
-      for (var i = 1; i < lls.length; i++) {
-        L.polyline([lls[i-1], lls[i]], {color:'#34a853', weight:3}).addTo(s.mLayer);
-        var mid = L.latLng((lls[i-1][0]+lls[i][0])/2, (lls[i-1][1]+lls[i][1])/2);
-        var dist = L.latLng(lls[i-1][0], lls[i-1][1]).distanceTo(L.latLng(lls[i][0], lls[i][1]));
-        var label = dist < 1000 ? dist.toFixed(1)+'m' : (dist/1000).toFixed(2)+'km';
-        L.marker(mid, {icon: L.divIcon({className:'', html:'<div style="background:rgba(52,168,83,0.9);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;white-space:nowrap">'+label+'</div>', iconSize:[0,0], iconAnchor:[0,0]}), interactive:false}).addTo(s.mLayer);
-      }
-    },
-    loadWeather: function() {
-      var s = this;
-      fetch('https://restapi.amap.com/v3/weather/weatherInfo?key=6656b79d228d2d201eb95900f3cdd0d1&city=441224&extensions=all')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          if (d.lives && d.lives.length > 0) {
-            s.wTemp = d.lives[0].temperature;
-            s.wText = d.lives[0].weather;
-            s.wIcon = {'晴':'☀️','多云':'☁️','小雨':'🌧️','阴':'☁️'}[d.lives[0].weather] || '🌤️';
-          }
-        }).catch(function() {});
-    },
-    toast: function(msg, cls) {
-      cls = cls || 'inf';
-      var id = Date.now() + Math.random();
-      this.toasts.push({id:id, msg:msg, cls:cls});
-      var s = this;
-      setTimeout(function() { for (var i = 0; i < s.toasts.length; i++) { if (s.toasts[i].id === id) { s.toasts.splice(i,1); break; } } }, 3000);
-    },
-  },
-});
+(function(){
+var KEY='6656b79d228d2d201eb95900f3cdd0d1';
+var app=Vue.createApp({data:function(){return{
+  showCover:true,tab:'browse',
+  map:null,layer:'v',vLayer:null,sLayer:null,showW:false,
+  allPOIs:[],dp:null,favs:JSON.parse(localStorage.getItem('hji_favs')||'[]'),
+  query:'',filter:'全部',
+  mode:null,measuring:false,mpts:[],mLayer:null,rLayer:null,
+  rs:null,re:null,rpicking:null,strat:'fast',wpts:[],ri:null,rl:false,
+  showLogin:false,loginTab:'phone',loginPhone:'',loginEmail:'',loginWx:'',loginPwd:'',loggedIn:false,
+  confirm:{visible:false,msg:'',cb:function(){}},
+  fbq:'',fbfocus:false,srOpen:false,srq:'',scat:'全部',
+  wIcon:'☁️',wTemp:'--',
+  toasts:[],
+  cats:['景点','住宿','农家乐','餐饮','购物','服务','交通','医疗'],
+  colors:{'景点':'#e53e3e','住宿':'#8b5cf6','农家乐':'#0d9488','餐饮':'#f59e0b','购物':'#06b6d4','服务':'#64748b','交通':'#3b82f6','医疗':'#ef4444'},
+  shapes:{'景点':'mountain','住宿':'hotel','农家乐':'leaf','餐饮':'food','购物':'cart','服务':'shield','交通':'bus','医疗':'plus'},
+  recRoutes:[
+    {title:'🏔️ 经典一日游',desc:'燕岩风景区 → 世外桃源 → 怀集味道午餐 → 塔山公园',points:[
+      {name:'燕岩风景区',lat:23.908,lng:112.228},
+      {name:'世外桃源景区',lat:23.916,lng:112.213},
+      {name:'怀集味道（总店）',lat:23.926,lng:112.188},
+      {name:'塔山公园',lat:23.922,lng:112.182}
+    ]},
+    {title:'🌿 生态农业体验',desc:'怀集现代农业产业园 → 岭南佳果园 → 绿丰源农业庄园 → 燕峰峡温泉',points:[
+      {name:'怀集现代农业产业园',lat:23.948,lng:112.215},
+      {name:'岭南佳果园',lat:23.915,lng:112.195},
+      {name:'绿丰源农业庄园',lat:23.930,lng:112.235},
+      {name:'燕峰峡温泉酒店',lat:23.950,lng:112.162}
+    ]},
+    {title:'🏕️ 周末休闲度假',desc:'燕峰峡漂流 → 山水田园农庄午餐 → 凤岗河湿地公园 → 悦湖度假酒店',points:[
+      {name:'燕峰峡漂流',lat:23.952,lng:112.160},
+      {name:'山水田园农庄',lat:23.948,lng:112.165},
+      {name:'凤岗河湿地公园',lat:23.960,lng:112.195},
+      {name:'怀集悦湖度假酒店',lat:23.930,lng:112.195}
+    ]}
+  ]
+};},computed:{listedPOIs:function(){var l=this.allPOIs;if(this.filter!=='全部')l=l.filter(function(p){return p.cat===this.filter},this);if(this.query.trim()){var q=this.query.trim().toLowerCase();l=l.filter(function(p){return(p.name||'').toLowerCase().indexOf(q)>=0})}return l},srResults:function(){var l=this.allPOIs;if(this.scat!=='全部')l=l.filter(function(p){return p.cat===this.scat},this);if(this.srq.trim()){var q=this.srq.trim().toLowerCase();l=l.filter(function(p){return(p.name||'').toLowerCase().indexOf(q)>=0||(p.addr||'').toLowerCase().indexOf(q)>=0})}return l.slice(0,30)},mval:function(){if(this.mpts.length<2)return'—';if(this.mode==='d'){var t=0;for(var i=1;i<this.mpts.length;i++)t+=L.latLng(this.mpts[i-1].lat,this.mpts[i-1].lng).distanceTo(L.latLng(this.mpts[i].lat,this.mpts[i].lng));return t<1000?t.toFixed(1)+'米':(t/1000).toFixed(2)+'公里'}if(this.mode==='a'&&this.mpts.length>=3){var s=this;var pts=this.mpts.map(function(p){var pr=s.map.latLngToContainerPoint(L.latLng(p.lat,p.lng));return[pr.x,pr.y]});var r1=L.latLng(this.mpts[0].lat,this.mpts[0].lng),r2=L.latLng(this.mpts[0].lat+0.01,this.mpts[0].lng);var pp=Math.abs(this.map.latLngToContainerPoint(r1).y-this.map.latLngToContainerPoint(r2).y);var mp=111320*0.01/pp,ap=0,n=pts.length;for(var j=0;j<n;j++)ap+=pts[j][0]*pts[(j+1)%n][1]-pts[(j+1)%n][0]*pts[j][1];var area=Math.abs(ap)/2*mp*mp;return area<1e6?area.toFixed(0)+'㎡':(area/666.667).toFixed(1)+'亩'}return'—'},navUrl:function(){if(!this.rs||!this.re)return'#';var u='https://uri.amap.com/navigation?from='+this.rs.lng+','+this.rs.lat+',起点&to='+this.re.lng+','+this.re.lat+',终点&mode=car&callnative=1';if(this.wpts.length)u+='&mid='+this.wpts.map(function(w){return w.lng+','+w.lat}).join('|');return u}},watch:{showCover:function(v){if(!v){var s=this;this.$nextTick(function(){s.initMap()})}}},methods:{
+  initMap:function(){if(this.map)return;this.map=L.map('map',{center:[23.934,112.185],zoom:12,zoomControl:true,preferCanvas:true});this.vLayer=L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,updateWhenZooming:false,updateWhenIdle:true,keepBuffer:4}).addTo(this.map);this.sLayer=L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,updateWhenZooming:false,updateWhenIdle:true,keepBuffer:4});this.mLayer=L.layerGroup().addTo(this.map);this.rLayer=L.layerGroup().addTo(this.map);var s=this;this.map.on('click',function(e){s.onMc(e)});this.map.on('dblclick',function(e){s.onMd(e)});this.map.on('contextmenu',function(e){s.onCtx(e)});this._loadAll();this.loadWeather()},
+  _loadAll:function(){var s=this;var all=[];ALL_POIS.forEach(function(p,i){all.push({id:'h'+i,name:p.n,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',desc:p.desc||'',photos:p.photos||[],reviews:[]})});this.allPOIs=all;this.renderMarkers();this.loadFromAPI()},
+  renderMarkers:function(){var s=this;if(this._ms)this._ms.forEach(function(m){m.remove()});this._ms=[];this.allPOIs.forEach(function(p){var co=s.colors[p.cat]||'#999',sh=s.shapes[p.cat]||'circle';var m=L.marker([p.lat,p.lng],{icon:mkIcon(co,sh)}).addTo(s.map);var pt='';if(p.photos&&p.photos.length)pt='<br/><img src="'+p.photos[0]+'" style="width:100%;max-height:100px;object-fit:cover;border-radius:6px;margin-top:4px">';var rat='';if(p.rating)rat='<br/>⭐ '+p.rating+' 分';m.bindPopup('<div style="min-width:160px"><b>'+p.name+'</b><br/><span style="font-size:0.68rem;color:#888">'+(p.addr||'')+'</span>'+rat+pt+'</div>');m.on('mouseover',function(){this.openPopup()});m.on('mouseout',function(){this.closePopup()});m.on('click',function(){s.showDetail(p)});s._ms.push(m)})},
+  showDetail:function(p){var c={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[]};this.dp=c;this.map.flyTo([p.lat,p.lng],15,{duration:0.8});if(!c.photos.length){var s=this;loadPhotos(p.id,function(ph){if(s.dp&&s.dp.id===p.id){s.dp.photos=ph;loadReviews(p.id,function(rv){if(s.dp&&s.dp.id===p.id)s.dp.reviews=rv})}})}},
+  navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank')},
+  toggleFav:function(p){var idx=this.favs.indexOf(p.id);if(idx>=0){this.favs.splice(idx,1)}else{this.favs.push(p.id)}localStorage.setItem('hji_favs',JSON.stringify(this.favs))},
+  isFav:function(p){return this.favs.indexOf(p.id)>=0},
+  setRouteStart:function(p){var s=this;if(this.rs){this.confirm={visible:true,msg:'已有起点「'+this.rs.name+'」，是否更换？',cb:function(ok){if(ok){s.rs={lat:p.lat,lng:p.lng,name:p.name};s.tab='nav';s.drawRouteMarkers();s.toastMsg('起点已更换','inf')}}};return}this.rs={lat:p.lat,lng:p.lng,name:p.name};this.tab='nav';this.drawRouteMarkers();this.toastMsg('起点: '+p.name,'inf')},
+  setRouteEnd:function(p){var s=this;if(this.re){this.confirm={visible:true,msg:'已有终点「'+this.re.name+'」，是否更换？',cb:function(ok){if(ok){s.re={lat:p.lat,lng:p.lng,name:p.name};s.drawRouteMarkers();s.toastMsg('终点已更换','inf')}}};return}this.re={lat:p.lat,lng:p.lng,name:p.name};this.tab='nav';this.drawRouteMarkers();this.toastMsg('终点: '+p.name,'inf')},
+  setRouteWaypoint:function(p){this.wpts.push({lat:p.lat,lng:p.lng,name:p.name});this.tab='nav';this.drawRouteMarkers();this.toastMsg('途径点已添加','inf')},
+  toggleLayer:function(){if(this.layer==='v'){this.map.removeLayer(this.vLayer);this.sLayer.addTo(this.map);this.layer='s'}else{this.map.removeLayer(this.sLayer);this.vLayer.addTo(this.map);this.layer='v'}},
+  resetMap:function(){this.map.setView([23.934,112.185],12)},
+  pickRoutePt:function(t){this.rpicking=t;this.toastMsg('请在地图上点击'+(t==='start'?'起点':t==='end'?'终点':'途径点'),'inf')},
+  drawRouteMarkers:function(){if(!this.rLayer)return;this.rLayer.clearLayers();var iS=L.divIcon({className:'',html:'<div style="width:22px;height:22px;background:#0d9488;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">起</div>',iconSize:[22,22],iconAnchor:[11,11]});var iE=L.divIcon({className:'',html:'<div style="width:22px;height:22px;background:#e53e3e;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">终</div>',iconSize:[22,22],iconAnchor:[11,11]});var iW=L.divIcon({className:'',html:'<div style="width:18px;height:18px;background:#f59e0b;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700">经</div>',iconSize:[18,18],iconAnchor:[9,9]});if(this.rs)L.marker([this.rs.lat,this.rs.lng],{icon:iS}).addTo(this.rLayer);if(this.re)L.marker([this.re.lat,this.re.lng],{icon:iE}).addTo(this.rLayer);var s=this;this.wpts.forEach(function(w){L.marker([w.lat,w.lng],{icon:iW}).addTo(s.rLayer)})},
+  doRoute:function(){var s=this;if(!s.rs||!s.re||!s.map)return;s.rl=true;s.ri=null;var st=s.strat==='fast'?'10':'2';var u='https://restapi.amap.com/v3/direction/driving?key='+KEY+'&origin='+s.rs.lng+','+s.rs.lat+'&destination='+s.re.lng+','+s.re.lat+'&strategy='+st+'&extensions=all';if(s.wpts.length)u+='&waypoints='+s.wpts.map(function(w){return w.lng+','+w.lat}).join('|');fetch(u).then(function(r){return r.json()}).then(function(d){if(!d.route||!d.route.paths||!d.route.paths.length){s.toastMsg('未找到路线','er');s.rl=false;return}var p=d.route.paths[0],coords=[];p.steps.forEach(function(stp){stp.polyline.split(';').forEach(function(pt){var prt=pt.split(',');coords.push([parseFloat(prt[1]),parseFloat(prt[0])])})});if(s.rLayer)s.rLayer.clearLayers();L.polyline(coords,{color:'#0d9488',weight:5,opacity:0.85}).addTo(s.rLayer);s.drawRouteMarkers();var dk=(parseInt(p.distance)/1000).toFixed(1),dm=Math.round(parseInt(p.duration)/60);s.ri={d:dk+' km',t:dm>=60?Math.floor(dm/60)+'h'+(dm%60)+'min':dm+' 分钟'};s.map.fitBounds(L.latLngBounds(coords.concat([[s.rs.lat,s.rs.lng],[s.re.lat,s.re.lng]])).pad(0.2));s.toastMsg('路线约 '+dk+' km','ok');s.rl=false}).catch(function(e){s.toastMsg('失败: '+e.message,'er');s.rl=false})},
+  loadRecRoute:function(rt){var s=this;this.rs=null;this.re=null;this.wpts=[];this.tab='nav';var pts=rt.points;if(pts.length>=2){this.rs={lat:pts[0].lat,lng:pts[0].lng,name:pts[0].name};this.re={lat:pts[pts.length-1].lat,lng:pts[pts.length-1].lng,name:pts[pts.length-1].name};for(var i=1;i<pts.length-1;i++){this.wpts.push({lat:pts[i].lat,lng:pts[i].lng,name:pts[i].name})}}this.toastMsg('已加载推荐路线: '+rt.title,'inf');this.drawRouteMarkers()},
+  startMeasure:function(m){if(this.mode===m){this.endMeasure();return}this.mode=m;this.measuring=false;this.mpts=[];this.mLayer.clearLayers()},
+  calcMeasure:function(){this.measuring=false;this.toastMsg('测量结果: '+this.mval,'inf')},
+  endMeasure:function(){this.mode=null;this.measuring=false;this.mpts=[];if(this.mLayer)this.mLayer.clearLayers()},
+  onMc:function(e){if(this.rpicking){var pt={lat:e.latlng.lat,lng:e.latlng.lng,name:e.latlng.lat.toFixed(4)+','+e.latlng.lng.toFixed(4)};if(this.rpicking==='start'){this.rs=pt}else if(this.rpicking==='end'){this.re=pt}else if(this.rpicking==='waypoint'){this.wpts.push(pt)}this.rpicking=null;this.drawRouteMarkers();return}if(!this.mode||!this.measuring)return;this.mpts.push({lat:e.latlng.lat,lng:e.latlng.lng});this._rm()},
+  onMd:function(e){if(!this.mode)return;L.DomEvent.preventDefault(e.originalEvent)},
+  _rm:function(){if(!this.mLayer)return;this.mLayer.clearLayers();var pts=this.mpts,lls=pts.map(function(p){return[p.lat,p.lng]});lls.forEach(function(ll){L.circleMarker(ll,{radius:4,color:'#0d9488',fillColor:'#fff',fillOpacity:1,weight:2.5}).addTo(this.mLayer)},this);for(var i=1;i<lls.length;i++){var a=L.latLng(lls[i-1]),b=L.latLng(lls[i]),d=a.distanceTo(b);L.polyline([lls[i-1],lls[i]],{color:'#0d9488',weight:3,dashArray:this.mode==='a'?'6 4':null}).addTo(this.mLayer);var mid=L.latLng((lls[i-1][0]+lls[i][0])/2,(lls[i-1][1]+lls[i][1])/2);var lb=d<1000?d.toFixed(1)+'m':(d/1000).toFixed(2)+'km';L.marker(mid,{icon:L.divIcon({className:'',html:'<div style="background:rgba(13,148,136,0.9);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;white-space:nowrap">'+lb+'</div>',iconSize:[0,0],iconAnchor:[0,0]}),interactive:false}).addTo(this.mLayer)}if(this.mode==='a'&&lls.length>=3){L.polyline([lls[lls.length-1],lls[0]],{color:'#e53e3e',weight:2,dashArray:'4 6'}).addTo(this.mLayer);L.polygon(lls,{color:'#0d9488',fillColor:'#5eead4',fillOpacity:0.2,weight:2}).addTo(this.mLayer)}},
+  onCtx:function(e){e.originalEvent.preventDefault();var mx=e.originalEvent.clientX,my=e.originalEvent.clientY;this.cm={vis:true,x:Math.min(mx,innerWidth-180),y:Math.min(my,innerHeight-260),ll:e.latlng}},
 
-app.mount('#app');
+  // Login
+  doLogin:function(){this.loggedIn=true;this.showLogin=false;this.toastMsg('登录成功，欢迎！','ok')},
+
+  // Search
+  fbblur:function(){var s=this;setTimeout(function(){s.fbfocus=false},300)},
+  openSearchPage:function(){this.srOpen=true;this.srq=this.fbq;this.fbfocus=false},
+  srSelect:function(p){this.srOpen=false;this.srq='';this.scat='全部';this.showDetail(p)},
+
+  // Toast
+  toastMsg:function(msg,cls){cls=cls||'inf';var id=Date.now()+Math.random();this.toasts.push({id:id,msg:msg,cls:cls});var s=this;setTimeout(function(){for(var i=0;i<s.toasts.length;i++){if(s.toasts[i].id===id){s.toasts.splice(i,1);break}}},3000)},
+
+  // Weather
+  loadWeather:function(){var s=this;fetch('https://restapi.amap.com/v3/weather/weatherInfo?key='+KEY+'&city=441224&extensions=all').then(function(r){return r.json()}).then(function(d){if(d.lives&&d.lives.length>0){var l=d.lives[0];s.wTemp=l.temperature;s.wIcon={'晴':'☀️','多云':'☁️','小雨':'🌧️','阴':'☁️'}[l.weather]||'🌤️'}}).catch(function(){})},
+
+  // API loader
+  loadFromAPI:function(){var s=this;var qs=[{k:'风景名胜|景区|景点|公园|寺庙|温泉|漂流|溶洞|古镇|故居',c:'景点'},{k:'酒店|宾馆|旅馆|民宿|度假村|招待所|公寓',c:'住宿'},{k:'农家乐|农庄|采摘园|生态园|农业基地|种植园',c:'农家乐'},{k:'餐厅|饭店|酒楼|美食|小吃|火锅|烧烤|快餐|大排档',c:'餐饮'},{k:'商场|超市|便利店|市场|专卖店|商店|百货',c:'购物'},{k:'政府|派出所|公安局|银行|邮局|社区|村委会',c:'服务'},{k:'汽车站|火车站|公交站|停车场|加油站|充电站',c:'交通'},{k:'医院|诊所|卫生院|药店|卫生室',c:'医疗'}];var icons={'景点':'🏔️','住宿':'🏨','农家乐':'🌾','餐饮':'🍴','购物':'🛒','服务':'🏛️','交通':'🚌','医疗':'🏥'};var seen={};this.allPOIs.forEach(function(p){seen[p.name]=true});var pend=qs.length*2;var newP=[];qs.forEach(function(q){[1,2].forEach(function(page){fetch('https://restapi.amap.com/v3/place/text?key='+KEY+'&keywords='+encodeURIComponent(q.k)+'&city=怀集县&citylimit=true&offset=40&page='+page+'&extensions=all').then(function(r){return r.json()}).then(function(d){if(d.status==='1'&&d.pois){d.pois.forEach(function(p){if(seen[p.name])return;seen[p.name]=true;var lo=(p.location||'0,0').split(',');newP.push({id:p.id,name:p.name,lat:parseFloat(lo[1]),lng:parseFloat(lo[0]),cat:q.c,icon:icons[q.c],addr:p.address||'',tel:p.tel||'',rating:(p.biz_ext&&p.biz_ext.rating)?p.biz_ext.rating:'',etime:(p.biz_ext&&p.biz_ext.open_time)?p.biz_ext.open_time:'',desc:p.address||'',photos:(p.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,3),reviews:[]})})}}).catch(function(){}).finally(function(){pend--;if(pend<=0){s.allPOIs=s.allPOIs.concat(newP);s.$nextTick(function(){s.renderMarkers()});s.toastMsg('补充加载 '+newP.length+' 个POI','ok')}})})})}
+}});app.mount('#app')})();
 </script>
 
-<!-- ====== POI DATA ====== -->
+<!-- ====== POI DATA + ICONS ====== -->
 <script>
-var ALL_POIS = [
-  {n:'燕岩风景区',lat:23.908,lng:112.228,cat:'景点',icon:'🏔️',addr:'怀集县桥头镇',tel:'0758-5383001',desc:'中国最佳溶洞奇观，万燕归巢壮景，被誉为岭南第一洞'},
-  {n:'世外桃源景区',lat:23.916,lng:112.213,cat:'景点',icon:'🌸',addr:'怀集县桥头镇',tel:'',desc:'陶渊明笔下桃花源原型地，溪流潺潺，桃林环绕'},
-  {n:'燕峰峡漂流',lat:23.952,lng:112.160,cat:'景点',icon:'🌊',addr:'怀集县凤岗镇',tel:'',desc:'广东最长漂流河道，全长5.8公里'},
-  {n:'塔山公园',lat:23.922,lng:112.182,cat:'景点',icon:'🏯',addr:'怀集县城区',tel:'',desc:'城区中心公园，登塔可览怀集全城风光'},
-  {n:'文昌书院',lat:23.928,lng:112.190,cat:'景点',icon:'📚',addr:'怀集县怀城镇',tel:'',desc:'始建于明代的古书院，怀集历史文脉所在'},
-  {n:'六祖岩',lat:23.900,lng:112.240,cat:'景点',icon:'🪨',addr:'怀集县桥头镇',tel:'',desc:'禅宗六祖慧能曾隐居之地，佛教文化圣地'},
-  {n:'凤岗河湿地公园',lat:23.960,lng:112.195,cat:'景点',icon:'🌿',addr:'怀集县凤岗镇',tel:'',desc:'生态湿地公园，鸟类栖息天堂'},
-  {n:'下帅壮族瑶族乡',lat:23.885,lng:112.155,cat:'景点',icon:'🎭',addr:'怀集县下帅乡',tel:'',desc:'广东唯一壮族瑶族乡，浓郁民族风情'},
-  {n:'怀集县博物馆',lat:23.930,lng:112.185,cat:'景点',icon:'🏛️',addr:'怀集县怀城镇',tel:'',desc:'展示怀集历史文化和民俗风情'},
-  {n:'怀集体育中心',lat:23.933,lng:112.182,cat:'景点',icon:'🏟️',addr:'怀集县怀城镇',tel:'',desc:'全民健身中心和体育赛事举办地'},
-  {n:'怀集三岳自然保护区',lat:23.875,lng:112.268,cat:'景点',icon:'🌲',addr:'怀集县蓝钟镇',tel:'',desc:'原始次生林保护区，珍稀动植物基因库'},
-  {n:'怀集温泉度假村',lat:23.945,lng:112.205,cat:'景点',icon:'♨️',addr:'怀集县凤岗镇',tel:'',desc:'天然硫磺温泉，养生休闲好去处'},
-  {n:'怀集华苑大酒店',lat:23.925,lng:112.187,cat:'住宿',icon:'🏨',addr:'怀城镇解放北路',tel:'0758-5528888',desc:'县城中心四星级酒店'},
-  {n:'怀集悦湖度假酒店',lat:23.930,lng:112.195,cat:'住宿',icon:'🏨',addr:'怀集县怀城镇',tel:'',desc:'湖畔度假酒店，会议接待与休闲度假'},
-  {n:'燕峰峡温泉酒店',lat:23.950,lng:112.162,cat:'住宿',icon:'🏨',addr:'怀集县凤岗镇',tel:'',desc:'温泉入户，依山而建，度假首选'},
-  {n:'桃花源民宿',lat:23.917,lng:112.212,cat:'住宿',icon:'🏡',addr:'怀集县桥头镇',tel:'',desc:'景区特色民宿，推窗见景'},
-  {n:'怀集海逸国际酒店',lat:23.927,lng:112.183,cat:'住宿',icon:'🏨',addr:'怀城镇',tel:'',desc:'综合性商务酒店'},
-  {n:'怀集腾龙大酒店',lat:23.926,lng:112.185,cat:'住宿',icon:'🏨',addr:'怀城镇解放中路',tel:'',desc:'经济型商务酒店'},
-  {n:'怀集现代农业产业园',lat:23.948,lng:112.215,cat:'农家乐',icon:'🌾',addr:'怀集县梁村镇',tel:'',desc:'供港蔬菜基地，珠三角绿色菜篮子核心据点'},
-  {n:'华光农业生态园',lat:23.955,lng:112.225,cat:'农家乐',icon:'🏡',addr:'怀集县梁村镇',tel:'',desc:'集采摘、科普、生态旅游于一体的现代农业观光园'},
-  {n:'岭南佳果园',lat:23.915,lng:112.195,cat:'农家乐',icon:'🍊',addr:'怀集县冷坑镇',tel:'',desc:'四季水果采摘园，砂糖橘、百香果、火龙果'},
-  {n:'绿丰源农业庄园',lat:23.930,lng:112.235,cat:'农家乐',icon:'🥬',addr:'怀集县桥头镇',tel:'',desc:'珠三角蔬菜供应基地，体验农耕文化'},
-  {n:'山水田园农庄',lat:23.948,lng:112.165,cat:'农家乐',icon:'🏡',addr:'怀集县凤岗镇',tel:'',desc:'集餐饮住宿采摘一体，怀集特色全牛宴'},
-  {n:'燕岩农家乐',lat:23.910,lng:112.224,cat:'农家乐',icon:'🍽',addr:'怀集县桥头镇',tel:'',desc:'燕岩景区旁，地道怀集农家菜'},
-  {n:'桃花源农家院',lat:23.918,lng:112.210,cat:'农家乐',icon:'🏡',addr:'怀集县桥头镇',tel:'',desc:'世外桃源入口处，柴火灶烧菜'},
-  {n:'绿水青山农家乐',lat:23.936,lng:112.172,cat:'农家乐',icon:'🏡',addr:'怀城镇',tel:'',desc:'依山傍水，可垂钓采摘'},
-  {n:'怀集味道（总店）',lat:23.926,lng:112.188,cat:'餐饮',icon:'🥢',addr:'怀城镇解放中路',tel:'',desc:'怀集本地菜标杆：切粉、酿豆腐、白切鸡'},
-  {n:'桥头酒楼',lat:23.924,lng:112.185,cat:'餐饮',icon:'🥢',addr:'怀城镇',tel:'',desc:'三十年老店，怀集地道早茶、粤菜经典'},
-  {n:'燕城美食坊',lat:23.929,lng:112.183,cat:'餐饮',icon:'🥢',addr:'怀城镇',tel:'',desc:'汇聚怀集各乡镇特色小吃，价格亲民'},
-  {n:'江畔渔港',lat:23.932,lng:112.180,cat:'餐饮',icon:'🐟',addr:'怀城镇绥江边',tel:'',desc:'绥江边上，河鲜现点现做'},
-  {n:'竹乡人家',lat:23.920,lng:112.192,cat:'餐饮',icon:'🎋',addr:'怀城镇',tel:'',desc:'怀集特产竹笋宴，全竹宴闻名远近'},
-  {n:'田园小筑',lat:23.942,lng:112.200,cat:'餐饮',icon:'🍽',addr:'怀城镇',tel:'',desc:'近县城，环境清幽，特色竹筒饭'},
-  {n:'山泉人家',lat:23.955,lng:112.188,cat:'餐饮',icon:'🍽',addr:'怀集县凤岗镇',tel:'',desc:'山泉水养殖鱼类，现捞现做'},
-  {n:'怀集美食城',lat:23.927,lng:112.184,cat:'餐饮',icon:'🍴',addr:'怀城镇',tel:'',desc:'怀集特色小吃聚集地'},
-  {n:'怀集商业步行街',lat:23.926,lng:112.185,cat:'购物',icon:'🛒',addr:'怀城镇解放路',tel:'',desc:'怀集县城核心商圈'},
-  {n:'怀集中心市场',lat:23.925,lng:112.186,cat:'购物',icon:'🛒',addr:'怀城镇',tel:'',desc:'大型农贸综合市场'},
-  {n:'大润发超市',lat:23.927,lng:112.183,cat:'购物',icon:'🛒',addr:'怀城镇',tel:'',desc:'大型连锁超市，日用百货齐全'},
-  {n:'怀集特产专卖店',lat:23.924,lng:112.188,cat:'购物',icon:'🎁',addr:'怀城镇',tel:'',desc:'怀集切粉、竹笋、砂糖橘等本地特产'},
-  {n:'怀集县人民政府',lat:23.926,lng:112.183,cat:'服务',icon:'🏛️',addr:'怀城镇解放北路',tel:'',desc:'怀集县行政中心'},
-  {n:'怀集县公安局',lat:23.925,lng:112.184,cat:'服务',icon:'🛡️',addr:'怀城镇',tel:'0758-5523110',desc:'怀集县公共安全保障'},
-  {n:'怀集农商银行',lat:23.926,lng:112.186,cat:'服务',icon:'🏦',addr:'怀城镇',tel:'',desc:'金融服务'},
-  {n:'怀集县旅游服务中心',lat:23.928,lng:112.184,cat:'服务',icon:'ℹ',addr:'怀城镇',tel:'',desc:'旅游咨询、导游服务'},
-  {n:'怀集汽车站',lat:23.923,lng:112.180,cat:'交通',icon:'🚌',addr:'怀城镇',tel:'',desc:'长途及城乡公交枢纽'},
-  {n:'怀集高铁站',lat:23.918,lng:112.170,cat:'交通',icon:'🚄',addr:'怀城镇',tel:'',desc:'贵广高铁怀集站'},
-  {n:'怀集城北客运站',lat:23.930,lng:112.181,cat:'交通',icon:'🚌',addr:'怀城镇',tel:'',desc:'往各乡镇班车始发站'},
-  {n:'怀集县人民医院',lat:23.928,lng:112.188,cat:'医疗',icon:'🏥',addr:'怀城镇红旗路',tel:'0758-5522204',desc:'三级综合医院，怀集最大医疗机构'},
-  {n:'怀集中医院',lat:23.924,lng:112.190,cat:'医疗',icon:'🏥',addr:'怀城镇',tel:'',desc:'中医特色诊疗服务'},
-  {n:'怀集县妇幼保健院',lat:23.927,lng:112.189,cat:'医疗',icon:'🏥',addr:'怀城镇',tel:'',desc:'妇产儿科专科医院'},
+var ALL_POIS=[
+  {n:'燕岩风景区',lat:23.908,lng:112.228,cat:'景点',icon:'🏔️',addr:'桥头镇',tel:'0758-5383001',desc:'中国最佳溶洞奇观，万燕归巢，岭南第一洞',photos:[]},
+  {n:'世外桃源景区',lat:23.916,lng:112.213,cat:'景点',icon:'🌸',addr:'桥头镇',tel:'',desc:'陶渊明笔下桃花源原型，地下溶洞村落',photos:[]},
+  {n:'燕峰峡漂流',lat:23.952,lng:112.160,cat:'景点',icon:'🌊',addr:'凤岗镇',tel:'',desc:'广东最长的漂流河道，全长5.8公里',photos:[]},
+  {n:'塔山公园',lat:23.922,lng:112.182,cat:'景点',icon:'🏯',addr:'城区',tel:'',desc:'城区中心公园，登塔可观怀集全景',photos:[]},
+  {n:'文昌书院',lat:23.928,lng:112.190,cat:'景点',icon:'📚',addr:'怀城镇',tel:'',desc:'始建于明代的古书院',photos:[]},
+  {n:'六祖岩',lat:23.900,lng:112.240,cat:'景点',icon:'🪨',addr:'桥头镇',tel:'',desc:'禅宗六祖慧能隐居之地',photos:[]},
+  {n:'凤岗河湿地公园',lat:23.960,lng:112.195,cat:'景点',icon:'🌿',addr:'凤岗镇',tel:'',desc:'生态湿地，鸟类天堂',photos:[]},
+  {n:'下帅壮族瑶族乡',lat:23.885,lng:112.155,cat:'景点',icon:'🎭',addr:'下帅乡',tel:'',desc:'广东唯一壮瑶民族乡',photos:[]},
+  {n:'怀集博物馆',lat:23.930,lng:112.185,cat:'景点',icon:'🏛️',addr:'怀城镇',tel:'',desc:'怀集历史文化和民俗风情展示',photos:[]},
+  {n:'怀集体育中心',lat:23.933,lng:112.182,cat:'景点',icon:'🏟️',addr:'怀城镇',tel:'',desc:'全民健身和体育赛事举办地',photos:[]},
+  {n:'三岳自然保护区',lat:23.875,lng:112.268,cat:'景点',icon:'🌲',addr:'蓝钟镇',tel:'',desc:'原始次生林保护区',photos:[]},
+  {n:'怀集温泉度假村',lat:23.945,lng:112.205,cat:'景点',icon:'♨️',addr:'凤岗镇',tel:'',desc:'天然硫磺温泉',photos:[]},
+  {n:'华苑大酒店',lat:23.925,lng:112.187,cat:'住宿',icon:'🏨',addr:'解放北路',tel:'0758-5528888',desc:'四星级酒店',photos:[]},
+  {n:'悦湖度假酒店',lat:23.930,lng:112.195,cat:'住宿',icon:'🏨',addr:'怀城镇',tel:'',desc:'湖畔度假酒店',photos:[]},
+  {n:'燕峰峡温泉酒店',lat:23.950,lng:112.162,cat:'住宿',icon:'🏨',addr:'凤岗镇',tel:'',desc:'温泉入户，依山而建',photos:[]},
+  {n:'桃花源民宿',lat:23.917,lng:112.212,cat:'住宿',icon:'🏡',addr:'桥头镇',tel:'',desc:'景区特色民宿',photos:[]},
+  {n:'海逸国际酒店',lat:23.927,lng:112.183,cat:'住宿',icon:'🏨',addr:'怀城镇',tel:'',desc:'综合性商务酒店',photos:[]},
+  {n:'腾龙大酒店',lat:23.926,lng:112.185,cat:'住宿',icon:'🏨',addr:'解放中路',tel:'',desc:'经济型商务酒店',photos:[]},
+  {n:'现代农业产业园',lat:23.948,lng:112.215,cat:'农家乐',icon:'🌾',addr:'梁村镇',tel:'',desc:'供港蔬菜基地',photos:[]},
+  {n:'华光农业生态园',lat:23.955,lng:112.225,cat:'农家乐',icon:'🏡',addr:'梁村镇',tel:'',desc:'采摘科普生态旅游',photos:[]},
+  {n:'岭南佳果园',lat:23.915,lng:112.195,cat:'农家乐',icon:'🍊',addr:'冷坑镇',tel:'',desc:'四季水果采摘',photos:[]},
+  {n:'绿丰源农业庄园',lat:23.930,lng:112.235,cat:'农家乐',icon:'🥬',addr:'桥头镇',tel:'',desc:'蔬菜供应基地',photos:[]},
+  {n:'山水田园农庄',lat:23.948,lng:112.165,cat:'农家乐',icon:'🏡',addr:'凤岗镇',tel:'',desc:'餐饮住宿采摘一体',photos:[]},
+  {n:'燕岩农家乐',lat:23.910,lng:112.224,cat:'农家乐',icon:'🍽',addr:'桥头镇',tel:'',desc:'燕岩景区旁地道农家菜',photos:[]},
+  {n:'桃花源农家院',lat:23.918,lng:112.210,cat:'农家乐',icon:'🏡',addr:'桥头镇',tel:'',desc:'柴火灶烧菜',photos:[]},
+  {n:'绿水青山农家乐',lat:23.936,lng:112.172,cat:'农家乐',icon:'🏡',addr:'怀城镇',tel:'',desc:'垂钓采摘家庭聚会',photos:[]},
+  {n:'怀集味道（总店）',lat:23.926,lng:112.188,cat:'餐饮',icon:'🥢',addr:'解放中路',tel:'',desc:'怀集本地菜标杆',photos:[]},
+  {n:'桥头酒楼',lat:23.924,lng:112.185,cat:'餐饮',icon:'🥢',addr:'怀城镇',tel:'',desc:'三十年老店地道早茶',photos:[]},
+  {n:'燕城美食坊',lat:23.929,lng:112.183,cat:'餐饮',icon:'🥢',addr:'怀城镇',tel:'',desc:'各乡镇特色小吃',photos:[]},
+  {n:'江畔渔港',lat:23.932,lng:112.180,cat:'餐饮',icon:'🐟',addr:'绥江边',tel:'',desc:'河鲜现点现做',photos:[]},
+  {n:'竹乡人家',lat:23.920,lng:112.192,cat:'餐饮',icon:'🎋',addr:'怀城镇',tel:'',desc:'怀集特产竹笋宴',photos:[]},
+  {n:'田园小筑',lat:23.942,lng:112.200,cat:'餐饮',icon:'🍽',addr:'怀城镇',tel:'',desc:'环境清幽竹筒饭',photos:[]},
+  {n:'山泉人家',lat:23.955,lng:112.188,cat:'餐饮',icon:'🍽',addr:'凤岗镇',tel:'',desc:'山泉水养殖鱼类',photos:[]},
+  {n:'怀集美食城',lat:23.927,lng:112.184,cat:'餐饮',icon:'🍴',addr:'怀城镇',tel:'',desc:'怀集小吃聚集地',photos:[]},
+  {n:'怀集商业步行街',lat:23.926,lng:112.185,cat:'购物',icon:'🛒',addr:'解放路',tel:'',desc:'县城核心商圈',photos:[]},
+  {n:'怀集中心市场',lat:23.925,lng:112.186,cat:'购物',icon:'🛒',addr:'怀城镇',tel:'',desc:'大型农贸综合市场',photos:[]},
+  {n:'大润发超市',lat:23.927,lng:112.183,cat:'购物',icon:'🛒',addr:'怀城镇',tel:'',desc:'大型连锁超市',photos:[]},
+  {n:'怀集特产专卖店',lat:23.924,lng:112.188,cat:'购物',icon:'🎁',addr:'怀城镇',tel:'',desc:'切粉竹笋砂糖橘特产',photos:[]},
+  {n:'怀集县人民政府',lat:23.926,lng:112.183,cat:'服务',icon:'🏛️',addr:'解放北路',tel:'',desc:'怀集县行政中心',photos:[]},
+  {n:'怀集县公安局',lat:23.925,lng:112.184,cat:'服务',icon:'🛡️',addr:'怀城镇',tel:'0758-5523110',desc:'公共安全保障',photos:[]},
+  {n:'怀集农商银行',lat:23.926,lng:112.186,cat:'服务',icon:'🏦',addr:'怀城镇',tel:'',desc:'金融服务',photos:[]},
+  {n:'旅游服务中心',lat:23.928,lng:112.184,cat:'服务',icon:'ℹ',addr:'怀城镇',tel:'',desc:'旅游咨询导游服务',photos:[]},
+  {n:'怀集汽车站',lat:23.923,lng:112.180,cat:'交通',icon:'🚌',addr:'怀城镇',tel:'',desc:'长途城乡公交枢纽',photos:[]},
+  {n:'怀集高铁站',lat:23.918,lng:112.170,cat:'交通',icon:'🚄',addr:'怀城镇',tel:'',desc:'贵广高铁怀集站',photos:[]},
+  {n:'城北客运站',lat:23.930,lng:112.181,cat:'交通',icon:'🚌',addr:'怀城镇',tel:'',desc:'乡镇班车始发站',photos:[]},
+  {n:'怀集县人民医院',lat:23.928,lng:112.188,cat:'医疗',icon:'🏥',addr:'红旗路',tel:'0758-5522204',desc:'三级综合医院',photos:[]},
+  {n:'怀集中医院',lat:23.924,lng:112.190,cat:'医疗',icon:'🏥',addr:'怀城镇',tel:'',desc:'中医特色诊疗',photos:[]},
+  {n:'妇幼保健院',lat:23.927,lng:112.189,cat:'医疗',icon:'🏥',addr:'怀城镇',tel:'',desc:'妇产儿科专科医院',photos:[]},
 ];
 
-function mkIcon(color, shape) {
-  var g = '<circle cx="12" cy="12" r="10" fill="'+color+'" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
-  if (shape === 'mountain') g = '<polygon points="12,4 22,20 2,20" fill="'+color+'" stroke="#fff" stroke-width="1.5"/>';
-  else if (shape === 'leaf') g = '<ellipse cx="12" cy="12" rx="8" ry="5" fill="'+color+'" stroke="#fff" stroke-width="1.5" transform="rotate(-15 12 12)"/><line x1="12" y1="7" x2="12" y2="17" stroke="#fff" stroke-width="1.2"/>';
-  else if (shape === 'food') g = '<path d="M5 10 Q5 4 12 4 Q19 4 19 10 L18 18 Q18 20 12 20 Q6 20 6 18 Z" fill="'+color+'" stroke="#fff" stroke-width="1.5"/>';
-  else if (shape === 'hotel') g = '<rect x="3" y="6" width="18" height="14" rx="2" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><rect x="7" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="13" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="7" y="15" width="10" height="3" fill="#fff" opacity="0.6"/>';
-  else if (shape === 'shield') g = '<path d="M12 3 L21 7 L21 13 Q21 17 12 21 Q3 17 3 13 L3 7 Z" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><text x="12" y="14" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">★</text>';
-  else if (shape === 'plus') g = '<rect x="3" y="7" width="18" height="10" rx="3" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><line x1="12" y1="10" x2="12" y2="14" stroke="#fff" stroke-width="1.8"/><line x1="10" y1="12" x2="14" y2="12" stroke="#fff" stroke-width="1.8"/>';
-  else if (shape === 'cart') g = '<rect x="3" y="5" width="14" height="12" rx="2" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><circle cx="7" cy="18" r="1.5" fill="#fff"/><circle cx="15" cy="18" r="1.5" fill="#fff"/>';
-  else if (shape === 'bus') g = '<rect x="2" y="5" width="20" height="13" rx="3" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><rect x="5" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><rect x="13" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><circle cx="6" cy="17" r="2" fill="#333"/><circle cx="18" cy="17" r="2" fill="#333"/>';
-  else if (shape === 'fuel') g = '<rect x="5" y="6" width="12" height="12" rx="2" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><rect x="7" y="8" width="4" height="8" rx="1" fill="#fff" opacity="0.6"/>';
-  return L.divIcon({className:'', iconSize:[22,22], iconAnchor:[11,11], popupAnchor:[0,-12], html:'<svg width="22" height="22" viewBox="0 0 24 24" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3))">'+g+'</svg>'});
-}
+function mkIcon(color,shape){var g='<circle cx="12" cy="12" r="10" fill="'+color+'" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#fff"/>';if(shape==='mountain')g='<polygon points="12,4 22,20 2,20" fill="'+color+'" stroke="#fff" stroke-width="1.5"/>';else if(shape==='leaf')g='<ellipse cx="12" cy="12" rx="8" ry="5" fill="'+color+'" stroke="#fff" stroke-width="1.5" transform="rotate(-15 12 12)"/><line x1="12" y1="7" x2="12" y2="17" stroke="#fff" stroke-width="1.2"/>';else if(shape==='food')g='<path d="M5 10 Q5 4 12 4 Q19 4 19 10 L18 18 Q18 20 12 20 Q6 20 6 18 Z" fill="'+color+'" stroke="#fff" stroke-width="1.5"/>';else if(shape==='hotel')g='<rect x="3" y="6" width="18" height="14" rx="2" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><rect x="7" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="13" y="10" width="4" height="3" fill="#fff" opacity="0.6"/><rect x="7" y="15" width="10" height="3" fill="#fff" opacity="0.6"/>';else if(shape==='shield')g='<path d="M12 3 L21 7 L21 13 Q21 17 12 21 Q3 17 3 13 L3 7 Z" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><text x="12" y="14" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">★</text>';else if(shape==='plus')g='<rect x="3" y="7" width="18" height="10" rx="3" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><line x1="12" y1="10" x2="12" y2="14" stroke="#fff" stroke-width="1.8"/><line x1="10" y1="12" x2="14" y2="12" stroke="#fff" stroke-width="1.8"/>';else if(shape==='cart')g='<rect x="3" y="5" width="14" height="12" rx="2" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><circle cx="7" cy="18" r="1.5" fill="#fff"/><circle cx="15" cy="18" r="1.5" fill="#fff"/>';else if(shape==='bus')g='<rect x="2" y="5" width="20" height="13" rx="3" fill="'+color+'" stroke="#fff" stroke-width="1.5"/><rect x="5" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><rect x="13" y="8" width="6" height="4" rx="1" fill="#fff" opacity="0.6"/><circle cx="6" cy="17" r="2" fill="#333"/><circle cx="18" cy="17" r="2" fill="#333"/>';return L.divIcon({className:'',iconSize:[22,22],iconAnchor:[11,11],popupAnchor:[0,-12],html:'<svg width="22" height="22" viewBox="0 0 24 24" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3))">'+g+'</svg>'})}
+function loadPhotos(id,cb){fetch('https://restapi.amap.com/v3/place/detail?key=6656b79d228d2d201eb95900f3cdd0d1&id='+id+'&extensions=all').then(function(r){return r.json()}).then(function(d){if(d.status==='1'&&d.pois&&d.pois.length>0){var ph=(d.pois[0].photos||[]).map(function(p){return p.url||''}).filter(function(u){return u}).slice(0,5);cb(ph)}else{cb([])}}).catch(function(){cb([])})}
+function loadReviews(id,cb){fetch('https://restapi.amap.com/v3/place/detail?key=6656b79d228d2d201eb95900f3cdd0d1&id='+id+'&extensions=all').then(function(r){return r.json()}).then(function(d){if(d.status==='1'&&d.pois&&d.pois.length>0&&d.pois[0].biz_ext&&d.pois[0].biz_ext.rating){cb([{rating:parseFloat(d.pois[0].biz_ext.rating),text:'来自高德地图用户评价'}])}else{cb([])}}).catch(function(){cb([])})}
 </script>
 </body>
 </html>
