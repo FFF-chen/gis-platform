@@ -226,6 +226,22 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 @keyframes fI{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 
 /* LEAFLET OVERRIDES */
+.cmt-section{margin-top:12px;border-top:1px solid #f0f0f0;padding-top:10px}
+.cmt-title{font-weight:600;font-size:0.78rem;margin-bottom:6px;color:#333}
+.cmt-list{max-height:200px;overflow-y:auto;margin-bottom:8px}
+.cmt-row{padding:6px 0;border-bottom:1px solid #f7f7f7;font-size:0.74rem}
+.cmt-head{display:flex;justify-content:space-between}
+.cmt-name{font-weight:600;color:var(--c1)}
+.cmt-time{font-size:0.64rem;color:#bbb}
+.cmt-body{color:#555;margin-top:2px}
+.cmt-input-row{display:flex;gap:6px}
+.cmt-input{flex:1;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.76rem;outline:none;font-family:inherit}
+.cmt-input:focus{border-color:var(--c1)}
+.cmt-submit{padding:8px 14px;border:none;border-radius:8px;background:var(--c2);color:#fff;font-size:0.76rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+.cmt-submit:hover{background:var(--c1)}
+.cmt-login-hint{font-size:0.72rem;color:#999;text-align:center;padding:4px}
+.cmt-login-hint a{color:var(--c1);text-decoration:none}
+.cmt-login-hint a:hover{text-decoration:underline}
 .leaflet-popup-content-wrapper{border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.18)}
 .leaflet-popup-content{margin:8px 14px;font-size:0.82rem;line-height:1.5;min-width:175px}
 .popup-actions{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
@@ -292,6 +308,14 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
           <span>📍</span><span>{{ m.label }}</span><span style="color:#999;font-size:0.68rem;margin-left:auto">{{ m.lat.toFixed(4) }},{{ m.lng.toFixed(4) }}</span>
         </div>
         <div v-if="myCstMarkers.length===0" style="text-align:center;color:#ccc;padding:16px;font-size:0.78rem">还没有自定义标记</div>
+      </div>
+      <div class="uc-section">
+        <div class="uc-stitle">💬 我的评论 ({{ myComments().length }})</div>
+        <div v-for="c in myComments().slice(0,20)" style="padding:6px 0;border-bottom:1px solid #f7f7f7;font-size:0.74rem">
+          <div style="display:flex;justify-content:space-between"><span style="font-weight:600;color:var(--c1)">{{ c.poiName }}</span><span style="font-size:0.64rem;color:#bbb">{{ c.time }}</span></div>
+          <div style="color:#555;margin-top:2px">{{ c.text }}</div>
+        </div>
+        <div v-if="myComments().length===0" style="text-align:center;color:#ccc;padding:16px;font-size:0.78rem">还没有发表评论</div>
       </div>
       <button class="uc-logout" @click="doLogout">退出登录</button>
     </div>
@@ -537,6 +561,21 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
             <div class="dphotos" v-if="dp.photos&&dp.photos.length>1">
               <img v-for="(ph,i) in dp.photos" :src="ph" @click="window.open(ph,'_blank')">
             </div>
+            <!-- User comments -->
+            <div style="margin-top:12px;border-top:1px solid #f0f0f0;padding-top:10px">
+              <div style="font-weight:600;font-size:0.78rem;margin-bottom:6px;color:#333">💬 用户评论 ({{ dp.comments?dp.comments.length:0 }})</div>
+              <div v-if="dp.comments&&dp.comments.length" style="max-height:200px;overflow-y:auto;margin-bottom:8px">
+                <div v-for="c in dp.comments" style="padding:6px 0;border-bottom:1px solid #f7f7f7;font-size:0.74rem">
+                  <div style="display:flex;justify-content:space-between"><span style="font-weight:600;color:var(--c1)">{{ c.uname }}</span><span style="font-size:0.64rem;color:#bbb">{{ c.time }}</span></div>
+                  <div style="color:#555;margin-top:2px">{{ c.text }}</div>
+                </div>
+              </div>
+              <div v-if="user" style="display:flex;gap:6px">
+                <input type="text" v-model="cmtText" placeholder="写下你的评论…" style="flex:1;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.76rem;outline:none;font-family:inherit" @keydown.enter="submitComment">
+                <button @click="submitComment" style="padding:8px 14px;border:none;border-radius:8px;background:var(--c2);color:#fff;font-size:0.76rem;cursor:pointer;font-family:inherit;white-space:nowrap">发布</button>
+              </div>
+              <div v-if="!user" style="font-size:0.72rem;color:#999;text-align:center;padding:4px">请<a href="javascript:void(0)" style="color:var(--c1)" @click.stop="goLogin('map')">登录</a>后评论</div>
+            </div>
           </div>
           <div class="dactions">
             <button class="primary" @click="navTo(dp)">🧭 导航</button>
@@ -601,7 +640,7 @@ var app=Vue.createApp({data:function(){
   confirm:{visible:false,msg:'',cb:function(){}},
   fbq:'',fbfocus:false,
   srOpen:false,srq:'',scat:'全部',srResults:[],srRecResults:[],srLoading:false,srDetail:null,
-  wIcon:'☁️',wTemp:'--',locMarker:null,
+  wIcon:'☁️',wTemp:'--',locMarker:null,cmtText:'',
   cm:{vis:false,x:0,y:0,ll:null},
   toasts:[],
   cats:['景点','住宿','农家乐','餐饮','购物','服务','交通','医疗'],
@@ -715,12 +754,47 @@ methods:{
 
   // DETAIL
   showDetail:function(p){
-    var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[]};
-    this.dp=copy;if(this.map)this.map.flyTo([p.lat,p.lng],15,{duration:0.8});
-    if(!copy.photos.length){
-      var s=this,pid=p.id;
-      loadPhotos(pid,function(ph){if(s.dp&&s.dp.id===pid){s.dp.photos=ph;loadReviews(pid,function(rv){if(s.dp&&s.dp.id===pid)s.dp.reviews=rv})}});
+    var s=this;
+    var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[],comments:s._loadComments(p.id)};
+    this.dp=copy;
+    if(this.map){
+      this.map.flyTo([p.lat,p.lng],16,{duration:0.8});
+      // Un-highlight old marker
+      if(this._hlMarker){var pm=this._hlMarker;var pc=pm._poi;if(pc)pm.setIcon(mkIcon(this.colors[pc.cat]||'#999',this.shapes[pc.cat]||'circle'));this._hlMarker=null}
+      // Highlight new marker
+      if(this._ms){for(var ki=0;ki<this._ms.length;ki++){var mk=this._ms[ki];if(mk._poi&&mk._poi.id===p.id){mk.setIcon(mkHighlightIcon(this.colors[p.cat]||'#999',this.shapes[p.cat]||'circle'));this._hlMarker=mk;break}}}
     }
+    // Load Amap data. Hardcoded POIs (id starts with 's') - search Amap by name
+    if(!copy.photos.length||!copy.reviews.length){
+      var pid=p.id;
+      if(typeof pid==='string'&&pid.charAt(0)==='s'){
+        fetch('https://restapi.amap.com/v3/place/text?key='+KEY+'&keywords='+encodeURIComponent(p.name)+'&city=怀集县&citylimit=true&offset=1&extensions=all')
+        .then(function(r){return r.json()}).then(function(d){
+          if(d.status==='1'&&d.pois&&d.pois.length>0){
+            var rp=d.pois[0],rid=rp.id;
+            if(s.dp&&s.dp.id===p.id){
+              s.dp.photos=(rp.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,5);
+              s.dp.tel=s.dp.tel||rp.tel||'';
+              s.dp.rating=s.dp.rating||((rp.biz_ext&&rp.biz_ext.rating)?rp.biz_ext.rating:'');
+              s.dp.etime=(rp.biz_ext&&rp.biz_ext.open_time)?rp.biz_ext.open_time:'';
+              loadReviews(rid,function(rv){if(s.dp&&s.dp.id===p.id)s.dp.reviews=rv});
+            }
+          }
+        }).catch(function(){});
+      }else{
+        loadPhotos(pid,function(ph){if(s.dp&&s.dp.id===pid){s.dp.photos=ph;loadReviews(pid,function(rv){if(s.dp&&s.dp.id===pid)s.dp.reviews=rv})}});
+      }
+    }
+  },
+  // User comments
+  _loadComments:function(pid){try{return JSON.parse(localStorage.getItem('hji_cmts_'+pid)||'[]')}catch(e){return[]}},
+  _saveComments:function(pid,a){localStorage.setItem('hji_cmts_'+pid,JSON.stringify(a))},
+  submitComment:function(){
+    if(!this.dp||!this.cmtText||!this.cmtText.trim())return;
+    if(!this.user){this.toastMsg('请先登录再评论','er');return}
+    var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.cmtText.trim(),time:new Date().toLocaleString()};
+    var cmts=this._loadComments(this.dp.id);cmts.unshift(cmt);
+    this._saveComments(this.dp.id,cmts);this.dp.comments=cmts.slice();this.cmtText='';this.toastMsg('评论发布成功','ok');
   },
   navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank')},
 
@@ -1046,6 +1120,20 @@ var ALL_POIS=[
   {id:'s98',n:'怀集县卫生监督所',lat:23.930,lng:112.178,cat:'医疗',icon:'🏥',addr:'怀城镇',tel:'',desc:'公共卫生监督管理',rating:'',photos:[]}
 ];
 
+function mkHighlightIcon(color,shape){
+  var g='<circle cx="14" cy="14" r="13" fill="'+color+'" stroke="#fff" stroke-width="3"/><circle cx="14" cy="14" r="4" fill="#fff"/>';
+  if(shape==='mountain')g='<polygon points="14,3 28,24 0,24" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+  else if(shape==='leaf')g='<ellipse cx="14" cy="14" rx="11" ry="7" fill="'+color+'" stroke="#fff" stroke-width="2" transform="rotate(-15 14 14)"/><line x1="14" y1="7" x2="14" y2="21" stroke="#fff" stroke-width="1.5"/>';
+  else if(shape==='food')g='<path d="M5 12 Q5 4 14 4 Q23 4 23 12 L22 22 Q22 24 14 24 Q6 24 6 22 Z" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+  else if(shape==='hotel')g='<rect x="2" y="6" width="24" height="18" rx="3" fill="'+color+'" stroke="#fff" stroke-width="2"/><rect x="8" y="11" width="5" height="4" fill="#fff" opacity="0.6"/><rect x="16" y="11" width="5" height="4" fill="#fff" opacity="0.6"/><rect x="8" y="18" width="12" height="4" fill="#fff" opacity="0.6"/>';
+  else if(shape==='shield')g='<path d="M14 2 L27 7 L27 16 Q27 21 14 27 Q1 21 1 16 L1 7 Z" fill="'+color+'" stroke="#fff" stroke-width="2"/><text x="14" y="17" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">★</text>';
+  else if(shape==='plus')g='<rect x="2" y="8" width="24" height="13" rx="4" fill="'+color+'" stroke="#fff" stroke-width="2"/><line x1="14" y1="12" x2="14" y2="17" stroke="#fff" stroke-width="2.5"/><line x1="12" y1="14.5" x2="16" y2="14.5" stroke="#fff" stroke-width="2.5"/>';
+  else if(shape==='cart')g='<rect x="3" y="5" width="18" height="15" rx="3" fill="'+color+'" stroke="#fff" stroke-width="2"/><circle cx="8" cy="22" r="2.5" fill="#fff"/><circle cx="20" cy="22" r="2.5" fill="#fff"/>';
+  else if(shape==='bus')g='<rect x="1" y="5" width="26" height="17" rx="4" fill="'+color+'" stroke="#fff" stroke-width="2"/><rect x="5" y="9" width="8" height="5" rx="1.5" fill="#fff" opacity="0.6"/><rect x="16" y="9" width="8" height="5" rx="1.5" fill="#fff" opacity="0.6"/><circle cx="7" cy="21" r="3" fill="#333"/><circle cx="22" cy="21" r="3" fill="#333"/>';
+  return L.divIcon({className:'',iconSize:[32,32],iconAnchor:[16,16],popupAnchor:[0,-18],
+    html:'<svg width="32" height="32" viewBox="0 0 28 28" style="filter:drop-shadow(0 3px 6px rgba(0,0,0,0.35))">'+g+'</svg>'
+  });
+}
 function mkIcon(color,shape){
   var g='<circle cx="12" cy="12" r="10" fill="'+color+'" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#fff"/>';
   if(shape==='mountain')g='<polygon points="12,4 22,20 2,20" fill="'+color+'" stroke="#fff" stroke-width="1.5"/>';
