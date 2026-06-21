@@ -888,7 +888,10 @@ methods:{
     if(!this.user){this.toastMsg('请先登录再评论','er');return}
     var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.cmtText.trim(),time:new Date().toLocaleString()};
     var cmts=this._loadCmt(this.dp.name);cmts.unshift(cmt);
-    this._saveCmt(this.dp.name,cmts);this.dp.comments=cmts.slice();this.cmtText='';this.toastMsg('评论发布成功','ok');
+    this._saveCmt(this.dp.name,cmts);
+    // Force Vue to pick up the change
+    this.dp.comments=cmts.slice();
+    this.cmtText='';this.toastMsg('评论已发布，刷新后其他用户也能看到','ok');
   },
   // Lightbox
   openLightbox:function(imgs,idx){
@@ -918,7 +921,9 @@ methods:{
     if(!this.user){this.toastMsg('请先登录再评论','er');return}
     var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.srCmtText.trim(),time:new Date().toLocaleString()};
     var cmts=this._loadCmt(this.srDetail.name);cmts.unshift(cmt);
-    this._saveCmt(this.srDetail.name,cmts);this.srDetail.comments=cmts.slice();this.srCmtText='';this.toastMsg('评论已发布','ok');
+    this._saveCmt(this.srDetail.name,cmts);
+    this.srDetail.comments=cmts.slice();
+    this.srCmtText='';this.toastMsg('评论已发布，刷新后其他用户也能看到','ok');
   },
   navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank')},
 
@@ -1119,7 +1124,8 @@ methods:{
       L.marker([p.lat,p.lng],{icon:mkIcon(s.colors[p.cat]||'#999',s.shapes[p.cat]||'circle')}).addTo(s._srMiniMap);
     },200);
     var s=this;
-    p.comments=s._loadCmt(p.name);
+    var cmts=s._loadCmt(p.name);
+    p.comments=cmts;
     this.srDetail=p;
     var pid=p.id;
     // Always try to load Amap photos + reviews
