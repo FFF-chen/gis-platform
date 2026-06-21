@@ -656,14 +656,13 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
 <script>
 (function(){
 var KEY='028626894c67e75ed4187d547235ad82';
+var BLOB='https://jsonblob.com/api/jsonBlob/019ee97a-ebae-7252-b2aa-9e00cd1a6742';
 
-// ---- Account system ----
-function loadUsers(){try{return JSON.parse(localStorage.getItem('hji_users')||'[]')}catch(e){return[]}}
-function saveUsers(u){localStorage.setItem('hji_users',JSON.stringify(u))}
+// ---- Cloud storage helpers ----
+function cloudGet(cb){fetch(BLOB).then(function(r){return r.json()}).then(function(d){cb(d)}).catch(function(){cb(null)})}
+function cloudPut(data,cb){fetch(BLOB,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json()}).then(function(d){if(cb)cb(true)}).catch(function(){if(cb)cb(false)})}
 function loadSession(){try{return JSON.parse(localStorage.getItem('hji_session')||'null')}catch(e){return null}}
 function saveSession(u){localStorage.setItem('hji_session',JSON.stringify(u))}
-
-// Each user gets their own favs and custom markers, keyed by user id
 function getUserFavs(uid){try{return JSON.parse(localStorage.getItem('hji_favs_'+uid)||'[]')}catch(e){return[]}}
 function saveUserFavs(uid,a){localStorage.setItem('hji_favs_'+uid,JSON.stringify(a))}
 function getUserCst(uid){try{return JSON.parse(localStorage.getItem('hji_cst_'+uid)||'[]')}catch(e){return[]}}
@@ -690,7 +689,7 @@ var app=Vue.createApp({data:function(){
   fbq:'',fbfocus:false,
   srOpen:false,srq:'',scat:'全部',srResults:[],srRecResults:[],srLoading:false,srDetail:null,srDpImgIdx:0,srCmtText:'',
   wIcon:'☁️',wTemp:'--',locMarker:null,cmtText:'',dpImgIdx:0,
-  cm:{vis:false,x:0,y:0,ll:null},lb:{vis:false,imgs:[],idx:0},
+  cm:{vis:false,x:0,y:0,ll:null},lb:{vis:false,imgs:[],idx:0},cloudData:null,
   toasts:[],
   cats:['景点','住宿','农家乐','餐饮','购物','服务','交通','医疗'],
   colors:{'景点':'#e53e3e','住宿':'#8b5cf6','农家乐':'#0d9488','餐饮':'#f59e0b','购物':'#06b6d4','服务':'#64748b','交通':'#3b82f6','医疗':'#ef4444'},
@@ -764,6 +763,47 @@ methods:{
     this._loadAll();
     this._renderCstMarkers();
     this.loadWeather();
+    this._fetchCloud();
+  },
+  _fetchCloud:function(){
+    var s=this;
+    cloudGet(function(d){
+      if(!d)return;
+      s.cloudData=d;
+      // Merge cloud users into localStorage for quick fallback
+      if(d.u&&d.u.length){localStorage.setItem('hji_users_cloud',JSON.stringify(d.u))}
+    });
+  },
+  _loadUsers:function(){
+    // Cloud first, fallback to legacy localStorage
+    if(this.cloudData&&this.cloudData.u)return this.cloudData.u;
+    var leg=null;try{leg=JSON.parse(localStorage.getItem('hji_users_cloud')||'null')}catch(e){}
+    if(leg)return leg;
+    try{return JSON.parse(localStorage.getItem('hji_users')||'[]')}catch(e){return[]}
+  },
+  _saveUsers:function(u){
+    var s=this;
+    if(this.cloudData)this.cloudData.u=u;else this.cloudData={c:{},u:u};
+    // Write to local fallback
+    localStorage.setItem('hji_users_cloud',JSON.stringify(u));
+    // Push to cloud
+    cloudPut(this.cloudData);
+  },
+  _loadCmt:function(key){
+    // Cloud first
+    if(this.cloudData&&this.cloudData.c&&this.cloudData.c[key])return this.cloudData.c[key].slice();
+    // Fallback localStorage
+    try{return JSON.parse(localStorage.getItem('hji_cmts_'+key)||'[]')}catch(e){return[]}
+  },
+  _saveCmt:function(key,arr){
+    var s=this;
+    if(!this.cloudData)this.cloudData={c:{},u:[]};
+    if(!this.cloudData.c)this.cloudData.c={};
+    this.cloudData.c[key]=arr;
+    // Write to local fallback
+    localStorage.setItem('hji_cmts_'+key,JSON.stringify(arr));
+    // Push to cloud
+    cloudPut(this.cloudData);
   },
 
   // POI
@@ -804,7 +844,7 @@ methods:{
   // DETAIL
   showDetail:function(p){
     var s=this;
-    var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[],comments:s._loadComments(p.name)};
+    var copy={id:p.id,name:p.name,lat:p.lat,lng:p.lng,cat:p.cat,icon:p.icon,addr:p.addr||'',tel:p.tel||'',rating:p.rating||'',etime:p.etime||'',desc:p.desc||'',photos:p.photos?p.photos.slice():[],reviews:p.reviews?p.reviews.slice():[],comments:s._loadCmt(p.name)};
     this.dp=copy;this.dpImgIdx=0;
     if(this.map){
       this.map.flyTo([p.lat,p.lng],16,{duration:0.8});
@@ -836,14 +876,13 @@ methods:{
     }
   },
   // User comments
-  _loadComments:function(key){try{return JSON.parse(localStorage.getItem('hji_cmts_'+key)||'[]')}catch(e){return[]}},
-  _saveComments:function(key,a){localStorage.setItem('hji_cmts_'+key,JSON.stringify(a))},
+
   submitComment:function(){
     if(!this.dp||!this.cmtText||!this.cmtText.trim())return;
     if(!this.user){this.toastMsg('请先登录再评论','er');return}
     var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.cmtText.trim(),time:new Date().toLocaleString()};
-    var cmts=this._loadComments(this.dp.name);cmts.unshift(cmt);
-    this._saveComments(this.dp.name,cmts);this.dp.comments=cmts.slice();this.cmtText='';this.toastMsg('评论发布成功','ok');
+    var cmts=this._loadCmt(this.dp.name);cmts.unshift(cmt);
+    this._saveCmt(this.dp.name,cmts);this.dp.comments=cmts.slice();this.cmtText='';this.toastMsg('评论发布成功','ok');
   },
   // Lightbox
   openLightbox:function(imgs,idx){
@@ -872,8 +911,8 @@ methods:{
     if(!this.srDetail||!this.srCmtText||!this.srCmtText.trim())return;
     if(!this.user){this.toastMsg('请先登录再评论','er');return}
     var cmt={id:'c'+Date.now(),uid:this.user.id,uname:this.user.name,text:this.srCmtText.trim(),time:new Date().toLocaleString()};
-    var cmts=this._loadComments(this.srDetail.name);cmts.unshift(cmt);
-    this._saveComments(this.srDetail.name,cmts);this.srDetail.comments=cmts.slice();this.srCmtText='';this.toastMsg('评论已发布','ok');
+    var cmts=this._loadCmt(this.srDetail.name);cmts.unshift(cmt);
+    this._saveCmt(this.srDetail.name,cmts);this.srDetail.comments=cmts.slice();this.srCmtText='';this.toastMsg('评论已发布','ok');
   },
   navTo:function(p){window.open('https://uri.amap.com/navigation?to='+p.lng+','+p.lat+','+encodeURIComponent(p.name)+'&mode=car&callnative=1','_blank')},
 
@@ -1009,7 +1048,7 @@ methods:{
   doLogin:function(){
     if(!this.loginId.trim()){this.toastMsg('请输入账号','er');return}
     if(!this.loginPwd.trim()){this.toastMsg('请输入密码','er');return}
-    var users=loadUsers(),found=null;
+    var users=this._loadUsers(),found=null;
     for(var i=0;i<users.length;i++){if((users[i].phone===this.loginId||users[i].email===this.loginId||users[i].wechat===this.loginId)&&users[i].password===this.loginPwd){found=users[i];break}}
     if(!found){this.toastMsg('账号或密码错误','er');return}
     this._onLogin(found);this.page=this.loginReturn;this.loginId='';this.loginPwd='';
@@ -1019,13 +1058,12 @@ methods:{
     if(!this.regId.trim()){this.toastMsg('请输入手机号或邮箱','er');return}
     if(!this.regPwd||this.regPwd.length<6){this.toastMsg('密码至少6位','er');return}
     if(this.regPwd!==this.regPwd2){this.toastMsg('两次密码不一致','er');return}
-    var users=loadUsers();
+    var users=this._loadUsers();
     for(var i=0;i<users.length;i++){if(users[i].phone===this.regId||users[i].email===this.regId){this.toastMsg('该账号已注册，请直接登录','er');return}}
     var isPhone=/^1\d{10}$/.test(this.regId),uid='u'+Date.now();
     var newUser={id:uid,name:this.regName,password:this.regPwd,createdAt:new Date().toISOString()};
     if(isPhone){newUser.phone=this.regId;newUser.email=''}else{newUser.email=this.regId;newUser.phone=''}
-    newUser.wechat='';users.push(newUser);saveUsers(users);
-    // Init empty favs and custom markers for new user
+    newUser.wechat='';users.push(newUser);this._saveUsers(users);
     saveUserFavs(uid,[]);saveUserCst(uid,[]);
     this._onLogin(newUser);this.page=this.loginReturn;
     this.regName='';this.regId='';this.regPwd='';this.regPwd2='';
@@ -1075,7 +1113,7 @@ methods:{
       L.marker([p.lat,p.lng],{icon:mkIcon(s.colors[p.cat]||'#999',s.shapes[p.cat]||'circle')}).addTo(s._srMiniMap);
     },200);
     var s=this;
-    p.comments=s._loadComments(p.name);
+    p.comments=s._loadCmt(p.name);
     this.srDetail=p;
     var pid=p.id;
     // Always try to load Amap photos + reviews
@@ -1121,7 +1159,7 @@ methods:{
     if(!this.user)return[];
     var all=[],s=this;
     this.allPOIs.forEach(function(p){
-      var cs=s._loadComments(p.name);
+      var cs=s._loadCmt(p.name);
       cs.forEach(function(c){if(c.uid===s.user.id){c.poiName=p.name;c.poiId=p.id;all.push(c)}});
     });
     return all.sort(function(a,b){return new Date(b.time)-new Date(a.time)});
