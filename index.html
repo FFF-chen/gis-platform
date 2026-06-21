@@ -285,7 +285,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
         <button class="login-tab" :class="{on:loginTab==='wechat'}" @click="loginTab='wechat'">💬 微信</button>
       </div>
       <template v-if="loginMode==='login'">
-        <input class="lfield" type="text" v-model="loginId" :placeholder="loginTab==='phone'?'手机号':loginTab==='email'?'邮箱地址':'微信号'">
+        <input class="lfield" type="text" v-model="loginId" :placeholder="loginTab==='phone'?'手机号/邮箱':'手机号/邮箱'">
         <input class="lfield" type="password" v-model="loginPwd" placeholder="密码" @keydown.enter="doLogin">
         <button class="lbtn" @click="doLogin">登 录</button>
         <button class="lswitch" @click="loginMode='register'">还没有账号？立即注册</button>
@@ -659,8 +659,21 @@ var KEY='028626894c67e75ed4187d547235ad82';
 var BLOB='https://jsonblob.com/api/jsonBlob/019ee97a-ebae-7252-b2aa-9e00cd1a6742';
 
 // ---- Cloud storage helpers ----
-function cloudGet(cb){fetch(BLOB).then(function(r){return r.json()}).then(function(d){cb(d)}).catch(function(){cb(null)})}
-function cloudPut(data,cb){fetch(BLOB,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json()}).then(function(d){if(cb)cb(true)}).catch(function(){if(cb)cb(false)})}
+function cloudGet(cb){
+  fetch(BLOB,{cache:'no-cache'}).then(function(r){return r.json()}).then(function(d){
+    // Cache to localStorage on success
+    localStorage.setItem('hji_cloud_cache',JSON.stringify(d));
+    cb(d);
+  }).catch(function(){
+    // Fallback: try cached version
+    try{var cache=JSON.parse(localStorage.getItem('hji_cloud_cache')||'null');cb(cache)}catch(e){cb(null)}
+  });
+}
+function cloudPut(data,cb){
+  // Always update local cache immediately
+  localStorage.setItem('hji_cloud_cache',JSON.stringify(data));
+  fetch(BLOB,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json()}).then(function(d){if(cb)cb(true)}).catch(function(){if(cb)cb(false)});
+}
 function loadSession(){try{return JSON.parse(localStorage.getItem('hji_session')||'null')}catch(e){return null}}
 function saveSession(u){localStorage.setItem('hji_session',JSON.stringify(u))}
 function getUserFavs(uid){try{return JSON.parse(localStorage.getItem('hji_favs_'+uid)||'[]')}catch(e){return[]}}
@@ -1074,7 +1087,7 @@ methods:{
     var isPhone=/^1\d{10}$/.test(this.regId),uid='u'+Date.now();
     var newUser={id:uid,name:this.regName,password:this.regPwd,createdAt:new Date().toISOString()};
     if(isPhone){newUser.phone=this.regId;newUser.email=''}else{newUser.email=this.regId;newUser.phone=''}
-    newUser.wechat='';users.push(newUser);this._saveUsers(users);
+    users.push(newUser);this._saveUsers(users);
     saveUserFavs(uid,[]);saveUserCst(uid,[]);
     this._onLogin(newUser);this.page=this.loginReturn;
     this.regName='';this.regId='';this.regPwd='';this.regPwd2='';
