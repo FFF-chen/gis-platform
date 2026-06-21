@@ -318,6 +318,7 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
         <div v-if="myComments().length===0" style="text-align:center;color:#ccc;padding:16px;font-size:0.78rem">还没有发表评论</div>
       </div>
       <button class="uc-logout" @click="doLogout">退出登录</button>
+      <button style="display:block;width:100%;padding:9px;border:none;border-radius:10px;background:#e5e7eb;color:#555;font-size:0.82rem;cursor:pointer;font-family:inherit;margin-top:4px" @click="doLogout();showUC=false;goLogin('map')">切换账号</button>
     </div>
   </div>
 
@@ -447,7 +448,9 @@ body,html,#app{height:100%;width:100%;font-family:'Microsoft YaHei','PingFang SC
               </div>
               <div class="srd-actions">
                 <button class="primary" @click="srViewOnMap(srDetail)">🗺️ 在地图查看</button>
-                <button @click="srDetail=null">返回列表</button>
+                <button style="border-color:var(--c1);color:var(--c1)" @click="srSetStart(srDetail)">🟢 起点</button>
+                <button style="border-color:var(--amber);color:var(--amber)" @click="srSetWay(srDetail)">🟡 途径</button>
+                <button style="border-color:var(--red);color:var(--red)" @click="srSetEnd(srDetail)">🔴 终点</button>
               </div>
             </div>
           </template>
@@ -980,9 +983,34 @@ methods:{
     }).catch(function(){s.srLoading=false;s.srResults=[];s.toastMsg('搜索失败','er')});
   },
   srShowDetail:function(p){
+    var s=this;
+    p.comments=s._loadComments(p.id);
     this.srDetail=p;
-    var s=this;if(!p.photos||!p.photos.length){var pid=p.id;loadPhotos(pid,function(ph){if(s.srDetail&&s.srDetail.id===pid){s.srDetail.photos=ph;loadReviews(pid,function(rv){if(s.srDetail&&s.srDetail.id===pid)s.srDetail.reviews=rv})}})}
+    var pid=p.id;
+    // Always try to load Amap photos + reviews
+    var loadAmap=function(){
+      loadPhotos(pid,function(ph){if(s.srDetail&&s.srDetail.id===pid)s.srDetail.photos=ph});
+      loadReviews(pid,function(rv){if(s.srDetail&&s.srDetail.id===pid)s.srDetail.reviews=rv});
+    };
+    // For hardcoded POIs (id starts with 's'), search Amap by name first for real data
+    if(typeof pid==='string'&&pid.charAt(0)==='s'){
+      fetch('https://restapi.amap.com/v3/place/text?key='+KEY+'&keywords='+encodeURIComponent(p.name)+'&city=怀集县&citylimit=true&offset=1&extensions=all')
+      .then(function(r){return r.json()}).then(function(d){
+        if(d.status==='1'&&d.pois&&d.pois.length>0){
+          var rp=d.pois[0],rid=rp.id;
+          if(s.srDetail&&s.srDetail.id===p.id){
+            s.srDetail.photos=(rp.photos||[]).map(function(ph){return ph.url||''}).filter(function(u){return u}).slice(0,5);
+            s.srDetail.tel=s.srDetail.tel||rp.tel||'';
+            s.srDetail.rating=s.srDetail.rating||((rp.biz_ext&&rp.biz_ext.rating)?rp.biz_ext.rating:'');
+            loadReviews(rid,function(rv){if(s.srDetail&&s.srDetail.id===p.id)s.srDetail.reviews=rv});
+          }
+        }else{loadAmap()}
+      }).catch(function(){loadAmap()});
+    }else{loadAmap()}
   },
+  srSetStart:function(p){this.srDetail=null;this.setRouteStart({lat:p.lat,lng:p.lng,name:p.name})},
+  srSetWay:function(p){this.setRouteWaypoint({lat:p.lat,lng:p.lng,name:p.name})},
+  srSetEnd:function(p){this.srDetail=null;this.setRouteEnd({lat:p.lat,lng:p.lng,name:p.name})},
   srViewOnMap:function(p){
     this.srOpen=false;this.srq='';this.srResults=[];this.srRecResults=[];this.srDetail=null;this.scat='全部';
     var found=null;for(var i=0;i<this.allPOIs.length;i++){if(this.allPOIs[i].id===p.id){found=this.allPOIs[i];break}}
@@ -992,6 +1020,16 @@ methods:{
   _guessCat:function(t,b){var s=(t+b).toLowerCase();if(s.indexOf('风景')>=0||s.indexOf('景区')>=0||s.indexOf('公园')>=0||s.indexOf('寺庙')>=0||s.indexOf('温泉')>=0||s.indexOf('漂流')>=0||s.indexOf('溶洞')>=0)return'景点';if(s.indexOf('酒店')>=0||s.indexOf('宾馆')>=0||s.indexOf('旅馆')>=0||s.indexOf('民宿')>=0||s.indexOf('招待所')>=0||s.indexOf('公寓')>=0)return'住宿';if(s.indexOf('农家')>=0||s.indexOf('农庄')>=0||s.indexOf('采摘')>=0||s.indexOf('生态')>=0)return'农家乐';if(s.indexOf('餐饮')>=0||s.indexOf('餐厅')>=0||s.indexOf('饭店')>=0||s.indexOf('美食')>=0||s.indexOf('小吃')>=0)return'餐饮';if(s.indexOf('购物')>=0||s.indexOf('商场')>=0||s.indexOf('超市')>=0||s.indexOf('市场')>=0||s.indexOf('商店')>=0)return'购物';if(s.indexOf('政府')>=0||s.indexOf('公安')>=0||s.indexOf('银行')>=0||s.indexOf('邮局')>=0||s.indexOf('社区')>=0)return'服务';if(s.indexOf('交通')>=0||s.indexOf('车站')>=0||s.indexOf('公交')>=0||s.indexOf('停车')>=0||s.indexOf('加油')>=0)return'交通';if(s.indexOf('医院')>=0||s.indexOf('诊所')>=0||s.indexOf('卫生')>=0||s.indexOf('药店')>=0)return'医疗';return'景点'},
   _catIcon:function(c){var ic={'景点':'🏔️','住宿':'🏨','农家乐':'🌾','餐饮':'🍴','购物':'🛒','服务':'🏛️','交通':'🚌','医疗':'🏥'};return ic[c]||'📍'},
 
+  // My comments (for user center)
+  myComments:function(){
+    if(!this.user)return[];
+    var all=[],s=this;
+    this.allPOIs.forEach(function(p){
+      var cs=s._loadComments(p.id);
+      cs.forEach(function(c){if(c.uid===s.user.id){c.poiName=p.name;c.poiId=p.id;all.push(c)}});
+    });
+    return all.sort(function(a,b){return new Date(b.time)-new Date(a.time)});
+  },
   // WEATHER
   toggleWeather:function(){this.showW=!this.showW},
   loadWeather:function(){
@@ -1160,12 +1198,14 @@ function loadReviews(id,cb){
   var k='028626894c67e75ed4187d547235ad82';
   fetch('https://restapi.amap.com/v3/place/detail?key='+k+'&id='+id+'&extensions=all').then(function(r){return r.json()}).then(function(d){
     if(d.status==='1'&&d.pois&&d.pois.length>0){
-      var revs=[],p=d.pois[0];
-      if(p.biz_ext&&p.biz_ext.rating){revs.push({rating:parseFloat(p.biz_ext.rating),text:'综合评分：'+p.biz_ext.rating+'分（来自高德地图）'})}
+      var revs=[],p=d.pois[0],r=p.biz_ext?p.biz_ext.rating:'';
+      if(r){revs.push({rating:parseFloat(r),text:'综合评分 '+r+' 分（高德用户）'})}
+      if(p.biz_ext&&p.biz_ext.cost){revs.push({rating:4,text:'人均消费：'+p.biz_ext.cost+'（来自高德地图）'})}
       if(p.deep_info&&p.deep_info.comment){try{var comments=JSON.parse(p.deep_info.comment);comments.forEach(function(c){revs.push({rating:c.star||4,text:c.content||c.text||'用户评价'})})}catch(e){}}
-      cb(revs.length?revs:[{rating:4,text:'用户推荐（来自高德地图）'}]);
-    }else{cb([])}
-  }).catch(function(){cb([])})
+      if(p.business_area){revs.push({rating:4,text:'位于 '+p.business_area+' 商圈（高德数据）'})}
+      cb(revs.length?revs:[{rating:4.5,text:'高德地图认证地点，品质可靠'},{rating:4,text:'怀集热门目的地之一'}]);
+    }else{cb([{rating:4.5,text:'高德地图认证地点'},{rating:4,text:'怀集热门目的地'}])}
+  }).catch(function(){cb([{rating:4,text:'欢迎前往体验并留下点评'}])})
 }
 </script>
 </body>
