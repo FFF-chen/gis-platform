@@ -661,13 +661,18 @@ var GTOK='github'+'_pat_11B7'+'2K2PA0dlsihf0zR0'+'W2_KbiGY0uSOIm1xzjkrs3hugDu5wm
 
 // ---- Cloud storage helpers ----
 function cloudGet(cb){
-  fetch(BLOB,{cache:'no-cache'}).then(function(r){return r.json()}).then(function(d){
-    // Cache to localStorage on success
+  // GitHub API bypasses CDN cache
+  fetch(GAPI,{cache:'no-cache',headers:{'Authorization':'Bearer '+GTOK,'Accept':'application/vnd.github+json'}})
+  .then(function(r){return r.json()}).then(function(info){
+    var d=JSON.parse(decodeURIComponent(escape(atob(info.content))));
     localStorage.setItem('hji_cloud_cache',JSON.stringify(d));
     cb(d);
   }).catch(function(){
-    // Fallback: try cached version
-    try{var cache=JSON.parse(localStorage.getItem('hji_cloud_cache')||'null');cb(cache)}catch(e){cb(null)}
+    fetch(BLOB,{cache:'no-cache'}).then(function(r){return r.json()}).then(function(d){
+      localStorage.setItem('hji_cloud_cache',JSON.stringify(d));cb(d);
+    }).catch(function(){
+      try{var cache=JSON.parse(localStorage.getItem('hji_cloud_cache')||'null');cb(cache)}catch(e){cb(null)}
+    });
   });
 }
 function cloudPut(data,cb){
