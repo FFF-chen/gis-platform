@@ -329,10 +329,11 @@ computed:{
   navUrl:function(){if(!this.rs||!this.re)return'#';var u='https://uri.amap.com/navigation?from='+this.rs.lng+','+this.rs.lat+',起点&to='+this.re.lng+','+this.re.lat+',终点&mode=car&callnative=1';if(this.wpts.length)u+='&mid='+this.wpts.map(function(w){return w.lng+','+w.lat}).join('|');return u;}
 },
 watch:{
-  showCover:function(val){if(!val){var s=this;this.$nextTick(function(){s.initMap()})}},
+  showCover:function(val){if(!val){var s=this;setTimeout(function(){s.initMap()},100)}},
 },
 methods:{
   initMap:function(){
+    try{
     if(this.map)return;
     this.map=L.map('map',{center:[23.934,112.185],zoom:12,zoomControl:true});
     this.vLayer=L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,keepBuffer:4}).addTo(this.map);
@@ -345,6 +346,7 @@ methods:{
     this.map.on('dblclick',function(e){s.onMd(e)});
     this.map.on('contextmenu',function(e){s.onCtx(e)});
     loadW(this);loadAll(this);
+    }catch(e){console.error(e)}
   },
   setLayer:function(t){if(!this.map)return;if(t==='v'){this.map.removeLayer(this.sLayer);this.vLayer.addTo(this.map)}else{this.map.removeLayer(this.vLayer);this.sLayer.addTo(this.map)}this.blayer=t;this.slayer=false},
   resetMap:function(){if(this.map){this.map.setView([23.934,112.185],12);this.map.closePopup()}},
